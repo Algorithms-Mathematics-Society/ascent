@@ -12,6 +12,8 @@ const config: Config = {
       colors: {
         ascent: {
           bg: "rgb(var(--ascent-bg) / <alpha-value>)",
+          surface: "rgb(var(--ascent-surface) / <alpha-value>)",
+          border: "rgb(var(--ascent-border) / <alpha-value>)",
           panel: "rgb(var(--ascent-panel) / <alpha-value>)",
           accent: "rgb(var(--ascent-accent) / <alpha-value>)",
           "blue-deep": "rgb(var(--ascent-blue-deep) / <alpha-value>)",
@@ -33,17 +35,12 @@ const config: Config = {
         expo: "cubic-bezier(0.16, 1, 0.3, 1)",
       },
       keyframes: {
-        ascentGridDrift: {
-          "0%": { transform: "translate3d(0, 0, 0)" },
-          "100%": { transform: "translate3d(0, 56px, 0)" },
-        },
         ascentGlow: {
-          "0%, 100%": { opacity: "0.55", transform: "scale(1)" },
-          "50%": { opacity: "0.9", transform: "scale(1.04)" },
+          "0%, 100%": { opacity: "0.7", transform: "scale(1)" },
+          "50%": { opacity: "1", transform: "scale(1.04)" },
         },
       },
       animation: {
-        "grid-drift": "ascentGridDrift 36s linear infinite",
         glow: "ascentGlow 8s ease-in-out infinite",
       },
     },

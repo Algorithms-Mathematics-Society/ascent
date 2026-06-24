@@ -102,10 +102,10 @@ function CodeConsole() {
   return (
     <div className="glass-card overflow-hidden font-mono text-[13px] leading-relaxed">
       {/* Title bar */}
-      <div className="flex items-center gap-2 border-b border-white/10 bg-white/5 px-4 py-3">
-        <span className="h-3 w-3 rounded-full bg-red-400/70" aria-hidden="true" />
-        <span className="h-3 w-3 rounded-full bg-yellow-400/70" aria-hidden="true" />
-        <span className="h-3 w-3 rounded-full bg-green-400/70" aria-hidden="true" />
+      <div className="flex items-center gap-2 border-b border-slate-200 bg-slate-50 px-4 py-3">
+        <span className="h-3 w-3 rounded-full bg-red-400" aria-hidden="true" />
+        <span className="h-3 w-3 rounded-full bg-yellow-400" aria-hidden="true" />
+        <span className="h-3 w-3 rounded-full bg-green-400" aria-hidden="true" />
         <span className="ml-2 text-xs text-ascent-muted">main.cpp</span>
       </div>
 
@@ -140,7 +140,7 @@ function CodeConsole() {
       </pre>
 
       {/* Terminal */}
-      <div className="border-t border-white/10 bg-black/40 px-4 py-3 text-xs">
+      <div className="border-t border-slate-200 bg-slate-50 px-4 py-3 text-xs">
         <p className="text-ascent-muted">
           <span className="text-ascent-accent">$</span> g++ -O2 -std=c++20 main.cpp -o sol
         </p>
@@ -148,8 +148,8 @@ function CodeConsole() {
           <span className="text-ascent-accent">$</span> ./sol &lt; sample.in
         </p>
         <p
-          className="mt-2 inline-flex items-center gap-2 rounded-md border border-green-400/30 bg-green-400/10 px-2.5 py-1 font-semibold text-green-300"
-          style={{ boxShadow: "0 0 24px -4px rgb(59 130 246 / 0.6)" }}
+          className="mt-2 inline-flex items-center gap-2 rounded-md border border-green-600/30 bg-green-50 px-2.5 py-1 font-semibold text-green-700"
+          style={{ boxShadow: "0 0 22px -6px rgb(37 99 235 / 0.35)" }}
         >
           Accepted ✓
           <span className="font-normal text-ascent-muted">· 12 ms · 3.1 MB</span>
@@ -171,8 +171,7 @@ export default function Home() {
       <main id="top">
         {/* ============================ HERO ============================ */}
         <section className="relative isolate overflow-hidden px-4 pb-20 pt-32 sm:px-6 lg:px-8 lg:pt-40">
-          {/* Ambient background */}
-          <div className="ascent-grid" aria-hidden="true" />
+          {/* Ambient background — soft blue glow (no grid) */}
           <div
             className="ascent-glow left-1/2 top-0 h-[480px] w-[680px] -translate-x-1/2"
             aria-hidden="true"
@@ -181,7 +180,7 @@ export default function Home() {
           <div className="relative mx-auto grid min-h-[90vh] max-w-7xl items-center gap-12 lg:grid-cols-2">
             {/* Copy */}
             <div>
-              <span className="inline-flex items-center gap-2 rounded-full border border-ascent-accent/30 bg-ascent-accent/10 px-3 py-1 font-mono text-xs font-medium text-ascent-cyan">
+              <span className="inline-flex items-center gap-2 rounded-full border border-ascent-accent/30 bg-ascent-accent/10 px-3 py-1 font-mono text-xs font-medium text-ascent-accent">
                 <Cpu aria-hidden="true" className="h-3.5 w-3.5" />
                 AMS · C++ Competitive Programming
               </span>
@@ -310,7 +309,7 @@ export default function Home() {
           <div className="mt-12 grid gap-6 md:grid-cols-3">
             {TRACKS.map(({ badge, title, body }) => (
               <div key={title} className="glass-card flex flex-col p-6">
-                <span className="inline-flex w-fit items-center rounded-full border border-ascent-accent/30 bg-ascent-accent/10 px-2.5 py-1 font-mono text-xs font-semibold text-ascent-cyan">
+                <span className="inline-flex w-fit items-center rounded-full border border-ascent-accent/30 bg-ascent-accent/10 px-2.5 py-1 font-mono text-xs font-semibold text-ascent-accent">
                   {badge}
                 </span>
                 <h3 className="mt-4 text-xl font-semibold text-ascent-ink">
@@ -338,13 +337,13 @@ export default function Home() {
             </h2>
           </div>
 
-          <ol className="mt-12 space-y-px border-l border-white/10 pl-0">
+          <ol className="mt-12 space-y-px border-l border-slate-200 pl-0">
             {TIMELINE.map(({ icon: Icon, phase, date, body }, i) => (
               <li key={phase} className="relative pb-10 pl-10 last:pb-0">
                 {/* Node */}
                 <span
                   aria-hidden="true"
-                  className="absolute -left-[17px] top-0 inline-flex h-8 w-8 items-center justify-center rounded-full border border-ascent-accent/40 bg-ascent-bg text-ascent-accent"
+                  className="absolute -left-[17px] top-0 inline-flex h-8 w-8 items-center justify-center rounded-full border border-ascent-accent/40 bg-white text-ascent-accent shadow-sm"
                 >
                   <Icon className="h-4 w-4" />
                 </span>
@@ -383,7 +382,7 @@ export default function Home() {
             />
 
             <div className="relative mx-auto max-w-2xl">
-              <span className="inline-flex items-center gap-2 rounded-full border border-ascent-accent/30 bg-ascent-accent/10 px-3 py-1 font-mono text-xs font-medium text-ascent-cyan">
+              <span className="inline-flex items-center gap-2 rounded-full border border-ascent-accent/30 bg-ascent-accent/10 px-3 py-1 font-mono text-xs font-medium text-ascent-accent">
                 <Medal aria-hidden="true" className="h-3.5 w-3.5" />
                 Prizes for every division
               </span>

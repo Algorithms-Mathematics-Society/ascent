@@ -38,7 +38,7 @@ const FOOTER_COLUMNS: FooterColumn[] = [
  */
 export default function Footer() {
   return (
-    <footer className="border-t border-white/10 bg-ascent-bg">
+    <footer className="border-t border-slate-200 bg-slate-50">
       <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
         <div className="grid grid-cols-2 gap-x-8 gap-y-10 md:grid-cols-4">
           {/* Brand column */}
@@ -82,7 +82,7 @@ export default function Footer() {
         </div>
 
         {/* Bottom row */}
-        <div className="mt-12 flex flex-col gap-2 border-t border-white/10 pt-6 text-xs text-ascent-muted sm:flex-row sm:items-center sm:justify-between">
+        <div className="mt-12 flex flex-col gap-2 border-t border-slate-200 pt-6 text-xs text-ascent-muted sm:flex-row sm:items-center sm:justify-between">
           <p>&copy; 2026 AMS Ascent. All rights reserved.</p>
           <p className="font-mono">
             Built for the C++ community · An AMS event.

@@ -30,7 +30,7 @@ export default function Navbar() {
   }, [open]);
 
   return (
-    <header className="fixed inset-x-0 top-0 z-50 h-16 border-b border-white/10 bg-ascent-bg/70 backdrop-blur-xl">
+    <header className="fixed inset-x-0 top-0 z-50 h-16 border-b border-slate-200 bg-white/80 backdrop-blur-md">
       <nav
         aria-label="Primary"
         className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8"
@@ -75,7 +75,7 @@ export default function Navbar() {
             aria-expanded={open}
             aria-controls="mobile-nav"
             aria-label={open ? "Close menu" : "Open menu"}
-            className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-white/10 bg-white/5 text-ascent-ink transition-colors duration-150 ease-expo hover:border-ascent-accent/50 hover:bg-white/10 lg:hidden"
+            className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 bg-white text-ascent-ink transition-colors duration-150 ease-expo hover:border-slate-300 hover:bg-slate-50 lg:hidden"
           >
             {open ? (
               <X aria-hidden="true" className="h-5 w-5" />
@@ -90,7 +90,7 @@ export default function Navbar() {
       {open && (
         <div
           id="mobile-nav"
-          className="border-b border-white/10 bg-ascent-bg/95 backdrop-blur-xl lg:hidden"
+          className="border-b border-slate-200 bg-white/95 backdrop-blur-md lg:hidden"
         >
           <ul className="mx-auto flex max-w-7xl flex-col gap-1 px-4 py-3 sm:px-6">
             {NAV_LINKS.map((link) => (
@@ -98,7 +98,7 @@ export default function Navbar() {
                 <a
                   href={link.href}
                   onClick={() => setOpen(false)}
-                  className="block rounded-lg px-3 py-2.5 text-sm font-medium text-ascent-muted transition-colors duration-150 ease-expo hover:bg-white/5 hover:text-ascent-ink focus-visible:bg-white/5 focus-visible:text-ascent-ink"
+                  className="block rounded-lg px-3 py-2.5 text-sm font-medium text-ascent-muted transition-colors duration-150 ease-expo hover:bg-slate-50 hover:text-ascent-ink focus-visible:bg-slate-50 focus-visible:text-ascent-ink"
                 >
                   {link.label}
                 </a>

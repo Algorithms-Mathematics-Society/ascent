@@ -170,7 +170,7 @@ export default function Home() {
 
       <main id="top">
         {/* ============================ HERO ============================ */}
-        <section className="relative isolate overflow-hidden px-4 pb-24 pt-36 sm:px-6 lg:px-8 lg:pt-44">
+        <section className="relative isolate min-h-[100svh] overflow-hidden px-4 pb-24 pt-36 sm:px-6 lg:px-8 lg:pt-44">
           <div className="relative mx-auto grid max-w-7xl items-center gap-12 lg:grid-cols-2">
             {/* Copy */}
             <div>

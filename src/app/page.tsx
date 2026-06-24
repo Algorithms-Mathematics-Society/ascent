@@ -170,8 +170,8 @@ export default function Home() {
 
       <main id="top">
         {/* ============================ HERO ============================ */}
-        <section className="relative isolate overflow-hidden px-4 pb-20 pt-32 sm:px-6 lg:px-8 lg:pt-40">
-          <div className="relative mx-auto grid min-h-[90vh] max-w-7xl items-center gap-12 lg:grid-cols-2">
+        <section className="relative isolate overflow-hidden px-4 pb-20 pt-28 sm:px-6 lg:px-8">
+          <div className="relative mx-auto grid max-w-7xl items-center gap-12 lg:grid-cols-2">
             {/* Copy */}
             <div>
               <span className="inline-flex items-center gap-2 rounded-full border border-ascent-accent/30 bg-ascent-accent/10 px-3 py-1 font-mono text-xs font-medium text-ascent-accent">

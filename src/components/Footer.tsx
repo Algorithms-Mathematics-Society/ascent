@@ -55,7 +55,7 @@ export default function Footer() {
             </a>
             <p className="mt-3 max-w-xs text-sm leading-relaxed text-ascent-muted">
               A C++ competitive-programming ascent — climb from your first
-              `g++` build to the algorithmic summit.
+              <span className="font-mono text-ascent-cyan">g++</span> build to the algorithmic summit.
             </p>
           </div>
 

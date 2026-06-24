@@ -34,15 +34,6 @@ const config: Config = {
       transitionTimingFunction: {
         expo: "cubic-bezier(0.16, 1, 0.3, 1)",
       },
-      keyframes: {
-        ascentGlow: {
-          "0%, 100%": { opacity: "0.7", transform: "scale(1)" },
-          "50%": { opacity: "1", transform: "scale(1.04)" },
-        },
-      },
-      animation: {
-        glow: "ascentGlow 8s ease-in-out infinite",
-      },
     },
   },
   plugins: [],

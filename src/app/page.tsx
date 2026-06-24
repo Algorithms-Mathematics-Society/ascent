@@ -171,12 +171,6 @@ export default function Home() {
       <main id="top">
         {/* ============================ HERO ============================ */}
         <section className="relative isolate overflow-hidden px-4 pb-20 pt-32 sm:px-6 lg:px-8 lg:pt-40">
-          {/* Ambient background — soft blue glow (no grid) */}
-          <div
-            className="ascent-glow left-1/2 top-0 h-[480px] w-[680px] -translate-x-1/2"
-            aria-hidden="true"
-          />
-
           <div className="relative mx-auto grid min-h-[90vh] max-w-7xl items-center gap-12 lg:grid-cols-2">
             {/* Copy */}
             <div>
@@ -376,11 +370,6 @@ export default function Home() {
             id="register"
             className="glass-card relative isolate overflow-hidden p-10 text-center sm:p-16"
           >
-            <div
-              className="ascent-glow left-1/2 top-1/2 h-[360px] w-[520px] -translate-x-1/2 -translate-y-1/2"
-              aria-hidden="true"
-            />
-
             <div className="relative mx-auto max-w-2xl">
               <span className="inline-flex items-center gap-2 rounded-full border border-ascent-accent/30 bg-ascent-accent/10 px-3 py-1 font-mono text-xs font-medium text-ascent-accent">
                 <Medal aria-hidden="true" className="h-3.5 w-3.5" />

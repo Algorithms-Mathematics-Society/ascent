@@ -168,26 +168,7 @@
 }
 
 /* ------------------------------------------------------------
-   Utilities — soft hero glow (background grid removed)
-   ------------------------------------------------------------ */
-@layer utilities {
-  /* Soft breathing blue radial glow — a light blue wash on white. */
-  .ascent-glow {
-    position: absolute;
-    border-radius: 9999px;
-    background: radial-gradient(
-      circle,
-      rgb(var(--ascent-accent) / 0.16),
-      transparent 70%
-    );
-    filter: blur(64px);
-    will-change: transform, opacity;
-    animation: ascentGlow 8s ease-in-out infinite;
-  }
-}
-
-/* ------------------------------------------------------------
-   Reduced motion — off-switch for every ambient animation.
+   Reduced motion — off-switch for ambient animation.
    ------------------------------------------------------------ */
 @media (prefers-reduced-motion: reduce) {
   *,
@@ -197,9 +178,5 @@
     animation-iteration-count: 1 !important;
     transition-duration: 0.001ms !important;
     scroll-behavior: auto !important;
-  }
-
-  .ascent-glow {
-    animation: none !important;
   }
 }

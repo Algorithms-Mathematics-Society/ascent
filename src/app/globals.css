@@ -107,25 +107,17 @@
     font-size: 0.9375rem;
   }
 
-  /* Primary — blue gradient CTA, white text */
+  /* Primary — solid near-black, white text (AMS Access style) */
   .ascent-btn-primary {
     color: #ffffff;
-    background-image: linear-gradient(
-      135deg,
-      rgb(var(--ascent-accent-bright)),
-      rgb(var(--ascent-accent))
-    );
-    border-color: rgb(var(--ascent-blue-deep) / 0.4);
-    box-shadow:
-      inset 0 1px 0 rgb(255 255 255 / 0.25),
-      0 10px 24px -10px rgb(var(--ascent-accent) / 0.6);
+    background-color: #020617; /* slate-950 */
+    border-color: #020617;
+    box-shadow: 0 12px 28px rgb(15 23 42 / 0.14);
   }
 
   .ascent-btn-primary:hover {
-    box-shadow:
-      inset 0 1px 0 rgb(255 255 255 / 0.3),
-      0 14px 30px -10px rgb(var(--ascent-accent) / 0.75);
-    transform: translateY(-1px);
+    background-color: #1e293b; /* slate-800 */
+    border-color: #1e293b;
   }
 
   /* Secondary — white with slate border */

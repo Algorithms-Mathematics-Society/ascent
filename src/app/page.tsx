@@ -4,7 +4,6 @@ import {
   Cpu,
   Flag,
   ListChecks,
-  Medal,
   Timer,
   Trophy,
   Users,
@@ -174,12 +173,7 @@ export default function Home() {
           <div className="relative mx-auto grid max-w-7xl items-center gap-12 lg:grid-cols-2">
             {/* Copy */}
             <div>
-              <span className="inline-flex items-center gap-2 rounded-full border border-ascent-accent/30 bg-ascent-accent/10 px-3 py-1 font-mono text-xs font-medium text-ascent-accent">
-                <Cpu aria-hidden="true" className="h-3.5 w-3.5" />
-                AMS · C++ Competitive Programming
-              </span>
-
-              <h1 className="mt-6 text-4xl font-bold leading-[1.05] tracking-tight text-ascent-ink sm:text-5xl lg:text-6xl">
+              <h1 className="text-4xl font-bold leading-[1.05] tracking-tight text-ascent-ink sm:text-5xl lg:text-6xl">
                 Climb the
                 <br />
                 <span className="bg-gradient-to-r from-ascent-accent to-ascent-cyan bg-clip-text text-transparent">
@@ -303,10 +297,10 @@ export default function Home() {
           <div className="mt-12 grid gap-6 md:grid-cols-3">
             {TRACKS.map(({ badge, title, body }) => (
               <div key={title} className="glass-card flex flex-col p-6">
-                <span className="inline-flex w-fit items-center rounded-full border border-ascent-accent/30 bg-ascent-accent/10 px-2.5 py-1 font-mono text-xs font-semibold text-ascent-accent">
+                <span className="font-mono text-xs font-semibold uppercase tracking-wider text-ascent-accent">
                   {badge}
                 </span>
-                <h3 className="mt-4 text-xl font-semibold text-ascent-ink">
+                <h3 className="mt-2 text-xl font-semibold text-ascent-ink">
                   {title}
                 </h3>
                 <p className="mt-2 text-sm leading-relaxed text-ascent-muted">
@@ -371,12 +365,7 @@ export default function Home() {
             className="glass-card relative isolate overflow-hidden p-10 text-center sm:p-16"
           >
             <div className="relative mx-auto max-w-2xl">
-              <span className="inline-flex items-center gap-2 rounded-full border border-ascent-accent/30 bg-ascent-accent/10 px-3 py-1 font-mono text-xs font-medium text-ascent-accent">
-                <Medal aria-hidden="true" className="h-3.5 w-3.5" />
-                Prizes for every division
-              </span>
-
-              <h2 className="mt-6 text-3xl font-bold tracking-tight text-ascent-ink sm:text-4xl">
+              <h2 className="text-3xl font-bold tracking-tight text-ascent-ink sm:text-4xl">
                 Ready to start the climb?
               </h2>
               <p className="mt-4 text-lg leading-relaxed text-ascent-muted">

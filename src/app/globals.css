@@ -144,7 +144,7 @@
   /* Secondary — white with slate border */
   .ascent-btn-secondary {
     color: rgb(var(--ascent-muted));
-    background-color: #ffffff;
+    background-color: rgb(var(--ascent-bg));
     border-color: rgb(var(--ascent-border));
     box-shadow: 0 1px 2px rgb(15 23 42 / 0.04);
   }
@@ -160,7 +160,7 @@
     position: relative;
     border-radius: 16px;
     border: 1px solid rgb(var(--ascent-border));
-    background-color: #ffffff;
+    background-color: rgb(var(--ascent-bg));
     box-shadow:
       0 1px 2px rgb(15 23 42 / 0.04),
       0 14px 36px -18px rgb(15 23 42 / 0.16);

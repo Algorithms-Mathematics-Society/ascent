@@ -1,33 +1,40 @@
 // src/components/sections/HeroBackdrop.tsx
 /**
- * Ambient hero backdrop: a logarithmic spiral converging to a point — an
- * optimization path spiralling into the minimum — over faint topographic rings,
- * with a soft convergence glow. Edge-masked so it floats (no corner clipping)
- * and slowly rotating so it feels alive. Subordinate by design; the real motion
- * is the flow field + the benchmark. Also the static fallback when WebGL is off.
+ * Ambient hero backdrop: a faint memory / cache-line grid — C++'s manual-memory
+ * model rendered as cells. Contiguous lit runs read as cache lines loaded
+ * sequentially (the row-major "cache hit"); scattered lit cells read as strided
+ * misses — the same story the benchmark card tells. A pointer arrow crosses the
+ * grid (indirection) and one faint address grounds it as memory. Blue family,
+ * low contrast, edge-masked so it floats. Subordinate by design (the real
+ * motion is the flow field + benchmark), and the static fallback when WebGL is
+ * off.
  */
 
-// Build a logarithmic spiral path (r = a·e^{bθ}) centered in the 600×600 box.
-function spiralPath(): string {
-  const cx = 300;
-  const cy = 300;
-  const a = 2.4;
-  const b = 0.205;
-  const turns = 3.6;
-  const steps = 320;
-  let d = "";
-  for (let i = 0; i <= steps; i++) {
-    const th = (i / steps) * turns * 2 * Math.PI;
-    const r = a * Math.exp(b * th);
-    const x = cx + r * Math.cos(th);
-    const y = cy + r * Math.sin(th);
-    d += `${i === 0 ? "M" : "L"}${x.toFixed(1)} ${y.toFixed(1)} `;
-  }
-  return d.trim();
-}
+const COLS = 14;
+const ROWS = 9;
+const CELL = 20;
+const GAP = 5;
+const STEP = CELL + GAP;
+const TOP = 18; // leave room for the address label
+const GRID_W = COLS * STEP - GAP;
+
+// Lit cells: contiguous runs = cache lines (hits); scattered singles = misses.
+const cellLit = (r: number, c: number): "hit" | "miss" | null => {
+  if (r === 2 && c >= 1 && c <= 9) return "hit";
+  if (r === 5 && c >= 4 && c <= 11) return "hit";
+  if ((r === 7 && c === 2) || (r === 7 && c === 6) || (r === 7 && c === 11))
+    return "miss";
+  return null;
+};
+
+const center = (c: number, r: number) => ({
+  x: c * STEP + CELL / 2,
+  y: TOP + r * STEP + CELL / 2,
+});
 
 export default function HeroBackdrop() {
-  const d = spiralPath();
+  const a = center(11, 0); // pointer source
+  const b = center(4, 5); // → into the second cache line
   return (
     <div
       aria-hidden="true"
@@ -49,51 +56,90 @@ export default function HeroBackdrop() {
             "radial-gradient(closest-side, rgb(var(--ascent-accent) / 0.07), transparent)",
         }}
       />
-      {/* Optimization spiral — converges to the minimum */}
+      {/* Memory / cache-line grid */}
       <div
-        className="absolute right-[1%] top-[12%] h-[40rem] w-[40rem]"
+        className="absolute right-[3%] top-[15%] w-[30rem] max-w-[46%]"
         style={{
           maskImage:
-            "radial-gradient(circle at center, black 34%, transparent 78%)",
+            "radial-gradient(120% 120% at 70% 35%, black 40%, transparent 88%)",
           WebkitMaskImage:
-            "radial-gradient(circle at center, black 34%, transparent 78%)",
+            "radial-gradient(120% 120% at 70% 35%, black 40%, transparent 88%)",
         }}
       >
-        {/* convergence glow at the center (the minimum) */}
-        <div
-          className="absolute left-1/2 top-1/2 h-40 w-40 -translate-x-1/2 -translate-y-1/2 rounded-full blur-2xl"
-          style={{
-            background:
-              "radial-gradient(closest-side, rgb(var(--ascent-accent) / 0.2), transparent)",
-          }}
-        />
         <svg
-          viewBox="0 0 600 600"
+          viewBox={`0 0 ${GRID_W} ${TOP + ROWS * STEP}`}
           fill="none"
-          className="ascent-spin h-full w-full"
-          style={{ transformOrigin: "center" }}
+          className="h-full w-full"
         >
-          {/* faint topographic rings (rotation-invariant) */}
-          {[70, 130, 195, 255].map((r, i) => (
-            <circle
-              key={r}
-              cx={300}
-              cy={300}
-              r={r}
-              stroke="rgb(var(--ascent-accent))"
-              strokeOpacity={Math.max(0.03, 0.15 - i * 0.03)}
-              strokeWidth={1}
-            />
-          ))}
-          {/* converging spiral */}
-          <path
-            d={d}
+          <defs>
+            <marker
+              id="ptr"
+              markerWidth="6"
+              markerHeight="6"
+              refX="4"
+              refY="3"
+              orient="auto"
+            >
+              <path
+                d="M0 0 L5 3 L0 6 z"
+                fill="rgb(var(--ascent-accent))"
+                fillOpacity={0.4}
+              />
+            </marker>
+          </defs>
+
+          {/* faint address label — grounds it as memory */}
+          <text
+            x={0}
+            y={11}
+            fontFamily="var(--font-jetbrains), monospace"
+            fontSize={9}
+            fill="rgb(var(--ascent-accent))"
+            fillOpacity={0.22}
+            letterSpacing="1"
+          >
+            0x7ffe1a3c
+          </text>
+
+          {/* cells */}
+          {Array.from({ length: ROWS }).map((_, r) =>
+            Array.from({ length: COLS }).map((__, c) => {
+              const lit = cellLit(r, c);
+              return (
+                <rect
+                  key={`${r}-${c}`}
+                  x={c * STEP}
+                  y={TOP + r * STEP}
+                  width={CELL}
+                  height={CELL}
+                  rx={2}
+                  stroke="rgb(var(--ascent-accent))"
+                  strokeOpacity={0.1}
+                  strokeWidth={1}
+                  fill={
+                    lit === "hit"
+                      ? "rgb(var(--ascent-cyan))"
+                      : lit === "miss"
+                        ? "rgb(var(--ascent-accent))"
+                        : "none"
+                  }
+                  fillOpacity={lit === "hit" ? 0.16 : lit === "miss" ? 0.12 : 0}
+                />
+              );
+            }),
+          )}
+
+          {/* pointer (indirection) */}
+          <line
+            x1={a.x}
+            y1={a.y}
+            x2={b.x}
+            y2={b.y}
             stroke="rgb(var(--ascent-accent))"
-            strokeOpacity={0.42}
-            strokeWidth={1.1}
+            strokeOpacity={0.3}
+            strokeWidth={1}
+            markerEnd="url(#ptr)"
           />
-          {/* the minimum */}
-          <circle cx={300} cy={300} r={3} fill="rgb(var(--ascent-cyan))" />
         </svg>
       </div>
     </div>

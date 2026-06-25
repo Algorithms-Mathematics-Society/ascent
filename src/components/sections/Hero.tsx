@@ -1,10 +1,13 @@
 // src/components/sections/Hero.tsx
 import { Button } from "@/components/ui";
 import { HERO_STATS } from "@/content/sections";
+import { site } from "@/content/site";
 import SpeedupConsole from "./SpeedupConsole";
 import HeroBackdrop from "./HeroBackdrop";
+import Countdown from "./Countdown";
 
 export default function Hero() {
+  const { proof, registration } = site;
   return (
     <section className="relative isolate flex min-h-[100svh] flex-col justify-center overflow-hidden px-4 pb-24 pt-28 sm:px-6 sm:pt-32 lg:px-8 lg:pt-36">
       <HeroBackdrop />
@@ -14,7 +17,7 @@ export default function Hero() {
           <h1 className="text-4xl font-bold leading-[1.05] tracking-tight text-ascent-ink sm:text-5xl lg:text-6xl">
             The ascent is
             <br />
-            <span className="bg-gradient-to-r from-ascent-accent to-ascent-cyan bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-ascent-accent-bright to-ascent-cyan bg-clip-text text-transparent">
               measured in milliseconds.
             </span>
           </h1>
@@ -26,7 +29,7 @@ export default function Hero() {
             world. The fastest correct solution climbs.
           </p>
 
-          <div className="mt-9 flex flex-wrap items-center gap-3">
+          <div className="mt-8 flex flex-wrap items-center gap-3">
             <Button href="#register" size="lg">
               Register
             </Button>
@@ -35,7 +38,7 @@ export default function Hero() {
             </Button>
           </div>
 
-          <dl className="mt-12 flex flex-wrap gap-x-10 gap-y-4 font-mono">
+          <dl className="mt-8 flex flex-wrap gap-x-10 gap-y-4 font-mono">
             {HERO_STATS.map((stat) => (
               <div key={stat.label}>
                 <dt className="text-xs uppercase tracking-wider text-ascent-muted">
@@ -47,6 +50,30 @@ export default function Hero() {
               </div>
             ))}
           </dl>
+
+          {/* Credibility — anchors the lower-left, balances the card.
+              Org track record (honestly attributed to AMS Derive), plus the
+              countdown when a real close date is configured. */}
+          <div className="mt-10 border-t border-ascent-border/70 pt-6">
+            <p className="font-mono text-xs uppercase tracking-wider text-ascent-muted">
+              {proof.lead}
+            </p>
+            <ul className="mt-2 flex flex-wrap items-center gap-x-5 gap-y-1">
+              {proof.stats.map((stat) => (
+                <li key={stat.label} className="flex items-baseline gap-1.5">
+                  <span className="text-sm font-semibold text-ascent-ink">
+                    {stat.value}
+                  </span>
+                  <span className="text-sm text-ascent-muted">{stat.label}</span>
+                </li>
+              ))}
+            </ul>
+            {registration.closeISO ? (
+              <div className="mt-4">
+                <Countdown closeISO={registration.closeISO} />
+              </div>
+            ) : null}
+          </div>
         </div>
 
         {/* Speedup reveal */}

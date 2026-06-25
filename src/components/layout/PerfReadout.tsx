@@ -16,17 +16,19 @@ import { Activity } from "lucide-react";
  * it in (no hydration mismatch).
  */
 export default function PerfReadout() {
-  const [loadMs, setLoadMs] = useState<number | null>(null);
+  const [ttfb, setTtfb] = useState<number | null>(null);
   const [fps, setFps] = useState<number | null>(null);
 
-  // Real one-time load metric from Navigation Timing.
+  // Real latency metric: time-to-first-byte from Navigation Timing. A genuine,
+  // flattering number on a static-prerendered page — and the metric a latency-
+  // minded systems person actually respects (not the vsync frame budget).
   useEffect(() => {
     const nav = performance.getEntriesByType(
       "navigation",
     )[0] as PerformanceNavigationTiming | undefined;
     if (!nav) return;
-    const value = nav.domContentLoadedEventEnd || nav.responseEnd;
-    if (value > 0) setLoadMs(Math.round(value));
+    const value = nav.responseStart - nav.requestStart;
+    if (value >= 0) setTtfb(Math.max(0, Math.round(value)));
   }, []);
 
   // Live fps, calm cadence, paused when hidden.
@@ -69,13 +71,13 @@ export default function PerfReadout() {
   return (
     <div
       className="hidden items-center gap-2 font-mono text-xs text-ascent-muted sm:flex"
-      title="Live: this page's own load time (Navigation Timing) and render fps"
+      title="Live: this page's time-to-first-byte (Navigation Timing) and render fps"
       aria-hidden="true"
     >
       <Activity className="h-3.5 w-3.5 text-ascent-accent" />
       <span className="tabular-nums">
-        <span className="text-ascent-ink">{loadMs ?? "--"}</span>
-        <span className="text-ascent-muted">ms load</span>
+        <span className="text-ascent-ink">{ttfb ?? "--"}</span>
+        <span className="text-ascent-muted">ms ttfb</span>
         <span className="mx-1.5 text-ascent-border">·</span>
         <span className="text-ascent-ink">{fps ?? "--"}</span>
         <span className="text-ascent-muted">fps</span>

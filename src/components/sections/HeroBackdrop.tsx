@@ -20,12 +20,12 @@ export default function HeroBackdrop() {
             "radial-gradient(closest-side, rgb(var(--ascent-accent) / 0.16), transparent)",
         }}
       />
-      {/* Low hot ember — a hint of the speedup accent, kept faint */}
+      {/* Cool depth glow anchoring the lower half (keeps the void from reading flat) */}
       <div
-        className="absolute bottom-[6%] left-[16%] h-[26rem] w-[26rem] rounded-full blur-3xl"
+        className="absolute bottom-[-18%] left-[8%] h-[34rem] w-[40rem] rounded-full blur-3xl"
         style={{
           background:
-            "radial-gradient(closest-side, rgb(var(--ascent-hot) / 0.06), transparent)",
+            "radial-gradient(closest-side, rgb(var(--ascent-accent) / 0.07), transparent)",
         }}
       />
       {/* Summit topography — concentric contours around a peak */}

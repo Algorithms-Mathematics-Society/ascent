@@ -91,7 +91,10 @@ export default function SpeedupConsole() {
     mode === "after" || (mode === "playing" && phase !== "naive");
   const done = mode === "after" || (mode === "playing" && phase === "done");
   const overLimit = ms > LIMIT_MS;
-  const barPct = Math.max(2, (ms / NAIVE_MS) * 100);
+  // Fill grows as the code gets faster — fuller = better. Empty/red while over
+  // the cap, turning accent and filling up as it wins (not a near-empty bar on
+  // a success). 0 at the cache-hostile baseline → ~87% at the optimized result.
+  const barPct = Math.max(0, Math.min(100, (1 - ms / NAIVE_MS) * 100));
   const status =
     mode === "playing" && phase === "naive"
       ? "running…"

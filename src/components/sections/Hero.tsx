@@ -4,7 +4,7 @@ import { HERO_STATS } from "@/content/sections";
 import { site } from "@/content/site";
 import BenchmarkConsole from "./BenchmarkConsole";
 import HeroBackdrop from "./HeroBackdrop";
-import HeroDescent from "./HeroDescent";
+import HeroFlowField from "./HeroFlowField";
 import { HeroFlowProvider } from "./HeroFlowContext";
 import Countdown from "./Countdown";
 
@@ -13,19 +13,9 @@ export default function Hero() {
   return (
     <section className="relative isolate flex min-h-[100svh] flex-col justify-center overflow-hidden px-4 pb-24 pt-28 sm:px-6 sm:pt-32 lg:px-8 lg:pt-36">
       <HeroFlowProvider>
-        {/* CSS base (always on; also the fallback) + 3D descent above it */}
+        {/* CSS base (always on; also the fallback) + WebGL flow field above it */}
         <HeroBackdrop />
-        <HeroDescent />
-        {/* Scrim: the copy always sits on a calm dark bed (same protection the
-            card gets); the landscape lives in the right/negative space. */}
-        <div
-          aria-hidden="true"
-          className="absolute inset-0 -z-10"
-          style={{
-            background:
-              "linear-gradient(to right, rgb(var(--ascent-bg)) 0%, rgb(var(--ascent-bg) / 0.88) 30%, rgb(var(--ascent-bg) / 0.4) 52%, transparent 70%)",
-          }}
-        />
+        <HeroFlowField />
         <div className="relative mx-auto grid max-w-7xl items-center gap-12 lg:grid-cols-2">
         {/* Copy */}
         <div>

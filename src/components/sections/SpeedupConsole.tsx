@@ -5,24 +5,28 @@ import { RotateCcw } from "lucide-react";
 import { Card } from "@/components/ui";
 
 /**
- * The hero's focal artifact: a live "watch it get faster" reveal. A naive
- * O(n²) solution Times-Out, then the optimized O(1) closed form drops the
- * runtime — the number counts down and "Nx faster" ignites in the hot accent.
- * This is the screenshot, the dopamine, and the clearest one-glance answer to
- * "what is Ascent". Plays once on mount; replayable. Reduced-motion → final
- * state, no ticking.
+ * The hero's focal artifact: a live "watch it get faster" reveal. The SAME
+ * computation — summing an N×N matrix — runs cache-hostile (column-major) then
+ * cache-friendly (row-major). Same result, ~8× the speed, purely from memory
+ * access order. That's Ascent's identity: systems performance (cache, layout,
+ * latency), not just the right algorithm.
+ *
+ * Plays once on mount; a Before|After toggle lets you inspect either side, and
+ * replay re-runs it. Reduced-motion → settled "after" state, no ticking.
  */
 
-const NAIVE_MS = 1240;
-const FAST_MS = 12;
+const NAIVE_MS = 1180; // column-major: cache misses, over the 1000ms limit
+const FAST_MS = 148; // row-major: contiguous, comfortably under the limit
 const LIMIT_MS = 1000;
-const SPEEDUP = Math.round(NAIVE_MS / FAST_MS); // 103
+const SPEEDUP = Math.round(NAIVE_MS / FAST_MS); // 8
 
 type Phase = "naive" | "optimizing" | "done";
+type Mode = "playing" | "before" | "after";
 
 const easeOutCubic = (t: number) => 1 - Math.pow(1 - t, 3);
 
 export default function SpeedupConsole() {
+  const [mode, setMode] = useState<Mode>("playing");
   const [phase, setPhase] = useState<Phase>("naive");
   const [ms, setMs] = useState(NAIVE_MS);
   const rafRef = useRef<number | null>(null);
@@ -37,6 +41,7 @@ export default function SpeedupConsole() {
 
   const play = useCallback(() => {
     clearAll();
+    setMode("playing");
     setPhase("naive");
     setMs(NAIVE_MS);
     timerRef.current = window.setTimeout(() => {
@@ -57,24 +62,42 @@ export default function SpeedupConsole() {
     }, 950);
   }, [clearAll]);
 
+  const show = useCallback(
+    (next: "before" | "after") => {
+      clearAll();
+      setMode(next);
+      setMs(next === "before" ? NAIVE_MS : FAST_MS);
+    },
+    [clearAll],
+  );
+
   useEffect(() => {
     const reduce = window.matchMedia?.(
       "(prefers-reduced-motion: reduce)",
     ).matches;
     if (reduce) {
-      setPhase("done");
+      setMode("after");
       setMs(FAST_MS);
       return;
     }
     play();
     return clearAll;
-    // play/clearAll are stable; run the sequence once on mount.
+    // run the sequence once on mount; play/clearAll are stable.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const optimized = phase !== "naive";
+  // Derived display state.
+  const optimized =
+    mode === "after" || (mode === "playing" && phase !== "naive");
+  const done = mode === "after" || (mode === "playing" && phase === "done");
   const overLimit = ms > LIMIT_MS;
   const barPct = Math.max(2, (ms / NAIVE_MS) * 100);
+  const status =
+    mode === "playing" && phase === "naive"
+      ? "running…"
+      : mode === "playing" && phase === "optimizing"
+        ? "optimizing…"
+        : null;
 
   return (
     <Card className="overflow-hidden font-mono text-[13px] leading-relaxed">
@@ -83,7 +106,7 @@ export default function SpeedupConsole() {
         <span className="h-3 w-3 rounded-full bg-red-400/80" aria-hidden="true" />
         <span className="h-3 w-3 rounded-full bg-yellow-400/80" aria-hidden="true" />
         <span className="h-3 w-3 rounded-full bg-green-400/80" aria-hidden="true" />
-        <span className="ml-2 text-xs text-ascent-muted">sum.cpp</span>
+        <span className="ml-2 text-xs text-ascent-muted">matrix_sum.cpp</span>
         <span
           className={`ml-auto rounded px-1.5 py-0.5 text-[11px] font-semibold transition-colors duration-300 ${
             optimized
@@ -91,47 +114,45 @@ export default function SpeedupConsole() {
               : "bg-ascent-muted/10 text-ascent-muted"
           }`}
         >
-          {optimized ? "O(1)" : "O(n²)"}
+          {optimized ? "row-major" : "column-major"}
         </span>
       </div>
 
-      {/* Source */}
+      {/* Source — same result, different memory access order */}
       <pre className="overflow-x-auto px-4 py-4 text-ascent-ink" aria-live="off">
         <code>
-          <span className="text-ascent-muted">{"// "}∑ i(i+1)/2 for i = 1..n</span>
+          <span className="text-ascent-muted">{"// sum an N×N matrix (N = 8192)"}</span>
           {"\n"}
-          <span className="text-ascent-accent">long long</span> solve(
-          <span className="text-ascent-accent">long long</span> n) {"{"}
+          <span className="text-ascent-accent">long long</span> s = 0;
           {"\n"}
           {optimized ? (
             <>
-              {"  "}
-              <span className="text-ascent-cyan">return</span> n * (n + 1) * (n + 2) / 6;
+              <span className="text-ascent-cyan">for</span> (
+              <span className="text-ascent-accent">int</span> i = 0; i &lt; N; ++i)
               {"\n"}
-              <span className="text-ascent-muted">{"  // closed form — no loop"}</span>
+              {"  "}
+              <span className="text-ascent-cyan">for</span> (
+              <span className="text-ascent-accent">int</span> j = 0; j &lt; N; ++j)
+              {"\n"}
+              {"    "}s += a[i][j];{" "}
+              <span className="text-ascent-muted">{"// contiguous → cache hit"}</span>
               {"\n"}
             </>
           ) : (
             <>
-              {"  "}
-              <span className="text-ascent-accent">long long</span> s = 0;
+              <span className="text-ascent-cyan">for</span> (
+              <span className="text-ascent-accent">int</span> j = 0; j &lt; N; ++j)
               {"\n"}
               {"  "}
               <span className="text-ascent-cyan">for</span> (
-              <span className="text-ascent-accent">int</span> i = 1; i &lt;= n; ++i)
+              <span className="text-ascent-accent">int</span> i = 0; i &lt; N; ++i)
               {"\n"}
-              {"    "}
-              <span className="text-ascent-cyan">for</span> (
-              <span className="text-ascent-accent">int</span> j = 1; j &lt;= i; ++j)
-              {"\n"}
-              {"      "}s += j;
-              {"\n"}
-              {"  "}
-              <span className="text-ascent-cyan">return</span> s;
+              {"    "}s += a[i][j];{" "}
+              <span className="text-ascent-muted">{"// strided → cache miss"}</span>
               {"\n"}
             </>
           )}
-          {"}"}
+          <span className="text-ascent-cyan">return</span> s;
         </code>
       </pre>
 
@@ -145,11 +166,15 @@ export default function SpeedupConsole() {
             <div className="mt-0.5 tabular-nums">
               <span className="text-3xl font-semibold text-ascent-ink">{ms}</span>
               <span className="ml-1 text-sm text-ascent-muted">ms</span>
-              <span className="ml-2 text-xs text-ascent-muted">/ {LIMIT_MS} limit</span>
             </div>
+            {done ? (
+              <div className="mt-1 text-xs tabular-nums text-ascent-muted">
+                baseline {NAIVE_MS} ms → {FAST_MS} ms
+              </div>
+            ) : null}
           </div>
 
-          {phase === "done" ? (
+          {done ? (
             <div
               className="text-right text-2xl font-bold text-ascent-hot"
               style={{ textShadow: "0 0 22px rgb(var(--ascent-hot) / 0.55)" }}
@@ -157,13 +182,11 @@ export default function SpeedupConsole() {
               {SPEEDUP}× faster
             </div>
           ) : (
-            <div className="text-right text-xs text-ascent-muted">
-              {phase === "naive" ? "running…" : "optimizing…"}
-            </div>
+            <div className="text-right text-xs text-ascent-muted">{status}</div>
           )}
         </div>
 
-        {/* Time bar */}
+        {/* Time bar (relative to the cache-hostile baseline) */}
         <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-ascent-border/60">
           <div
             className={`h-full rounded-full transition-[width] duration-200 ease-out ${
@@ -173,27 +196,53 @@ export default function SpeedupConsole() {
           />
         </div>
 
-        {/* Verdict + replay */}
-        <div className="mt-3 flex items-center justify-between">
+        {/* Verdict + controls */}
+        <div className="mt-3 flex items-center justify-between gap-3">
           {overLimit ? (
             <span className="inline-flex items-center gap-1.5 rounded-md border border-red-400/30 bg-red-500/10 px-2.5 py-1 text-xs font-semibold text-red-300">
               Time Limit Exceeded
+              <span className="font-normal text-ascent-muted">· {LIMIT_MS} ms cap</span>
             </span>
           ) : (
             <span className="inline-flex items-center gap-1.5 rounded-md border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-1 text-xs font-semibold text-emerald-300">
               Accepted ✓
-              <span className="font-normal text-ascent-muted">· {FAST_MS} ms · 3.1 MB</span>
+              <span className="font-normal text-ascent-muted">· under {LIMIT_MS} ms cap</span>
             </span>
           )}
 
-          <button
-            type="button"
-            onClick={play}
-            className="inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-xs text-ascent-muted transition-colors duration-150 hover:text-ascent-accent focus-visible:text-ascent-accent"
-          >
-            <RotateCcw aria-hidden="true" className="h-3.5 w-3.5" />
-            replay
-          </button>
+          <div className="flex items-center gap-1 text-xs text-ascent-muted">
+            {/* Before | After toggle */}
+            <button
+              type="button"
+              onClick={() => show("before")}
+              aria-pressed={mode === "before"}
+              className={`rounded px-1.5 py-1 transition-colors duration-150 hover:text-ascent-ink ${
+                mode === "before" ? "text-ascent-ink" : ""
+              }`}
+            >
+              before
+            </button>
+            <span className="text-ascent-border">|</span>
+            <button
+              type="button"
+              onClick={() => show("after")}
+              aria-pressed={mode === "after"}
+              className={`rounded px-1.5 py-1 transition-colors duration-150 hover:text-ascent-ink ${
+                mode === "after" ? "text-ascent-ink" : ""
+              }`}
+            >
+              after
+            </button>
+            <button
+              type="button"
+              onClick={play}
+              aria-label="Replay"
+              className="ml-1 inline-flex items-center gap-1.5 rounded px-1.5 py-1 transition-colors duration-150 hover:text-ascent-accent focus-visible:text-ascent-accent"
+            >
+              <RotateCcw aria-hidden="true" className="h-3.5 w-3.5" />
+              replay
+            </button>
+          </div>
         </div>
       </div>
     </Card>

@@ -6,11 +6,11 @@ import ScrollProgress from "./ScrollProgress";
 /**
  * Fixed page-chrome navbar for AMS Ascent, treated as an IDE / terminal status
  * bar: a live performance readout is the signature (the bar demonstrates the
- * speed the contest judges), the hot accent is reserved for the single
- * brightest thing — Register — and a thin scroll-progress "climb" line fills
- * along the bottom edge. Server component; the readout and progress line are
- * the only client islands. Section links were in-page anchors, so they live in
- * the page flow, not here.
+ * speed the contest judges), the Register CTA is the standard blue (one CTA
+ * color site-wide; hot magenta is reserved for speed reveals), and a thin
+ * scroll-progress "climb" line fills along the bottom edge. Server component;
+ * the readout and progress line are the only client islands. Section links were
+ * in-page anchors, so they live in the page flow, not here.
  */
 export default function Navbar() {
   return (
@@ -34,8 +34,8 @@ export default function Navbar() {
         {/* Signature: live performance readout (status-line style) */}
         <PerfReadout />
 
-        {/* The one action that lights up */}
-        <Button href="#register" variant="hot" size="sm">
+        {/* Primary CTA — blue, matching every Register on the site */}
+        <Button href="#register" size="sm">
           Register
         </Button>
       </nav>

@@ -8,17 +8,28 @@ import { Activity } from "lucide-react";
  * IDE / trading-terminal status line. On a contest judged by speed, the bar
  * itself demonstrates speed — the medium is the message.
  *
- * Real, measured frame time + fps via requestAnimationFrame, sampled on a calm
- * ~1s cadence so it stays legible (not a flickering counter) and survives
- * being seen a hundred times. Paused while the tab is hidden, so it costs
- * nothing when unwatched. SSR renders a stable placeholder to avoid hydration
- * mismatch; the client fills it in.
+ * The headline number is a REAL metric — the page's own load time from the
+ * Navigation Timing API — so a systems person can't dismiss it as the vsync
+ * frame budget. Live fps rides along as secondary render flavor. Sampled on a
+ * calm cadence so it stays legible, and paused while the tab is hidden so it
+ * costs nothing unwatched. SSR renders a stable placeholder; the client fills
+ * it in (no hydration mismatch).
  */
 export default function PerfReadout() {
-  const [reading, setReading] = useState<{ ms: number; fps: number } | null>(
-    null,
-  );
+  const [loadMs, setLoadMs] = useState<number | null>(null);
+  const [fps, setFps] = useState<number | null>(null);
 
+  // Real one-time load metric from Navigation Timing.
+  useEffect(() => {
+    const nav = performance.getEntriesByType(
+      "navigation",
+    )[0] as PerformanceNavigationTiming | undefined;
+    if (!nav) return;
+    const value = nav.domContentLoadedEventEnd || nav.responseEnd;
+    if (value > 0) setLoadMs(Math.round(value));
+  }, []);
+
+  // Live fps, calm cadence, paused when hidden.
   useEffect(() => {
     let raf = 0;
     let frames = 0;
@@ -28,14 +39,12 @@ export default function PerfReadout() {
       frames += 1;
       const elapsed = now - windowStart;
       if (elapsed >= 1000) {
-        const fps = Math.round((frames * 1000) / elapsed);
-        setReading({ fps, ms: Math.round((elapsed / frames) * 10) / 10 });
+        setFps(Math.round((frames * 1000) / elapsed));
         frames = 0;
         windowStart = now;
       }
       raf = requestAnimationFrame(loop);
     };
-
     const start = () => {
       if (raf === 0) {
         frames = 0;
@@ -47,8 +56,7 @@ export default function PerfReadout() {
       if (raf) cancelAnimationFrame(raf);
       raf = 0;
     };
-    const onVisibility = () =>
-      document.hidden ? stop() : start();
+    const onVisibility = () => (document.hidden ? stop() : start());
 
     start();
     document.addEventListener("visibilitychange", onVisibility);
@@ -61,22 +69,16 @@ export default function PerfReadout() {
   return (
     <div
       className="hidden items-center gap-2 font-mono text-xs text-ascent-muted sm:flex"
-      title="Live page frame time — this site practises what it judges"
+      title="Live: this page's own load time (Navigation Timing) and render fps"
       aria-hidden="true"
     >
       <Activity className="h-3.5 w-3.5 text-ascent-accent" />
       <span className="tabular-nums">
-        {reading ? (
-          <>
-            <span className="text-ascent-ink">{reading.ms.toFixed(1)}</span>
-            <span className="text-ascent-muted">ms</span>
-            <span className="mx-1.5 text-ascent-border">·</span>
-            <span className="text-ascent-ink">{reading.fps}</span>
-            <span className="text-ascent-muted">fps</span>
-          </>
-        ) : (
-          <span className="text-ascent-muted">-- ms · -- fps</span>
-        )}
+        <span className="text-ascent-ink">{loadMs ?? "--"}</span>
+        <span className="text-ascent-muted">ms load</span>
+        <span className="mx-1.5 text-ascent-border">·</span>
+        <span className="text-ascent-ink">{fps ?? "--"}</span>
+        <span className="text-ascent-muted">fps</span>
       </span>
       <span
         className="h-1.5 w-1.5 rounded-full bg-ascent-accent"

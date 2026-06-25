@@ -26,8 +26,8 @@ export type FaqItem = { q: string; a: string };
 export type HeroStat = { label: string; value: string };
 
 export const HERO_STATS: HeroStat[] = [
+  { label: "Judged on", value: "Speed" },
   { label: "Standard", value: "C++20" },
-  { label: "Tracks", value: "3 divisions" },
   { label: "Entry", value: "Free" },
 ];
 

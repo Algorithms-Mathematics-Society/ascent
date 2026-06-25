@@ -3,6 +3,7 @@ import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import {
   Hero,
+  CredibilityStrip,
   About,
   Tracks,
   Timeline,
@@ -16,6 +17,7 @@ export default function Home() {
       <Navbar />
       <main id="top">
         <Hero />
+        <CredibilityStrip />
         <About />
         <Tracks />
         <Timeline />

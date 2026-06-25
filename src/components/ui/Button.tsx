@@ -6,7 +6,7 @@ import type {
 } from "react";
 import { cn } from "@/lib/cn";
 
-type Variant = "primary" | "secondary" | "hot";
+type Variant = "primary" | "secondary";
 type Size = "sm" | "md" | "lg";
 
 const SIZE_CLASS: Record<Size, string> = {
@@ -18,7 +18,6 @@ const SIZE_CLASS: Record<Size, string> = {
 const VARIANT_CLASS: Record<Variant, string> = {
   primary: "ascent-btn-primary",
   secondary: "ascent-btn-secondary",
-  hot: "ascent-btn-hot",
 };
 
 type CommonProps = {

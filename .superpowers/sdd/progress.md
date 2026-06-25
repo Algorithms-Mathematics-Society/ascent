@@ -1,14 +1,27 @@
 # AMS Ascent — SDD progress ledger
 
+## Plan: Architecture/Components/Theming Restructure (2026-06-25)
 Branch: ascent-home
-Task 1 base: b49dfe0d286b6fee0979c798cd4f05dc734d1f91
-Task 1: complete (commits b49dfe0..f29c04e, review clean, build PASS)
-  Minor: layout body uses text-white not text-ascent-ink; tailwind animate-* keyframes unused (CSS-driven instead)
-Task 2 base: f29c04e2090995d3dac34d232bbeda503d3c5e74
-Task 2: complete (commits f29c04e..f07f5e0, review clean, tsc PASS)
-  Minor (for final review): Footer blurb shows literal backticks around g++; mobile drawer no focus-trap (polish)
-  Cross-task resolved -> Task 3 must define anchor targets: id="top" near hero, closing CTA section id="register"; footer #rules/#contact/#conduct stay as placeholders
-Task 3 base: f07f5e04b04d53f3aaedb573daa2eb1ac7ead62d
-Task 3: complete (commits f07f5e0..7a0b171, review clean, build PASS static)
-All tasks complete. Outstanding Minor for final wave: Footer literal backticks around g++.
-Final review: Ready to merge. Fix 3a20ad5 (footer backticks). Build PASS static. BRANCH COMPLETE.
+Plan: docs/superpowers/plans/2026-06-25-architecture-restructure.md
+Task 1 base: 9985138
+
+(Prior ledger for original site build archived below — those tasks are DONE and merged; not part of this plan.)
+Task 1: complete (commits 9985138..bcd309e, review clean, tsc PASS)
+Task 2 base: bcd309e
+Task 2: complete (commits bcd309e..a61b40e, review clean, tsc PASS)
+Task 3 base: a61b40e
+Task 3: complete (commits 897cfc3,3e089e4, review clean, build PASS static)
+  Minor (final review): .ascent-btn-secondary:hover uses rgb(203 213 225) slate-300 (no token; matches documented hover:border-slate-300 exception); --ascent-accent-bright has no tailwind entry (pre-existing, harmless)
+Task 4 base: 3e089e4
+Task 4: complete (commits 3e089e4..7b5cf08, review clean, tsc PASS)
+Task 5 base: 7b5cf08
+Task 5: complete (commits 7b5cf08..b21cc11, review clean, tsc PASS; hover:border-slate-300 preserved)
+Task 6 base: b21cc11
+Task 6: complete (commits b21cc11..77b9766, review clean, tsc PASS; FAQ section promotion as approved)
+Task 7 base: 77b9766
+Task 7: complete (commits 77b9766..7862825, review clean, build PASS static)
+  Minor (final review): new files carry leading `// src/...` path comments (cosmetic)
+Task 8 base: 7862825 (verification only)
+Task 8: complete (clean build PASS static; no color literals except documented hover:border-slate-300; all 7 anchors present; page.tsx 28 lines, no content arrays)
+All restructure tasks complete. Proceeding to final whole-branch review.
+Final review: Ready to merge (Yes). Two cosmetic minors fixed in ddbc343. Build PASS static. BRANCH RESTRUCTURE COMPLETE.

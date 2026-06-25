@@ -1,11 +1,13 @@
 // src/components/sections/Hero.tsx
 import { Button } from "@/components/ui";
 import { HERO_STATS } from "@/content/sections";
-import CodeConsole from "./CodeConsole";
+import SpeedupConsole from "./SpeedupConsole";
+import HeroBackdrop from "./HeroBackdrop";
 
 export default function Hero() {
   return (
     <section className="relative isolate flex min-h-[100svh] flex-col justify-center overflow-hidden px-4 pb-24 pt-36 sm:px-6 lg:px-8 lg:pt-44">
+      <HeroBackdrop />
       <div className="relative mx-auto grid max-w-7xl items-center gap-12 lg:grid-cols-2">
         {/* Copy */}
         <div>
@@ -46,9 +48,9 @@ export default function Hero() {
           </dl>
         </div>
 
-        {/* Console */}
+        {/* Speedup reveal */}
         <div className="lg:pl-6">
-          <CodeConsole />
+          <SpeedupConsole />
         </div>
       </div>
     </section>

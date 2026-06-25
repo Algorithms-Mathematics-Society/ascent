@@ -30,7 +30,7 @@ export default function HeroBackdrop() {
       />
       {/* Summit topography — concentric contours around a peak */}
       <svg
-        className="absolute right-0 top-0 h-full w-2/3 opacity-70"
+        className="absolute right-0 top-0 h-full w-2/3 opacity-40"
         viewBox="0 0 600 600"
         fill="none"
         preserveAspectRatio="xMidYMid slice"

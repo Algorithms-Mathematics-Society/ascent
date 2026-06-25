@@ -2,7 +2,7 @@
 import { Button } from "@/components/ui";
 import { HERO_STATS } from "@/content/sections";
 import { site } from "@/content/site";
-import SpeedupConsole from "./SpeedupConsole";
+import BenchmarkConsole from "./BenchmarkConsole";
 import HeroBackdrop from "./HeroBackdrop";
 import Countdown from "./Countdown";
 
@@ -76,9 +76,9 @@ export default function Hero() {
           </div>
         </div>
 
-        {/* Speedup reveal */}
+        {/* Live benchmark — runs on the visitor's own machine */}
         <div className="lg:pl-6">
-          <SpeedupConsole />
+          <BenchmarkConsole />
         </div>
       </div>
     </section>

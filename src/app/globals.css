@@ -185,6 +185,23 @@
 }
 
 /* ------------------------------------------------------------
+   Pulse — draws the eye to the "Run on your machine" trigger.
+   Auto-disabled by the reduced-motion block below.
+   ------------------------------------------------------------ */
+@keyframes ascent-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgb(var(--ascent-accent) / 0);
+  }
+  50% {
+    box-shadow: 0 0 0 4px rgb(var(--ascent-accent) / 0.12);
+  }
+}
+.ascent-pulse {
+  animation: ascent-pulse 2.2s ease-in-out infinite;
+}
+
+/* ------------------------------------------------------------
    Reduced motion — off-switch for ambient animation.
    ------------------------------------------------------------ */
 @media (prefers-reduced-motion: reduce) {

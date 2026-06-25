@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { site } from "@/content/site";
 
 // Self-hosted fonts (no external CDN, no layout shift).
 import "@fontsource/geist-sans/400.css";
@@ -13,9 +14,8 @@ import "@fontsource/jetbrains-mono/700.css";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "AMS Ascent — The C++ Ascent",
-  description:
-    "AMS Ascent is a C++ competitive-programming event. Climb the C++ ladder through algorithmic rounds — from prelims to finals.",
+  title: site.seo.title,
+  description: site.seo.description,
 };
 
 export default function RootLayout({

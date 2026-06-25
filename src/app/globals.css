@@ -144,6 +144,20 @@
     box-shadow: 0 10px 30px -6px rgb(var(--ascent-accent) / 0.6);
   }
 
+  /* Hot — the single "light up" action (reserved for the primary conversion) */
+  .ascent-btn-hot {
+    color: rgb(var(--ascent-bg));
+    background-color: rgb(var(--ascent-hot));
+    border-color: rgb(var(--ascent-hot));
+    box-shadow: 0 8px 24px -6px rgb(var(--ascent-hot) / 0.5);
+  }
+
+  .ascent-btn-hot:hover {
+    background-color: rgb(var(--ascent-hot-bright));
+    border-color: rgb(var(--ascent-hot-bright));
+    box-shadow: 0 10px 30px -6px rgb(var(--ascent-hot) / 0.65);
+  }
+
   /* Secondary — quiet outline on dark, accent edge on hover */
   .ascent-btn-secondary {
     color: rgb(var(--ascent-muted));

@@ -1,10 +1,16 @@
 import { ChevronsUp } from "lucide-react";
 import { Button } from "@/components/ui";
+import PerfReadout from "./PerfReadout";
+import ScrollProgress from "./ScrollProgress";
 
 /**
- * Fixed, frosted page-chrome navbar for AMS Ascent. Wordmark + primary CTA.
- * The section links were in-page anchors on a single-page site, so they live
- * in the page flow (and footer), not here. Server component, no required props.
+ * Fixed page-chrome navbar for AMS Ascent, treated as an IDE / terminal status
+ * bar: a live performance readout is the signature (the bar demonstrates the
+ * speed the contest judges), the hot accent is reserved for the single
+ * brightest thing — Register — and a thin scroll-progress "climb" line fills
+ * along the bottom edge. Server component; the readout and progress line are
+ * the only client islands. Section links were in-page anchors, so they live in
+ * the page flow, not here.
  */
 export default function Navbar() {
   return (
@@ -16,7 +22,7 @@ export default function Navbar() {
         {/* Wordmark */}
         <a
           href="#top"
-          className="group flex items-center gap-2 font-mono text-sm font-bold tracking-tight text-ascent-ink transition-colors duration-150 ease-expo"
+          className="group flex items-center gap-2 font-mono text-sm font-bold tracking-tight text-ascent-ink transition-colors duration-150 ease-expo hover:text-ascent-accent"
         >
           <ChevronsUp
             aria-hidden="true"
@@ -25,11 +31,17 @@ export default function Navbar() {
           <span>AMS&nbsp;Ascent</span>
         </a>
 
-        {/* Primary CTA */}
-        <Button href="#register" size="sm">
+        {/* Signature: live performance readout (status-line style) */}
+        <PerfReadout />
+
+        {/* The one action that lights up */}
+        <Button href="#register" variant="hot" size="sm">
           Register
         </Button>
       </nav>
+
+      {/* Scroll-progress climb line */}
+      <ScrollProgress />
     </header>
   );
 }

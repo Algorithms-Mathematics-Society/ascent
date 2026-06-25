@@ -3,20 +3,41 @@
 @tailwind utilities;
 
 /* ============================================================
-   AMS Ascent — light, blue-forward token system
-   Tokens are space-separated RGB triples (Tailwind <alpha-value>).
+   AMS Ascent — semantic token system (dark-ready)
+   Values are space-separated RGB triples (Tailwind <alpha-value>).
+
+   PRIMITIVE PALETTE (reference — what the semantic tokens map to):
+     white         255 255 255
+     slate-50      248 250 252      slate-200   226 232 240
+     slate-600      71  85 105      slate-800    30  41  59
+     slate-900      15  23  42      slate-950     2   6  23
+     blue-600       37  99 235      blue-500     59 130 246
+     blue-700       29  78 216      cyan-600      8 145 178
+
+   To add dark mode later: copy the `:root` mappings into a
+   `[data-theme="dark"]` block and swap the primitive values.
+   Every color in the app flows through these tokens.
    ============================================================ */
 :root {
-  --ascent-bg: 255 255 255; /* white canvas */
+  /* Surfaces */
+  --ascent-bg: 255 255 255; /* page canvas */
   --ascent-surface: 248 250 252; /* slate-50 — card / panel surface */
+  --ascent-panel: 248 250 252; /* slate-50 (legacy alias of surface) */
   --ascent-border: 226 232 240; /* slate-200 — hairline borders */
-  --ascent-panel: 248 250 252; /* slate-50 (legacy token name) */
-  --ascent-accent: 37 99 235; /* #2563EB — blue-600, readable on white */
-  --ascent-accent-bright: 59 130 246; /* #3B82F6 — blue-500, gradients */
-  --ascent-blue-deep: 29 78 216; /* #1D4ED8 — blue-700, hover */
-  --ascent-cyan: 8 145 178; /* #0891B2 — cyan-600, secondary accent */
+
+  /* Brand / accent */
+  --ascent-accent: 37 99 235; /* blue-600 — primary accent on white */
+  --ascent-accent-bright: 59 130 246; /* blue-500 — gradient stop */
+  --ascent-blue-deep: 29 78 216; /* blue-700 — accent hover */
+  --ascent-cyan: 8 145 178; /* cyan-600 — secondary accent */
+
+  /* Text */
   --ascent-ink: 15 23 42; /* slate-900 — headings / body */
   --ascent-muted: 71 85 105; /* slate-600 — secondary text */
+
+  /* Component tokens (absorb formerly-hardcoded values) */
+  --ascent-btn-primary-bg: 2 6 23; /* slate-950 — primary CTA fill */
+  --ascent-btn-primary-bg-hover: 30 41 59; /* slate-800 — primary CTA hover */
 }
 
 /* ------------------------------------------------------------
@@ -109,15 +130,15 @@
 
   /* Primary — solid near-black, white text (AMS Access style) */
   .ascent-btn-primary {
-    color: #ffffff;
-    background-color: #020617; /* slate-950 */
-    border-color: #020617;
+    color: rgb(var(--ascent-bg));
+    background-color: rgb(var(--ascent-btn-primary-bg));
+    border-color: rgb(var(--ascent-btn-primary-bg));
     box-shadow: 0 12px 28px rgb(15 23 42 / 0.14);
   }
 
   .ascent-btn-primary:hover {
-    background-color: #1e293b; /* slate-800 */
-    border-color: #1e293b;
+    background-color: rgb(var(--ascent-btn-primary-bg-hover));
+    border-color: rgb(var(--ascent-btn-primary-bg-hover));
   }
 
   /* Secondary — white with slate border */

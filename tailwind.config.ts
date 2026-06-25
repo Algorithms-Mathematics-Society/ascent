@@ -20,6 +20,9 @@ const config: Config = {
           cyan: "rgb(var(--ascent-cyan) / <alpha-value>)",
           ink: "rgb(var(--ascent-ink) / <alpha-value>)",
           muted: "rgb(var(--ascent-muted) / <alpha-value>)",
+          "btn-primary": "rgb(var(--ascent-btn-primary-bg) / <alpha-value>)",
+          "btn-primary-hover":
+            "rgb(var(--ascent-btn-primary-bg-hover) / <alpha-value>)",
         },
       },
       fontFamily: {

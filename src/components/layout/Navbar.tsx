@@ -1,15 +1,14 @@
 import { ChevronsUp } from "lucide-react";
 import { Button } from "@/components/ui";
-import PerfReadout from "./PerfReadout";
 import ScrollProgress from "./ScrollProgress";
 
 /**
- * Fixed page-chrome navbar for AMS Ascent, treated as an IDE / terminal status
- * bar: a live performance readout is the signature (the bar demonstrates the
- * speed the contest judges), the Register CTA is the standard blue (one CTA
- * color site-wide; hot magenta is reserved for speed reveals), and a thin
- * scroll-progress "climb" line fills along the bottom edge. Server component;
- * the readout and progress line are the only client islands. Section links were
+ * Fixed page-chrome navbar for AMS Ascent: wordmark + the Register CTA (standard
+ * blue — one CTA color site-wide; hot magenta is reserved for speed reveals),
+ * with a thin scroll-progress "climb" line along the bottom edge. The live
+ * micro-benchmark readout was dropped: a rotating figure on a site about honest
+ * measurement was a credibility risk (it kept reading as not-defensible). Server
+ * component; the progress line is the only client island. Section links were
  * in-page anchors, so they live in the page flow, not here.
  */
 export default function Navbar() {
@@ -30,9 +29,6 @@ export default function Navbar() {
           />
           <span>AMS&nbsp;Ascent</span>
         </a>
-
-        {/* Signature: live performance readout (status-line style) */}
-        <PerfReadout />
 
         {/* Primary CTA — blue, matching every Register on the site */}
         <Button href="#register" size="sm">

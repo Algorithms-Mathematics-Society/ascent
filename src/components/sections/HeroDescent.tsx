@@ -72,19 +72,22 @@ const FRAG = `
   uniform float uHeat;   // 1 = warm (unoptimised), 0 = cool (converged)
   void main(){
     float h = clamp(vH / 2.6, 0.0, 1.0);     // 0 valley → 1 peak
-    vec3 cyan = vec3(0.133, 0.827, 0.933);
-    vec3 blue = vec3(0.376, 0.647, 0.980);
-    vec3 hot  = vec3(1.0, 0.239, 0.443);
-    vec3 valley = mix(blue, cyan, 0.5);
-    vec3 peak   = mix(blue, hot, uHeat);     // peaks cool down when converged
+    // Blue family, desaturated + dark. NO hot magenta here — that colour is
+    // reserved for performance reveals; ambient terrain stays quiet.
+    vec3 deep    = vec3(0.09, 0.15, 0.26);   // dark steel-blue valley base
+    vec3 blue    = vec3(0.28, 0.42, 0.66);   // muted electric blue
+    vec3 warmDim = vec3(0.32, 0.27, 0.30);   // faint warm-grey (far / slow)
+    vec3 valley = mix(deep, blue, 0.55);
+    vec3 peak   = mix(blue, warmDim, uHeat); // faintly warm when slow, cool when converged
     vec3 base = mix(valley, peak, h);
-    // topographic contour lines
+    // subtle topographic contour lines
     float line = abs(fract(vH * 6.0 - uTime * 0.05) - 0.5);
     float glow = 1.0 - smoothstep(0.0, 0.06, line);
-    vec3 col = base + glow * 0.55 * base;
-    // depth fog: distant terrain dissolves into the dark — immersion + edge fade
+    vec3 col = base + glow * 0.3 * base;
+    // depth fog: distant terrain dissolves into the dark
     float fog = smoothstep(9.0, 2.5, vDepth);
-    float alpha = (mix(0.14, 0.44, h) + glow * 0.2) * fog;
+    // low, atmospheric intensity — felt at the edges, never competing with copy
+    float alpha = (mix(0.07, 0.2, h) + glow * 0.1) * fog;
     gl_FragColor = vec4(col, alpha);
   }
 `;
@@ -262,14 +265,14 @@ export default function HeroDescent() {
           const km = 1 - Math.exp((-dt * 1000) / MOUSE_TAU);
           cMx += (tMx - cMx) * km;
           cMy += (tMy - cMy) * km;
-          const az = angle + cMx * 0.5;
-          const radius = 4.3;
+          const az = angle + cMx * 0.45;
+          const radius = 4.4;
           camera.position.set(
-            Math.sin(az) * radius + 0.7,
-            2.25 + cMy * 1.0,
+            Math.sin(az) * radius + 1.0, // biased right — terrain in negative space
+            2.7 + cMy * 0.9, // higher: ridgelines sit lower in frame, off the headline
             Math.cos(az) * radius,
           );
-          camera.lookAt(0, 0.62, 0);
+          camera.lookAt(0.4, 0.45, 0);
 
           // ease heat toward phase target
           uniforms.uTime.value = now * 0.001;

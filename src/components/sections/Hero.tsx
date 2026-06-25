@@ -16,6 +16,16 @@ export default function Hero() {
         {/* CSS base (always on; also the fallback) + 3D descent above it */}
         <HeroBackdrop />
         <HeroDescent />
+        {/* Scrim: the copy always sits on a calm dark bed (same protection the
+            card gets); the landscape lives in the right/negative space. */}
+        <div
+          aria-hidden="true"
+          className="absolute inset-0 -z-10"
+          style={{
+            background:
+              "linear-gradient(to right, rgb(var(--ascent-bg)) 0%, rgb(var(--ascent-bg) / 0.88) 30%, rgb(var(--ascent-bg) / 0.4) 52%, transparent 70%)",
+          }}
+        />
         <div className="relative mx-auto grid max-w-7xl items-center gap-12 lg:grid-cols-2">
         {/* Copy */}
         <div>

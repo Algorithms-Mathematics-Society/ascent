@@ -4,14 +4,19 @@ import { HERO_STATS } from "@/content/sections";
 import { site } from "@/content/site";
 import BenchmarkConsole from "./BenchmarkConsole";
 import HeroBackdrop from "./HeroBackdrop";
+import HeroFlowField from "./HeroFlowField";
+import { HeroFlowProvider } from "./HeroFlowContext";
 import Countdown from "./Countdown";
 
 export default function Hero() {
   const { proof, registration } = site;
   return (
     <section className="relative isolate flex min-h-[100svh] flex-col justify-center overflow-hidden px-4 pb-24 pt-28 sm:px-6 sm:pt-32 lg:px-8 lg:pt-36">
-      <HeroBackdrop />
-      <div className="relative mx-auto grid max-w-7xl items-center gap-12 lg:grid-cols-2">
+      <HeroFlowProvider>
+        {/* CSS base (always on; also the fallback) + WebGL streaks above it */}
+        <HeroBackdrop />
+        <HeroFlowField />
+        <div className="relative mx-auto grid max-w-7xl items-center gap-12 lg:grid-cols-2">
         {/* Copy */}
         <div>
           <h1 className="text-4xl font-bold leading-[1.05] tracking-tight text-ascent-ink sm:text-5xl lg:text-6xl">
@@ -76,11 +81,12 @@ export default function Hero() {
           </div>
         </div>
 
-        {/* Live benchmark — runs on the visitor's own machine */}
-        <div className="lg:pl-6">
-          <BenchmarkConsole />
+          {/* Live benchmark — runs on the visitor's own machine */}
+          <div className="lg:pl-6">
+            <BenchmarkConsole />
+          </div>
         </div>
-      </div>
+      </HeroFlowProvider>
     </section>
   );
 }

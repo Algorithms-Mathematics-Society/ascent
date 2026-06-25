@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Play, RotateCcw } from "lucide-react";
 import { Button, Card } from "@/components/ui";
+import { useHeroFlow } from "./HeroFlowContext";
 
 /**
  * The hero's focal artifact — a REAL cache-locality benchmark run on the
@@ -30,6 +31,12 @@ export default function BenchmarkConsole() {
   const [display, setDisplay] = useState(0);
   const [naiveMs, setNaiveMs] = useState<number | null>(null);
   const [optMs, setOptMs] = useState<number | null>(null);
+
+  // Drive the hero flow field from the benchmark phase (no-op without provider).
+  const { setFlowPhase } = useHeroFlow();
+  useEffect(() => {
+    setFlowPhase(phase);
+  }, [phase, setFlowPhase]);
 
   const workerRef = useRef<Worker | null>(null);
   const rafRef = useRef<number | null>(null);

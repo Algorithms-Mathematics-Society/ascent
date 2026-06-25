@@ -2,7 +2,7 @@
 export type NavLink = { label: string; href: string };
 export type FooterColumn = { heading: string; links: NavLink[] };
 
-/** Single source of truth for brand, navigation, footer and SEO copy. */
+/** Single source of truth for brand, footer and SEO copy. */
 export const site = {
   name: "AMS Ascent",
   tagline:
@@ -12,13 +12,6 @@ export const site = {
     description:
       "AMS Ascent is a C++ competitive-programming event. Climb the C++ ladder through algorithmic rounds — from prelims to finals.",
   },
-  nav: [
-    { label: "About", href: "#about" },
-    { label: "Tracks", href: "#tracks" },
-    { label: "Timeline", href: "#timeline" },
-    { label: "Prizes", href: "#prizes" },
-    { label: "FAQ", href: "#faq" },
-  ] satisfies NavLink[],
   footer: [
     {
       heading: "Event",

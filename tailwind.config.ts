@@ -1,7 +1,7 @@
 import type { Config } from "tailwindcss";
 
 /**
- * AMS Ascent — blue-forward design system.
+ * AMS Ascent — dark, electric design system.
  * Tokens are CSS custom properties holding space-separated RGB triples,
  * consumed here with `<alpha-value>` so `bg-ascent-accent/40` etc. work.
  */
@@ -16,8 +16,11 @@ const config: Config = {
           border: "rgb(var(--ascent-border) / <alpha-value>)",
           panel: "rgb(var(--ascent-panel) / <alpha-value>)",
           accent: "rgb(var(--ascent-accent) / <alpha-value>)",
+          "accent-bright": "rgb(var(--ascent-accent-bright) / <alpha-value>)",
           "blue-deep": "rgb(var(--ascent-blue-deep) / <alpha-value>)",
           cyan: "rgb(var(--ascent-cyan) / <alpha-value>)",
+          hot: "rgb(var(--ascent-hot) / <alpha-value>)",
+          "hot-bright": "rgb(var(--ascent-hot-bright) / <alpha-value>)",
           ink: "rgb(var(--ascent-ink) / <alpha-value>)",
           muted: "rgb(var(--ascent-muted) / <alpha-value>)",
           "btn-primary": "rgb(var(--ascent-btn-primary-bg) / <alpha-value>)",

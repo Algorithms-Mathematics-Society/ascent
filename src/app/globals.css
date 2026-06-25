@@ -3,44 +3,43 @@
 @tailwind utilities;
 
 /* ============================================================
-   AMS Ascent — semantic token system (dark-ready)
+   AMS Ascent — semantic token system (DARK, electric)
    Values are space-separated RGB triples (Tailwind <alpha-value>).
 
-   PRIMITIVE PALETTE (reference — what the semantic tokens map to):
-     white         255 255 255
-     slate-50      248 250 252      slate-200   226 232 240
-     slate-600      71  85 105      slate-800    30  41  59
-     slate-900      15  23  42      slate-950     2   6  23
-     blue-600       37  99 235      blue-500     59 130 246
-     blue-700       29  78 216      cyan-600      8 145 178
+   Identity: near-black canvas, elevated dark surfaces, off-white
+   text. Electric cyan-leaning blue is the restrained signal/glow
+   (the brand, references C++). Hot magenta is reserved STRICTLY for
+   performance / speedup moments ("4.7× faster") — never decoration.
 
-   To add dark mode later: copy the `:root` mappings into a
-   `[data-theme="dark"]` block and swap the primitive values.
-   Most colors flow through these tokens; a flip will catch them.
-   Intentionally left raw (adjust by hand when adding dark mode):
-   the slate-900 shadow tints and the slate-300 secondary-button
-   hover border (`rgb(203 213 225)`), which have no token.
+   Theme is the single source: every color flows through these
+   tokens, so a light variant is a `:root` swap, not a rewrite.
+   Elevation reads via surface lightness + accent glow, NOT dark
+   drop-shadows (which vanish on near-black).
    ============================================================ */
 :root {
-  /* Surfaces */
-  --ascent-bg: 255 255 255; /* page canvas */
-  --ascent-surface: 248 250 252; /* slate-50 — card / panel surface */
-  --ascent-panel: 248 250 252; /* slate-50 (legacy alias of surface) */
-  --ascent-border: 226 232 240; /* slate-200 — hairline borders */
+  /* Surfaces — near-black canvas, elevated dark panels */
+  --ascent-bg: 10 12 18; /* #0a0c12 — near-black, faint cool cast */
+  --ascent-surface: 17 23 34; /* #111722 — elevated card / panel */
+  --ascent-panel: 17 23 34; /* alias of surface */
+  --ascent-border: 30 41 59; /* slate-800 — hairline on dark */
 
-  /* Brand / accent */
-  --ascent-accent: 37 99 235; /* blue-600 — primary accent on white */
-  --ascent-accent-bright: 59 130 246; /* blue-500 — gradient stop */
-  --ascent-blue-deep: 29 78 216; /* blue-700 — accent hover */
-  --ascent-cyan: 8 145 178; /* cyan-600 — secondary accent */
+  /* Brand / accent — electric, cyan-leaning blue */
+  --ascent-accent: 96 165 250; /* blue-400 #60a5fa — electric signal */
+  --ascent-accent-bright: 125 211 252; /* sky-300 #7dd3fc — glow / gradient stop */
+  --ascent-blue-deep: 59 130 246; /* blue-500 #3b82f6 — deeper / hover */
+  --ascent-cyan: 34 211 238; /* cyan-400 #22d3ee — secondary electric */
+
+  /* Hot speedup accent — performance moments ONLY */
+  --ascent-hot: 255 61 113; /* #FF3D71 — hot magenta */
+  --ascent-hot-bright: 255 110 150; /* #ff6e96 — hot glow stop */
 
   /* Text */
-  --ascent-ink: 15 23 42; /* slate-900 — headings / body */
-  --ascent-muted: 71 85 105; /* slate-600 — secondary text */
+  --ascent-ink: 226 232 240; /* slate-200 #e2e8f0 — off-white, not pure */
+  --ascent-muted: 148 163 184; /* slate-400 #94a3b8 — secondary text */
 
-  /* Component tokens (absorb formerly-hardcoded values) */
-  --ascent-btn-primary-bg: 2 6 23; /* slate-950 — primary CTA fill */
-  --ascent-btn-primary-bg-hover: 30 41 59; /* slate-800 — primary CTA hover */
+  /* Component tokens */
+  --ascent-btn-primary-bg: 59 130 246; /* blue-500 — electric CTA fill */
+  --ascent-btn-primary-bg-hover: 96 165 250; /* blue-400 — brighter on hover */
 }
 
 /* ------------------------------------------------------------
@@ -131,42 +130,42 @@
     font-size: 0.9375rem;
   }
 
-  /* Primary — solid near-black, white text (AMS Access style) */
+  /* Primary — electric blue fill, near-black text, subtle glow */
   .ascent-btn-primary {
     color: rgb(var(--ascent-bg));
     background-color: rgb(var(--ascent-btn-primary-bg));
     border-color: rgb(var(--ascent-btn-primary-bg));
-    box-shadow: 0 12px 28px rgb(15 23 42 / 0.14);
+    box-shadow: 0 8px 24px -6px rgb(var(--ascent-accent) / 0.45);
   }
 
   .ascent-btn-primary:hover {
     background-color: rgb(var(--ascent-btn-primary-bg-hover));
     border-color: rgb(var(--ascent-btn-primary-bg-hover));
+    box-shadow: 0 10px 30px -6px rgb(var(--ascent-accent) / 0.6);
   }
 
-  /* Secondary — white with slate border */
+  /* Secondary — quiet outline on dark, accent edge on hover */
   .ascent-btn-secondary {
     color: rgb(var(--ascent-muted));
-    background-color: rgb(var(--ascent-bg));
+    background-color: rgb(var(--ascent-surface) / 0.4);
     border-color: rgb(var(--ascent-border));
-    box-shadow: 0 1px 2px rgb(15 23 42 / 0.04);
   }
 
   .ascent-btn-secondary:hover {
     color: rgb(var(--ascent-ink));
     background-color: rgb(var(--ascent-surface));
-    border-color: rgb(203 213 225); /* slate-300 */
+    border-color: rgb(var(--ascent-accent) / 0.5);
   }
 
-  /* Card ----------------------------------------------------- */
+  /* Card — elevated dark surface; depth via lightness + glow ---- */
   .glass-card {
     position: relative;
     border-radius: 16px;
     border: 1px solid rgb(var(--ascent-border));
-    background-color: rgb(var(--ascent-bg));
+    background-color: rgb(var(--ascent-surface));
     box-shadow:
-      0 1px 2px rgb(15 23 42 / 0.04),
-      0 14px 36px -18px rgb(15 23 42 / 0.16);
+      inset 0 1px 0 0 rgb(255 255 255 / 0.03),
+      0 18px 40px -24px rgb(0 0 0 / 0.7);
     contain: paint;
     transition:
       border-color 300ms ease,
@@ -175,11 +174,13 @@
   }
 
   .glass-card:hover {
-    border-color: rgb(var(--ascent-accent) / 0.4);
+    border-color: rgb(var(--ascent-accent) / 0.45);
     transform: translateY(-1px);
     box-shadow:
-      0 0 0 1px rgb(var(--ascent-accent) / 0.08),
-      0 20px 44px -18px rgb(var(--ascent-accent) / 0.22);
+      inset 0 1px 0 0 rgb(255 255 255 / 0.04),
+      0 0 0 1px rgb(var(--ascent-accent) / 0.12),
+      0 0 28px -4px rgb(var(--ascent-accent) / 0.18),
+      0 18px 40px -24px rgb(0 0 0 / 0.7);
   }
 }
 

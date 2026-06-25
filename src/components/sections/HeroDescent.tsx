@@ -20,8 +20,8 @@ import { useHeroFlow } from "./HeroFlowContext";
  */
 
 const DPR_CAP = 1.5;
-const SEG = 72; // grid resolution (≈10k tris — cheap)
-const DOMAIN = 2.2; // surface extends [-D, D] in x/z
+const SEG = 80; // grid resolution (≈13k tris — cheap)
+const DOMAIN = 2.8; // surface extends [-D, D] in x/z (bigger, fills more)
 const MOUSE_TAU = 240;
 
 // Loss landscape: a bowl (global minimum at origin) + a few Gaussian peaks.
@@ -56,18 +56,22 @@ function grad(x: number, z: number): [number, number] {
 
 const VERT = `
   varying float vH;
+  varying float vDepth;
   void main(){
     vH = position.y;
-    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+    vec4 mv = modelViewMatrix * vec4(position, 1.0);
+    vDepth = -mv.z;                 // view-space distance for depth fog
+    gl_Position = projectionMatrix * mv;
   }
 `;
 const FRAG = `
   precision highp float;
   varying float vH;
+  varying float vDepth;
   uniform float uTime;
   uniform float uHeat;   // 1 = warm (unoptimised), 0 = cool (converged)
   void main(){
-    float h = clamp(vH / 2.4, 0.0, 1.0);     // 0 valley → 1 peak
+    float h = clamp(vH / 2.6, 0.0, 1.0);     // 0 valley → 1 peak
     vec3 cyan = vec3(0.133, 0.827, 0.933);
     vec3 blue = vec3(0.376, 0.647, 0.980);
     vec3 hot  = vec3(1.0, 0.239, 0.443);
@@ -77,8 +81,10 @@ const FRAG = `
     // topographic contour lines
     float line = abs(fract(vH * 6.0 - uTime * 0.05) - 0.5);
     float glow = 1.0 - smoothstep(0.0, 0.06, line);
-    vec3 col = base + glow * 0.5 * base;
-    float alpha = mix(0.10, 0.34, h) + glow * 0.18;
+    vec3 col = base + glow * 0.55 * base;
+    // depth fog: distant terrain dissolves into the dark — immersion + edge fade
+    float fog = smoothstep(9.0, 2.5, vDepth);
+    float alpha = (mix(0.14, 0.44, h) + glow * 0.2) * fog;
     gl_FragColor = vec4(col, alpha);
   }
 `;
@@ -118,7 +124,7 @@ export default function HeroDescent() {
         renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, DPR_CAP));
 
         const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(48, 1, 0.1, 100);
+        const camera = new THREE.PerspectiveCamera(56, 1, 0.1, 100);
 
         // Build the height-field grid as an explicit BufferGeometry.
         const n = SEG + 1;
@@ -163,8 +169,8 @@ export default function HeroDescent() {
 
         // Descent marker + fading trail.
         const marker = new THREE.Mesh(
-          new THREE.SphereGeometry(0.055, 16, 16),
-          new THREE.MeshBasicMaterial({ color: 0xbfe4ff }),
+          new THREE.SphereGeometry(0.075, 16, 16),
+          new THREE.MeshBasicMaterial({ color: 0xcfeaff }),
         );
         scene.add(marker);
         const TRAIL = 60;
@@ -251,19 +257,19 @@ export default function HeroDescent() {
           trailPos[2] = mz;
           trailGeo.attributes.position.needsUpdate = true;
 
-          // camera orbit + cursor parallax
+          // camera orbit + cursor parallax — low, oblique angle reads as 3D
           angle += dt * 0.06;
           const km = 1 - Math.exp((-dt * 1000) / MOUSE_TAU);
           cMx += (tMx - cMx) * km;
           cMy += (tMy - cMy) * km;
-          const az = angle + cMx * 0.35;
-          const radius = 5.2;
+          const az = angle + cMx * 0.5;
+          const radius = 4.3;
           camera.position.set(
-            Math.sin(az) * radius + 0.6,
-            3.4 + cMy * 0.7,
+            Math.sin(az) * radius + 0.7,
+            2.25 + cMy * 1.0,
             Math.cos(az) * radius,
           );
-          camera.lookAt(0, 0.35, 0);
+          camera.lookAt(0, 0.62, 0);
 
           // ease heat toward phase target
           uniforms.uTime.value = now * 0.001;
@@ -327,10 +333,12 @@ export default function HeroDescent() {
       aria-hidden="true"
       className="pointer-events-none absolute inset-0 -z-10 h-full w-full"
       style={{
+        // Radial vignette: the landscape dissolves into the dark on every edge
+        // (floats, not boxed) and stays off the left text column.
         maskImage:
-          "linear-gradient(to right, transparent, black 38%, black 100%)",
+          "radial-gradient(115% 130% at 66% 42%, black 32%, rgba(0,0,0,0.55) 62%, transparent 88%)",
         WebkitMaskImage:
-          "linear-gradient(to right, transparent, black 38%, black 100%)",
+          "radial-gradient(115% 130% at 66% 42%, black 32%, rgba(0,0,0,0.55) 62%, transparent 88%)",
       }}
     />
   );

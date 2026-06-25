@@ -201,6 +201,16 @@
   animation: ascent-pulse 2.2s ease-in-out infinite;
 }
 
+/* Slow rotation for the backdrop spiral — barely perceptible, feels alive. */
+@keyframes ascent-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.ascent-spin {
+  animation: ascent-spin 90s linear infinite;
+}
+
 /* ------------------------------------------------------------
    Reduced motion — off-switch for ambient animation.
    ------------------------------------------------------------ */

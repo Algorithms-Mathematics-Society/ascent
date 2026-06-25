@@ -16,7 +16,10 @@
 
    To add dark mode later: copy the `:root` mappings into a
    `[data-theme="dark"]` block and swap the primitive values.
-   Every color in the app flows through these tokens.
+   Most colors flow through these tokens; a flip will catch them.
+   Intentionally left raw (adjust by hand when adding dark mode):
+   the slate-900 shadow tints and the slate-300 secondary-button
+   hover border (`rgb(203 213 225)`), which have no token.
    ============================================================ */
 :root {
   /* Surfaces */

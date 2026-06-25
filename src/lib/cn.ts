@@ -1,3 +1,4 @@
+// src/lib/cn.ts
 /**
  * Join class name fragments, dropping falsy values.
  * Intentionally dependency-free — no clsx/tailwind-merge needed for this site.

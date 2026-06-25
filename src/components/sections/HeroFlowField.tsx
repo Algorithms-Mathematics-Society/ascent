@@ -24,8 +24,8 @@ const EASE_TAU = 360; // ms — speed/heat ramp smoothness
 const SLOW_MS = 24; // frame time above which we consider stepping down
 const MIN_RENDER_SCALE = 0.6;
 const U_DENSITY = 62.0; // streak count (y-frequency)
-const U_CONTRAST = 3.0; // filament sharpness
-const U_INTENSITY = 0.5; // peak streak alpha (kept subtle for subordination)
+const U_CONTRAST = 2.2; // filament sharpness (lower = fuller/brighter streaks)
+const U_INTENSITY = 0.62; // peak streak alpha when fast
 
 // phase → [targetSpeed, targetHeat]
 function targets(phase: FlowPhase): [number, number] {
@@ -39,7 +39,7 @@ function targets(phase: FlowPhase): [number, number] {
     case "done":
       return [0.7, 0.05]; // lively cool rest
     default:
-      return [0.12, 0.15]; // idle: quiet warm drift
+      return [0.2, 0.2]; // idle: gentle, visible drift
   }
 }
 
@@ -89,11 +89,12 @@ void main(){
 
   // streaks: long in x, thin in y, flowing right
   float s = fbm(vec2(p.x * 1.5 - t * 1.6, yy * uDensity));
-  float fil = pow(smoothstep(0.42, 0.78, s), uContrast);
+  float fil = pow(smoothstep(0.40, 0.72, s), uContrast);
 
-  // subordination: thin behind the left text column, densest upper-right
-  float leftFade = smoothstep(0.02, 0.5, uv.x);
-  float topBias = mix(0.55, 1.0, uv.y);
+  // subordination: thinner (not absent) behind the left text column,
+  // densest upper-right — but kept visible across the whole field
+  float leftFade = mix(0.28, 1.0, smoothstep(0.0, 0.45, uv.x));
+  float topBias = mix(0.7, 1.0, uv.y);
   float mask = leftFade * topBias;
 
   // color: cool electric (fast/right) vs warm magenta (hot/slow/left)
@@ -104,7 +105,8 @@ void main(){
   float warmth = clamp(uHeat * (1.0 - uv.x) + (1.0 - uSpeed) * 0.15, 0.0, 1.0);
   vec3 col = mix(cool, hot, warmth * 0.55);
 
-  float intensity = fil * mask * mix(0.12, uIntensity, uSpeed);
+  // idle floor raised so the field reads on arrival, not only after Run
+  float intensity = fil * mask * mix(0.34, uIntensity, uSpeed);
   gl_FragColor = vec4(col, clamp(intensity, 0.0, 1.0));
 }
 `;
@@ -196,8 +198,8 @@ export default function HeroFlowField() {
     resize();
     window.addEventListener("resize", resize, { passive: true });
 
-    let curSpeed = 0.12;
-    let curHeat = 0.15;
+    let curSpeed = 0.2;
+    let curHeat = 0.2;
     let emaDt = 16;
     let slow = 0;
     let raf = 0;

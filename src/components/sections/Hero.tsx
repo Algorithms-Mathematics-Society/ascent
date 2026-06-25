@@ -4,7 +4,7 @@ import { HERO_STATS } from "@/content/sections";
 import { site } from "@/content/site";
 import BenchmarkConsole from "./BenchmarkConsole";
 import HeroBackdrop from "./HeroBackdrop";
-import HeroFlowField from "./HeroFlowField";
+import HeroDescent from "./HeroDescent";
 import { HeroFlowProvider } from "./HeroFlowContext";
 import Countdown from "./Countdown";
 
@@ -13,9 +13,9 @@ export default function Hero() {
   return (
     <section className="relative isolate flex min-h-[100svh] flex-col justify-center overflow-hidden px-4 pb-24 pt-28 sm:px-6 sm:pt-32 lg:px-8 lg:pt-36">
       <HeroFlowProvider>
-        {/* CSS base (always on; also the fallback) + WebGL streaks above it */}
+        {/* CSS base (always on; also the fallback) + 3D descent above it */}
         <HeroBackdrop />
-        <HeroFlowField />
+        <HeroDescent />
         <div className="relative mx-auto grid max-w-7xl items-center gap-12 lg:grid-cols-2">
         {/* Copy */}
         <div>

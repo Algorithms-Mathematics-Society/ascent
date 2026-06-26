@@ -1,15 +1,11 @@
 import { ChevronsUp } from "lucide-react";
 import { Button } from "@/components/ui";
-import ScrollProgress from "./ScrollProgress";
 
 /**
  * Fixed page-chrome navbar for AMS Ascent: wordmark + the Register CTA (standard
- * blue — one CTA color site-wide; hot magenta is reserved for speed reveals),
- * with a thin scroll-progress "climb" line along the bottom edge. The live
- * micro-benchmark readout was dropped: a rotating figure on a site about honest
- * measurement was a credibility risk (it kept reading as not-defensible). Server
- * component; the progress line is the only client island. Section links were
- * in-page anchors, so they live in the page flow, not here.
+ * blue — one CTA color site-wide; hot magenta is reserved for speed reveals).
+ * Pure server component, no client islands. Section links were in-page anchors,
+ * so they live in the page flow, not here.
  */
 export default function Navbar() {
   return (
@@ -35,9 +31,6 @@ export default function Navbar() {
           Register
         </Button>
       </nav>
-
-      {/* Scroll-progress climb line */}
-      <ScrollProgress />
     </header>
   );
 }

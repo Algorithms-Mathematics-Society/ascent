@@ -157,30 +157,30 @@
     border-color: rgb(var(--ascent-accent) / 0.5);
   }
 
-  /* Card — elevated dark surface; depth via lightness + glow ---- */
+  /* Card — flat dark panel: hairline edge + a machined 1px top highlight.
+     No soft drop-shadow (that's the "SaaS slop" tell on dark); elevation reads
+     from the surface being lighter than the canvas. Tight 10px radius reads
+     engineered, not friendly-bubble. Accent edge on hover. */
   .glass-card {
     position: relative;
-    border-radius: 16px;
+    border-radius: 10px;
     border: 1px solid rgb(var(--ascent-border));
     background-color: rgb(var(--ascent-surface));
-    box-shadow:
-      inset 0 1px 0 0 rgb(255 255 255 / 0.03),
-      0 18px 40px -24px rgb(0 0 0 / 0.7);
+    box-shadow: inset 0 1px 0 0 rgb(255 255 255 / 0.04);
     contain: paint;
     transition:
-      border-color 300ms ease,
-      box-shadow 300ms ease,
-      transform 300ms ease;
+      border-color 200ms ease,
+      box-shadow 200ms ease,
+      transform 200ms ease;
   }
 
   .glass-card:hover {
-    border-color: rgb(var(--ascent-accent) / 0.45);
+    border-color: rgb(var(--ascent-accent) / 0.5);
     transform: translateY(-1px);
     box-shadow:
-      inset 0 1px 0 0 rgb(255 255 255 / 0.04),
+      inset 0 1px 0 0 rgb(255 255 255 / 0.05),
       0 0 0 1px rgb(var(--ascent-accent) / 0.12),
-      0 0 28px -4px rgb(var(--ascent-accent) / 0.18),
-      0 18px 40px -24px rgb(0 0 0 / 0.7);
+      0 0 24px -6px rgb(var(--ascent-accent) / 0.16);
   }
 }
 

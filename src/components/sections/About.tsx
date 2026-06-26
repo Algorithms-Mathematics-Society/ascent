@@ -12,9 +12,17 @@ export default function About() {
           lede="Ascent strips competitive programming back to its core: one language, sharp problems and a live judge. Whether you are landing your first accepted submission or hunting a podium finish, every round is designed to push how you think in C++."
         />
         <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {ABOUT_CARDS.map(({ icon: Icon, title, body }) => (
+          {ABOUT_CARDS.map(({ icon: Icon, title, body }, i) => (
             <Card key={title} className="p-6">
-              <Icon aria-hidden="true" className="h-7 w-7 text-ascent-accent" />
+              <div className="flex items-center justify-between">
+                <Icon
+                  aria-hidden="true"
+                  className="h-7 w-7 text-ascent-accent"
+                />
+                <span className="font-mono text-xs text-ascent-muted">
+                  {String(i + 1).padStart(2, "0")}
+                </span>
+              </div>
               <h3 className="mt-4 text-lg font-semibold text-ascent-ink">
                 {title}
               </h3>

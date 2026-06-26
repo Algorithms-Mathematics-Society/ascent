@@ -19,7 +19,7 @@ export default function Hero() {
         <div className="relative mx-auto grid max-w-7xl items-center gap-12 lg:grid-cols-2">
         {/* Copy */}
         <div>
-          <h1 className="text-4xl font-bold leading-[1.05] tracking-tight text-ascent-ink sm:text-5xl lg:text-6xl">
+          <h1 className="text-4xl font-medium leading-[1.05] tracking-tight text-ascent-ink sm:text-5xl lg:text-6xl">
             The ascent is
             <br />
             <span className="bg-gradient-to-r from-ascent-accent-bright to-ascent-cyan bg-clip-text text-transparent">

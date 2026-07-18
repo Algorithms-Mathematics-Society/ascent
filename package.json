@@ -9,6 +9,7 @@
     "lint": "next lint",
     "test": "vitest run",
     "test:watch": "vitest",
+    "test:rules": "firebase emulators:exec --project=ascent-2026-dev --only firestore,storage \"VITEST_RULES=true vitest run test/rules\"",
     "emulators": "firebase emulators:start",
     "seed:colleges": "tsx scripts/seed-colleges.ts"
   },

@@ -10,6 +10,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:rules": "firebase emulators:exec --project=ascent-2026-dev --only firestore,storage \"VITEST_RULES=true vitest run test/rules\"",
+    "test:emulated": "firebase emulators:exec --project=ascent-2026-dev --only firestore,auth,storage \"VITEST_RULES=true vitest run test/rateLimit.test.ts test/rules --no-file-parallelism\"",
     "emulators": "firebase emulators:start",
     "seed:colleges": "tsx scripts/seed-colleges.ts"
   },

@@ -44,6 +44,10 @@ service cloud.firestore {
       allow read, write: if false;
     }
 
+    match /_rate_limits_search/{id} {
+      allow read, write: if false;
+    }
+
     match /audit_log/{id} {
       allow read, write: if false;
     }

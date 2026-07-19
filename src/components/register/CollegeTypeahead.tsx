@@ -89,7 +89,7 @@ export default function CollegeTypeahead({
                 className="w-full px-4 py-2 text-left text-white hover:bg-white/5"
               >
                 {college.canonical_name}
-                {college.campus ? ` — ${college.campus}` : ""}
+                {college.campus ? `, ${college.campus}` : ""}
               </button>
             </li>
           ))}
@@ -106,7 +106,7 @@ export default function CollegeTypeahead({
       )}
       {markedUnlisted && (
         <p className="text-sm text-ascent-muted">
-          Noted — &quot;{query.trim()}&quot; will be reviewed for the college
+          Noted: &quot;{query.trim()}&quot; will be reviewed for the college
           list.
         </p>
       )}

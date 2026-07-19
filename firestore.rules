@@ -1,0 +1,55 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    match /applications/{uid} {
+      allow read: if request.auth != null && request.auth.uid == uid;
+      allow write: if false;
+    }
+
+    match /colleges/{id} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    match /pii/{uid} {
+      allow read, write: if false;
+    }
+
+    match /handles/{id} {
+      allow read, write: if false;
+    }
+
+    match /phones/{id} {
+      allow read, write: if false;
+    }
+
+    match /consent/{uid} {
+      allow read, write: if false;
+    }
+
+    match /unlisted_college_submissions/{id} {
+      allow read, write: if false;
+    }
+
+    match /_rate_limits/{id} {
+      allow read, write: if false;
+    }
+
+    match /_rate_limits_email/{id} {
+      allow read, write: if false;
+    }
+
+    match /_rate_limits_phone/{id} {
+      allow read, write: if false;
+    }
+
+    match /_rate_limits_search/{id} {
+      allow read, write: if false;
+    }
+
+    match /audit_log/{id} {
+      allow read, write: if false;
+    }
+  }
+}

@@ -10,43 +10,43 @@
 
 ## Global Constraints
 
-- Firestore is the source of truth (not Postgres) — spec deviation #1.
+- Firestore is the source of truth (not Postgres), spec deviation #1.
 - Edition constant: `"ascent-2026"`.
-- Resume upload is in scope now (Stage 2 / profile completion), PDF only, ≤500KB, no transcript field — spec deviation #2.
-- Auth is Google OAuth + Firebase email magic-link (not a typed OTP code) — spec deviation #3.
+- Resume upload is in scope now (Stage 2 / profile completion), PDF only, ≤500KB, no transcript field, spec deviation #2.
+- Auth is Google OAuth + Firebase email magic-link (not a typed OTP code), spec deviation #3.
 - Deny-all Firestore rules by default. Only exceptions: `applications/{uid}` owner-read, `colleges/*` public-read. Everything else (`pii`, `handles`, `phones`, `consent`, `_rate_limits*`, `audit_log`, `unlisted_college_submissions`) is Admin-SDK-only, no client access at all.
 - Storage: `resumes/{uid}/{fileName}` is Admin-SDK-only (`allow read, write: if false` for clients).
 - Every mutating route: server-side re-validation of all client input (never trust client), structured logging (`reqId`, masked email/actor), fail-open on non-critical externals / fail-closed on integrity checks (dedupe, auth, rate-limit lookups).
 - Handle uniqueness via `handles/{edition}_{handleLower}` sentinel doc in the same transaction as `applications/{uid}` creation. Person dedupe via `phones/{edition}_{phoneE164}` sentinel doc at the profile step.
-- College verification (OTP/ID review), the admin console, and Access integration are explicitly out of scope — `determinePath` always receives `UNVERIFIED` for now, so every application currently resolves to `QUALIFIER`.
+- College verification (OTP/ID review), the admin console, and Access integration are explicitly out of scope, `determinePath` always receives `UNVERIFIED` for now, so every application currently resolves to `QUALIFIER`.
 - No placeholder/lorem content; no new UI dependencies beyond what's already in `package.json` (`clsx`, `tailwind-merge`, `lucide-react`) plus the Firebase packages above.
 
 ## File structure
 
 ```
 amsascent/
-  .env.local.example          # NEW — documents every required env var
-  firebase.json                # NEW — emulator + rules config
-  .firebaserc                  # NEW — placeholder project id
-  firestore.indexes.json       # NEW — empty index manifest
+  .env.local.example          # NEW, documents every required env var
+  firebase.json                # NEW, emulator + rules config
+  .firebaserc                  # NEW, placeholder project id
+  firestore.indexes.json       # NEW, empty index manifest
   firestore.rules              # NEW
   storage.rules                # NEW
   vitest.config.ts             # NEW
   scripts/
-    seed-colleges.ts           # NEW — writes dev seed college docs
+    seed-colleges.ts           # NEW, writes dev seed college docs
   src/
     types/
-      registration.ts          # NEW — shared TS types
+      registration.ts          # NEW, shared TS types
     lib/
       constants.ts              # NEW
-      firebaseClient.ts         # NEW — client SDK init
-      firebaseAdmin.ts          # NEW — admin SDK init
+      firebaseClient.ts         # NEW, client SDK init
+      firebaseAdmin.ts          # NEW, admin SDK init
       logger.ts                 # NEW
       rateLimit.ts               # NEW
       qualificationEngine.ts    # NEW
       validators.ts              # NEW
-      collegeSearch.ts           # NEW — search-term generation
-      session.ts                 # NEW — session cookie helpers
+      collegeSearch.ts           # NEW, search-term generation
+      session.ts                 # NEW, session cookie helpers
     app/
       api/
         auth/session/route.ts        # NEW
@@ -54,7 +54,7 @@ amsascent/
         register/handle/route.ts     # NEW
         register/profile/route.ts    # NEW
       register/
-        page.tsx                      # NEW — sign-in (server-gated)
+        page.tsx                      # NEW, sign-in (server-gated)
         handle/page.tsx                # NEW
         profile/page.tsx               # NEW
         path/page.tsx                  # NEW
@@ -78,7 +78,7 @@ amsascent/
 
 ---
 
-### Task 1: Project setup — Firebase deps, emulator config, test harness
+### Task 1: Project setup, Firebase deps, emulator config, test harness
 
 **Files:**
 
@@ -87,8 +87,8 @@ amsascent/
 - Create: `firebase.json`
 - Create: `.firebaserc`
 - Create: `firestore.indexes.json`
-- Create: `firestore.rules` (deny-all placeholder — Task 3 replaces content)
-- Create: `storage.rules` (deny-all placeholder — Task 3 replaces content)
+- Create: `firestore.rules` (deny-all placeholder, Task 3 replaces content)
+- Create: `storage.rules` (deny-all placeholder, Task 3 replaces content)
 - Create: `vitest.config.ts`
 - Create: `test/smoke.test.ts`
 
@@ -106,7 +106,7 @@ npm install -D firebase-tools vitest @firebase/rules-unit-testing tsx
 - [ ] **Step 2: Create `.env.local.example`**
 
 ```bash
-# Firebase client SDK (public — safe to expose to the browser)
+# Firebase client SDK (public, safe to expose to the browser)
 NEXT_PUBLIC_FIREBASE_API_KEY=
 NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=
 NEXT_PUBLIC_FIREBASE_PROJECT_ID=
@@ -116,12 +116,12 @@ NEXT_PUBLIC_FIREBASE_APP_ID=
 # Set to "true" only in local dev to route the client SDK at the emulators
 NEXT_PUBLIC_USE_FIREBASE_EMULATOR=false
 
-# Firebase Admin SDK (server-only secrets — never prefix with NEXT_PUBLIC_)
+# Firebase Admin SDK (server-only secrets, never prefix with NEXT_PUBLIC_)
 FIREBASE_PROJECT_ID=
 FIREBASE_CLIENT_EMAIL=
 FIREBASE_PRIVATE_KEY=
 
-# Local dev only — point the Admin SDK at the emulators instead of production.
+# Local dev only, point the Admin SDK at the emulators instead of production.
 # Export these in your shell (or a local .env.local, gitignored) before `next dev`.
 # FIRESTORE_EMULATOR_HOST=127.0.0.1:8080
 # FIREBASE_AUTH_EMULATOR_HOST=127.0.0.1:9099
@@ -304,7 +304,7 @@ describe("constants", () => {
 - [ ] **Step 2: Run test to verify it fails**
 
 Run: `npm test -- constants`
-Expected: FAIL — `Cannot find module '../src/lib/constants'`
+Expected: FAIL, `Cannot find module '../src/lib/constants'`
 
 - [ ] **Step 3: Write `src/lib/constants.ts`**
 
@@ -502,7 +502,7 @@ describe("colleges/{id}", () => {
   });
 });
 
-describe("pii/{uid} — deny-all, even for the owner", () => {
+describe("pii/{uid}, deny-all, even for the owner", () => {
   it("denies owner read", async () => {
     await testEnv.withSecurityRulesDisabled(async (ctx) => {
       await setDoc(doc(ctx.firestore(), "pii/uid-1"), { email: "a@b.com" });
@@ -512,7 +512,7 @@ describe("pii/{uid} — deny-all, even for the owner", () => {
   });
 });
 
-describe("handles/{id} and phones/{id} — deny-all", () => {
+describe("handles/{id} and phones/{id}, deny-all", () => {
   it("denies client read on handles", async () => {
     await testEnv.withSecurityRulesDisabled(async (ctx) => {
       await setDoc(doc(ctx.firestore(), "handles/ascent-2026_foo"), {
@@ -538,7 +538,7 @@ describe("handles/{id} and phones/{id} — deny-all", () => {
 - [ ] **Step 3: Run the rules test to verify it fails**
 
 Run: `npm run test:rules`
-Expected: FAIL — every `assertSucceeds`/`assertFails` on `applications` and `colleges` fails against the current deny-all placeholder rules (the owner-read and public-read cases don't succeed yet)
+Expected: FAIL, every `assertSucceeds`/`assertFails` on `applications` and `colleges` fails against the current deny-all placeholder rules (the owner-read and public-read cases don't succeed yet)
 
 - [ ] **Step 4: Write the real `firestore.rules`**
 
@@ -691,7 +691,7 @@ git commit -m "feat: add Firestore and Storage security rules with rules-unit-te
 **Interfaces:**
 
 - Consumes: types `CollegeTier`, `CollegeVerificationStatus`, `QualificationPath` from `@/types/registration` (Task 2).
-- Produces: `determinePath(collegeTier: CollegeTier, collegeVerificationStatus: CollegeVerificationStatus): { path: QualificationPath; reason: string }` from `@/lib/qualificationEngine` — consumed by Task 11's profile route.
+- Produces: `determinePath(collegeTier: CollegeTier, collegeVerificationStatus: CollegeVerificationStatus): { path: QualificationPath; reason: string }` from `@/lib/qualificationEngine`, consumed by Task 11's profile route.
 
 - [ ] **Step 1: Write the failing tests**
 
@@ -749,7 +749,7 @@ describe("determinePath", () => {
 - [ ] **Step 2: Run tests to verify they fail**
 
 Run: `npm test -- qualificationEngine`
-Expected: FAIL — `Cannot find module '../src/lib/qualificationEngine'`
+Expected: FAIL, `Cannot find module '../src/lib/qualificationEngine'`
 
 - [ ] **Step 3: Write the implementation**
 
@@ -814,7 +814,7 @@ git commit -m "feat: add qualification engine as a pure function"
 **Interfaces:**
 
 - Consumes: nothing beyond Node's built-in `Buffer`.
-- Produces: `validateHandle(handle: string): { valid: boolean; error?: string }`, `normalizeIndianPhone(phone: string): { valid: boolean; e164?: string; error?: string }`, `validateResumeBuffer(buffer: Buffer, maxBytes: number): { valid: boolean; error?: string }` from `@/lib/validators` — consumed by Task 10 (handle) and Task 11 (phone, resume).
+- Produces: `validateHandle(handle: string): { valid: boolean; error?: string }`, `normalizeIndianPhone(phone: string): { valid: boolean; e164?: string; error?: string }`, `validateResumeBuffer(buffer: Buffer, maxBytes: number): { valid: boolean; error?: string }` from `@/lib/validators`, consumed by Task 10 (handle) and Task 11 (phone, resume).
 
 - [ ] **Step 1: Write the failing tests**
 
@@ -923,7 +923,7 @@ describe("validateResumeBuffer", () => {
 - [ ] **Step 2: Run tests to verify they fail**
 
 Run: `npm test -- validators`
-Expected: FAIL — `Cannot find module '../src/lib/validators'`
+Expected: FAIL, `Cannot find module '../src/lib/validators'`
 
 - [ ] **Step 3: Write the implementation**
 
@@ -1015,7 +1015,7 @@ git commit -m "feat: add handle, phone, and resume validators"
 **Interfaces:**
 
 - Consumes: `NEXT_PUBLIC_FIREBASE_*` env vars (client), `FIREBASE_PROJECT_ID`/`FIREBASE_CLIENT_EMAIL`/`FIREBASE_PRIVATE_KEY` env vars (admin), emulator-host env vars when set.
-- Produces: `auth`, `db`, `googleProvider`, `firebaseApp` from `@/lib/firebaseClient`. `adminAuth`, `adminDb`, `adminStorage` from `@/lib/firebaseAdmin` — consumed by every API route task (8-11) and every server-component page task (12-15).
+- Produces: `auth`, `db`, `googleProvider`, `firebaseApp` from `@/lib/firebaseClient`. `adminAuth`, `adminDb`, `adminStorage` from `@/lib/firebaseAdmin`, consumed by every API route task (8-11) and every server-component page task (12-15).
 
 This task has no independent unit-testable behavior of its own (it's SDK configuration); it's verified by the tasks that consume it. Steps below create the modules and verify the project still builds.
 
@@ -1134,10 +1134,10 @@ git commit -m "feat: add Firebase client and Admin SDK init modules"
 
 **Interfaces:**
 
-- Consumes: `adminDb` type shape (`Firestore` from `firebase-admin/firestore`) — Task 6.
-- Produces: `genReqId(): string`, `maskEmail(email: string): string`, default export `logger` with `.info/.warn/.error(scope, event, fields, error?)` from `@/lib/logger`. `sha256(value: string): string` and `checkSlidingWindow(db, collection, key, maxCount, windowMs): Promise<{ overLimit: boolean; recordFailure: () => Promise<void> }>` from `@/lib/rateLimit` — both consumed by Task 9 (session), Task 10 (handle route), Task 11 (profile route).
+- Consumes: `adminDb` type shape (`Firestore` from `firebase-admin/firestore`), Task 6.
+- Produces: `genReqId(): string`, `maskEmail(email: string): string`, default export `logger` with `.info/.warn/.error(scope, event, fields, error?)` from `@/lib/logger`. `sha256(value: string): string` and `checkSlidingWindow(db, collection, key, maxCount, windowMs): Promise<{ overLimit: boolean; recordFailure: () => Promise<void> }>` from `@/lib/rateLimit`, both consumed by Task 9 (session), Task 10 (handle route), Task 11 (profile route).
 
-- [ ] **Step 1: Write `src/lib/logger.ts` (no test — thin formatting utility, exercised end-to-end by the routes that use it in later tasks)**
+- [ ] **Step 1: Write `src/lib/logger.ts` (no test, thin formatting utility, exercised end-to-end by the routes that use it in later tasks)**
 
 ```ts
 import crypto from "node:crypto";
@@ -1290,7 +1290,7 @@ describe("checkSlidingWindow", () => {
 - [ ] **Step 3: Run the test to verify it fails**
 
 Run: `firebase emulators:exec --project=ascent-2026-dev --only firestore "vitest run test/rateLimit.test.ts"`
-Expected: FAIL — `Cannot find module '../src/lib/rateLimit'`
+Expected: FAIL, `Cannot find module '../src/lib/rateLimit'`
 
 - [ ] **Step 4: Write `src/lib/rateLimit.ts`**
 
@@ -1351,7 +1351,7 @@ git commit -m "feat: add structured logger and Firestore-backed sliding-window r
 
 ---
 
-### Task 8: College reference data — search terms, seed script, search API
+### Task 8: College reference data, search terms, seed script, search API
 
 **Files:**
 
@@ -1363,7 +1363,7 @@ git commit -m "feat: add structured logger and Firestore-backed sliding-window r
 **Interfaces:**
 
 - Consumes: `adminDb` from `@/lib/firebaseAdmin` (Task 6), type `College` from `@/types/registration` (Task 2).
-- Produces: `buildSearchTerms(canonicalName: string, aliases: string[]): string[]` from `@/lib/collegeSearch` — used by the seed script and, later, any admin college-management tooling. The `GET /api/colleges/search?q=` endpoint — consumed by Task 13's `CollegeTypeahead` component.
+- Produces: `buildSearchTerms(canonicalName: string, aliases: string[]): string[]` from `@/lib/collegeSearch`, used by the seed script and, later, any admin college-management tooling. The `GET /api/colleges/search?q=` endpoint, consumed by Task 13's `CollegeTypeahead` component.
 
 - [ ] **Step 1: Write the failing search-terms test**
 
@@ -1412,7 +1412,7 @@ describe("buildSearchTerms", () => {
 - [ ] **Step 2: Run test to verify it fails**
 
 Run: `npm test -- collegeSearch`
-Expected: FAIL — `Cannot find module '../src/lib/collegeSearch'`
+Expected: FAIL, `Cannot find module '../src/lib/collegeSearch'`
 
 - [ ] **Step 3: Write `src/lib/collegeSearch.ts`**
 
@@ -1596,7 +1596,7 @@ git commit -m "feat: add college search-term generation, seed script, and search
 
 ---
 
-### Task 9: Session auth — cookie helpers and `/api/auth/session`
+### Task 9: Session auth, cookie helpers and `/api/auth/session`
 
 **Files:**
 
@@ -1606,7 +1606,7 @@ git commit -m "feat: add college search-term generation, seed script, and search
 **Interfaces:**
 
 - Consumes: `adminAuth` from `@/lib/firebaseAdmin` (Task 6), `SESSION_COOKIE_NAME`/`SESSION_COOKIE_MAX_AGE_MS` from `@/lib/constants` (Task 2).
-- Produces: `createSessionCookie(idToken: string): Promise<string>`, `verifySessionCookie(cookie: string): Promise<SessionUser | null>` with `interface SessionUser { uid: string; email: string | null }` from `@/lib/session` — consumed by every server component page task (12-15) and by Task 10/11's routes.
+- Produces: `createSessionCookie(idToken: string): Promise<string>`, `verifySessionCookie(cookie: string): Promise<SessionUser | null>` with `interface SessionUser { uid: string; email: string | null }` from `@/lib/session`, consumed by every server component page task (12-15) and by Task 10/11's routes.
 
 - [ ] **Step 1: Write `src/lib/session.ts`**
 
@@ -1730,7 +1730,7 @@ git commit -m "feat: add session cookie helpers and /api/auth/session route"
 **Interfaces:**
 
 - Consumes: `adminDb` (Task 6), `verifySessionCookie` (Task 9), `validateHandle` (Task 5), `checkSlidingWindow`/`sha256` (Task 7), `logger`/`genReqId`/`maskEmail` (Task 7), `EDITION`/`IP_RATE_LIMIT_MAX_PER_HOUR`/`SESSION_COOKIE_NAME` (Task 2).
-- Produces: `POST /api/register/handle` — consumed by Task 13's `HandleForm`. On success, creates `applications/{uid}` (state `EMAIL_VERIFIED`) and `pii/{uid}`, and a `handles/{edition}_{handleLower}` sentinel doc.
+- Produces: `POST /api/register/handle`, consumed by Task 13's `HandleForm`. On success, creates `applications/{uid}` (state `EMAIL_VERIFIED`) and `pii/{uid}`, and a `handles/{edition}_{handleLower}` sentinel doc.
 
 - [ ] **Step 1: Write the route**
 
@@ -1946,7 +1946,7 @@ git commit -m "feat: add /api/register/handle route with handle-dedupe transacti
 **Interfaces:**
 
 - Consumes: `adminDb`/`adminStorage` (Task 6), `verifySessionCookie` (Task 9), `normalizeIndianPhone`/`validateResumeBuffer` (Task 5), `determinePath` (Task 4), `checkSlidingWindow`/`sha256` (Task 7), `logger`/`genReqId` (Task 7), `EDITION`/`MAX_RESUME_BYTES`/`SESSION_COOKIE_NAME` (Task 2).
-- Produces: `POST /api/register/profile` (multipart/form-data) — consumed by Task 14's `ProfileForm`. On success: writes `pii/{uid}.phone`/`resume_ref`, `applications/{uid}` profile fields + `state: PROFILE_COMPLETE` then `qualification_path`/`qualification_reason` + `state: QUALIFICATION_DETERMINED`, `phones/{edition}_{phoneE164}` sentinel, `consent/{uid}.CONTEST_PARTICIPATION`, and an `audit_log` entry. Uploads the resume to Storage at `resumes/{uid}/resume.pdf`.
+- Produces: `POST /api/register/profile` (multipart/form-data), consumed by Task 14's `ProfileForm`. On success: writes `pii/{uid}.phone`/`resume_ref`, `applications/{uid}` profile fields + `state: PROFILE_COMPLETE` then `qualification_path`/`qualification_reason` + `state: QUALIFICATION_DETERMINED`, `phones/{edition}_{phoneE164}` sentinel, `consent/{uid}.CONTEST_PARTICIPATION`, and an `audit_log` entry. Uploads the resume to Storage at `resumes/{uid}/resume.pdf`.
 
 - [ ] **Step 1: Write the route**
 
@@ -2158,7 +2158,7 @@ export async function POST(req: NextRequest) {
 }
 ```
 
-Note on idempotency: resubmitting this route with the same phone number and uid succeeds again cleanly — the phone-sentinel transaction only rejects when the sentinel belongs to a _different_ uid, so a retried request (e.g., after a network drop) doesn't get wrongly blocked by the caller's own prior attempt.
+Note on idempotency: resubmitting this route with the same phone number and uid succeeds again cleanly, the phone-sentinel transaction only rejects when the sentinel belongs to a _different_ uid, so a retried request (e.g., after a network drop) doesn't get wrongly blocked by the caller's own prior attempt.
 
 - [ ] **Step 2: Verify against the emulators manually**
 
@@ -2174,7 +2174,7 @@ curl -i -X POST http://localhost:3000/api/register/profile \
   -F "resume=@/tmp/resume.pdf;type=application/pdf"
 ```
 
-Expected: `HTTP/1.1 200`, `{"success":true,"state":"QUALIFICATION_DETERMINED","qualification_path":"QUALIFIER"}` (`QUALIFIER` because college verification is out of scope — see Global Constraints)
+Expected: `HTTP/1.1 200`, `{"success":true,"state":"QUALIFICATION_DETERMINED","qualification_path":"QUALIFIER"}` (`QUALIFIER` because college verification is out of scope, see Global Constraints)
 
 - [ ] **Step 3: Verify phone-collision rejection**
 
@@ -2205,7 +2205,7 @@ git commit -m "feat: add /api/register/profile route with resume upload and qual
 **Interfaces:**
 
 - Consumes: `auth`/`googleProvider` from `@/lib/firebaseClient` (Task 6), `verifySessionCookie` from `@/lib/session` (Task 9), `adminDb` from `@/lib/firebaseAdmin` (Task 6), `POST /api/auth/session` (Task 9).
-- Produces: the `/register` route — the entry point linked from the marketing site's "Register" CTA (already present in `Navbar`/`Footer` per `docs/ascent-home-plan.md`, currently pointing at `#`; wiring that link is a one-line follow-up, not part of this task).
+- Produces: the `/register` route, the entry point linked from the marketing site's "Register" CTA (already present in `Navbar`/`Footer` per `docs/ascent-home-plan.md`, currently pointing at `#`; wiring that link is a one-line follow-up, not part of this task).
 
 - [ ] **Step 1: Write the client sign-in component**
 
@@ -2408,7 +2408,7 @@ git commit -m "feat: add /register sign-in page (Google OAuth + email magic link
 **Interfaces:**
 
 - Consumes: `GET /api/colleges/search?q=` (Task 8), `POST /api/register/handle` (Task 10), `verifySessionCookie` (Task 9), `adminDb` (Task 6).
-- Produces: the `/register/handle` route. `CollegeTypeahead` emits `onSelect(college: { college_id: string; canonical_name: string } | null)` and `onUnlisted(typedName: string)` — self-contained, only consumed by `HandleForm` within this task.
+- Produces: the `/register/handle` route. `CollegeTypeahead` emits `onSelect(college: { college_id: string; canonical_name: string } | null)` and `onUnlisted(typedName: string)`, self-contained, only consumed by `HandleForm` within this task.
 
 - [ ] **Step 1: Write the college typeahead component**
 
@@ -2501,7 +2501,7 @@ export default function CollegeTypeahead({
                 className="w-full px-4 py-2 text-left text-white hover:bg-white/5"
               >
                 {college.canonical_name}
-                {college.campus ? ` — ${college.campus}` : ""}
+                {college.campus ? `, ${college.campus}` : ""}
               </button>
             </li>
           ))}
@@ -2518,7 +2518,7 @@ export default function CollegeTypeahead({
       )}
       {markedUnlisted && (
         <p className="text-sm text-ascent-muted">
-          Noted — &quot;{query.trim()}&quot; will be reviewed for the college
+          Noted, &quot;{query.trim()}&quot; will be reviewed for the college
           list.
         </p>
       )}
@@ -2900,7 +2900,7 @@ git commit -m "feat: add /register/profile page with resume upload"
 **Interfaces:**
 
 - Consumes: `verifySessionCookie` (Task 9), `adminDb` (Task 6), type `Application` (Task 2).
-- Produces: the `/register/path` route — the terminal page of this spec's scope. AUTO/QUALIFIER-specific messaging here is an explicit stub; the verification flow and Access scheduling it describes are out of scope (see spec's "Out of scope").
+- Produces: the `/register/path` route, the terminal page of this spec's scope. AUTO/QUALIFIER-specific messaging here is an explicit stub; the verification flow and Access scheduling it describes are out of scope (see spec's "Out of scope").
 
 - [ ] **Step 1: Write the page**
 
@@ -2943,14 +2943,14 @@ export default async function PathPage() {
       {isAutoTier ? (
         <p className="text-ascent-muted">
           Your college is on the auto-qualify list. College email verification
-          opens soon — you&apos;ll get an email when it&apos;s ready. Verifying
+          opens soon, you&apos;ll get an email when it&apos;s ready. Verifying
           skips the qualifier; if you don&apos;t verify in time, you&apos;ll
           compete in the qualifier instead.
         </p>
       ) : (
         <p className="text-ascent-muted">
           You&apos;ll compete in the qualifier round on AMS Access. Scheduling
-          opens soon — you&apos;ll get an email when it&apos;s ready.
+          opens soon, you&apos;ll get an email when it&apos;s ready.
         </p>
       )}
     </main>
@@ -2978,9 +2978,9 @@ git commit -m "feat: add /register/path result page"
 
 ## Self-review
 
-**Spec coverage:** Auth (Task 6, 9, 12) ✓. Handle + college typeahead (Task 5, 8, 10, 13) ✓. Profile + resume (Task 5, 11, 14) ✓. Qualification engine (Task 4) ✓. Firestore schema + security rules (Task 2, 3) ✓. Rate limiting + dedupe (Task 7, 10, 11) ✓. Multi-route server-gated resumable flow (Task 12-15) ✓. Out-of-scope items (verification, admin console, Access integration, DPDP erasure) are deliberately not tasked — matches the spec.
+**Spec coverage:** Auth (Task 6, 9, 12) ✓. Handle + college typeahead (Task 5, 8, 10, 13) ✓. Profile + resume (Task 5, 11, 14) ✓. Qualification engine (Task 4) ✓. Firestore schema + security rules (Task 2, 3) ✓. Rate limiting + dedupe (Task 7, 10, 11) ✓. Multi-route server-gated resumable flow (Task 12-15) ✓. Out-of-scope items (verification, admin console, Access integration, DPDP erasure) are deliberately not tasked, matches the spec.
 
-**Placeholder scan:** No TBD/TODO; every code block is complete and runnable. The one open item — production tier-1 college seed data — is explicitly named as a follow-up in the spec's carried-forward open decisions, not hidden as a placeholder here; Task 8's seed script ships a small real dev/test set instead.
+**Placeholder scan:** No TBD/TODO; every code block is complete and runnable. The one open item, production tier-1 college seed data, is explicitly named as a follow-up in the spec's carried-forward open decisions, not hidden as a placeholder here; Task 8's seed script ships a small real dev/test set instead.
 
 **Type consistency:** `determinePath(collegeTier, collegeVerificationStatus)` signature matches between Task 4's definition and Task 11's call site (`determinePath(application.college_tier, 'UNVERIFIED')`). `checkSlidingWindow` returns `{ overLimit, recordFailure }` consistently across Task 7's definition and Tasks 10-11's call sites. `verifySessionCookie` returns `SessionUser | null` consistently across Tasks 9, 10, 11, 12, 13, 14, 15. `SESSION_COOKIE_NAME` is read the same way (`req.cookies.get(...)` in routes, `cookies().get(...)` in server components) throughout.
 
@@ -2990,8 +2990,8 @@ git commit -m "feat: add /register/path result page"
 
 Plan complete and saved to `docs/superpowers/plans/2026-07-18-registration-pipeline.md`. Two execution options:
 
-**1. Subagent-Driven (recommended)** — I dispatch a fresh subagent per task, review between tasks, fast iteration.
+**1. Subagent-Driven (recommended)**, I dispatch a fresh subagent per task, review between tasks, fast iteration.
 
-**2. Inline Execution** — Execute tasks in this session using executing-plans, batch execution with checkpoints.
+**2. Inline Execution**, Execute tasks in this session using executing-plans, batch execution with checkpoints.
 
 Which approach?

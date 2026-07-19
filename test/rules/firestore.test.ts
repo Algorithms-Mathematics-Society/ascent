@@ -79,7 +79,7 @@ describe("colleges/{id}", () => {
   });
 });
 
-describe("pii/{uid} — deny-all, even for the owner", () => {
+describe("pii/{uid}: deny-all, even for the owner", () => {
   it("denies owner read", async () => {
     await testEnv.withSecurityRulesDisabled(async (ctx) => {
       await setDoc(doc(ctx.firestore(), "pii/uid-1"), { email: "a@b.com" });
@@ -89,7 +89,7 @@ describe("pii/{uid} — deny-all, even for the owner", () => {
   });
 });
 
-describe("handles/{id} and phones/{id} — deny-all", () => {
+describe("handles/{id} and phones/{id}: deny-all", () => {
   it("denies client read on handles", async () => {
     await testEnv.withSecurityRulesDisabled(async (ctx) => {
       await setDoc(doc(ctx.firestore(), "handles/ascent-2026_foo"), {

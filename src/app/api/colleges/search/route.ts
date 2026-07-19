@@ -62,11 +62,12 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json({ results });
   } catch (error) {
-    logger.warn("colleges_search", "query_failed", {
-      reqId,
-      actorId: ipHash,
-      status: "degraded",
-    });
+    logger.error(
+      "colleges_search",
+      "query_failed",
+      { reqId, actorId: ipHash, status: "degraded" },
+      error,
+    );
     return NextResponse.json({ results: [] });
   }
 }

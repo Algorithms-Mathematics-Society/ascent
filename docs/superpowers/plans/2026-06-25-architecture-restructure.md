@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Restructure the AMS Ascent marketing site into a principal-grade architecture — thin composition root, per-section components, typed UI primitives, a single-source content layer, and a documented dark-ready token system — with the rendered light-mode output pixel-identical.
+**Goal:** Restructure the Ascent marketing site into a principal-grade architecture — thin composition root, per-section components, typed UI primitives, a single-source content layer, and a documented dark-ready token system — with the rendered light-mode output pixel-identical.
 
 **Architecture:** Static, server-first Next.js App Router site. Data flows one-way: `content/*` → `sections/*` → `page.tsx`. Reusable presentation primitives in `components/ui/` wrap the existing `.ascent-btn`/`.glass-card` CSS classes with a typed API. Theming is a documented semantic `--ascent-*` token layer in `globals.css`, structured so a `[data-theme="dark"]` block can flip it later.
 
@@ -90,13 +90,13 @@ export type FooterColumn = { heading: string; links: NavLink[] };
 
 /** Single source of truth for brand, navigation, footer and SEO copy. */
 export const site = {
-  name: "AMS Ascent",
+  name: "Ascent",
   tagline:
     "A C++ competitive-programming ascent — climb from your first g++ build to the algorithmic summit.",
   seo: {
-    title: "AMS Ascent — The C++ Ascent",
+    title: "Ascent — The C++ Ascent",
     description:
-      "AMS Ascent is a C++ competitive-programming event. Climb the C++ ladder through algorithmic rounds — from prelims to finals.",
+      "Ascent is a C++ competitive-programming event. Climb the C++ ladder through algorithmic rounds — from prelims to finals.",
   },
   nav: [
     { label: "About", href: "#about" },
@@ -279,7 +279,7 @@ Reorganize tokens with a documented primitive→semantic structure, add tokens f
 
 ```css
 /* ============================================================
-   AMS Ascent — semantic token system (dark-ready)
+   Ascent — semantic token system (dark-ready)
    Values are space-separated RGB triples (Tailwind <alpha-value>).
 
    PRIMITIVE PALETTE (reference — what the semantic tokens map to):
@@ -654,7 +654,7 @@ import { Button } from "@/components/ui";
 ```
 
 2. Replace every `NAV_LINKS` reference with `site.nav`.
-3. Replace the wordmark text `AMS&nbsp;Ascent` — keep as is (it is `{site.name}` semantically, but the `&nbsp;` is intentional; leave the literal `AMS&nbsp;Ascent`).
+3. Replace the wordmark text `Ascent` — keep as is (it is `{site.name}` semantically, but the `&nbsp;` is intentional; leave the literal `Ascent`).
 4. Replace the Register CTA anchor:
 
 ```tsx
@@ -800,7 +800,7 @@ export default function Hero() {
           </h1>
 
           <p className="mt-6 max-w-xl text-lg leading-relaxed text-ascent-muted">
-            AMS Ascent is a competitive-programming event built entirely around
+            Ascent is a competitive-programming event built entirely around
             modern C++. Write fast code, solve hard problems, and climb the
             leaderboard from your first build to the algorithmic summit.
           </p>

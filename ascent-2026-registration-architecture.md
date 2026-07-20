@@ -1,6 +1,6 @@
 # Ascent 2026 — Registration Architecture
 
-**Purpose:** Design and implementation brief for the registration + qualification system for AMS Ascent 2026 (a C++ / optimization contest). This document is the spec; implement against it. Where you see `[DECISION NEEDED]`, do not guess — stub it, flag it, and leave it configurable.
+**Purpose:** Design and implementation brief for the registration + qualification system for Ascent 2026 (a C++ / optimization contest). This document is the spec; implement against it. Where you see `[DECISION NEEDED]`, do not guess — stub it, flag it, and leave it configurable.
 
 **Context you must respect:**
 - AMS runs a proctored exam desktop app (AMS Access: Tauri + Next.js frontend, Go backend) and a Firebase/Firestore firm-facing talent portal (signal/PII document split, consent-gated PII reveal, per-firm tenant isolation).
@@ -64,7 +64,8 @@ Store the transactional core in a **relational DB (Postgres)** as the source of 
 
 **`signal_profile`** (firm-visible surface; no direct PII)
 - `subject_id` (FK)
-- `handle` (unique per edition; user-chosen or generated; this is what appears on ranklists)
+- `codeforces_handle` (optional; not reserved as an Ascent identity and not
+  required to be unique)
 - `college_id` (FK, nullable if "Other")
 - `college_tier` (enum: `AUTO_QUALIFY`, `STANDARD`, `UNLISTED`)
 - `year_of_study`, `graduation_year`
@@ -78,7 +79,8 @@ Store the transactional core in a **relational DB (Postgres)** as the source of 
 - `email` (unique constraint across active applications — see dedupe)
 - `phone` (E.164; normalized)
 - `gov_id_hash` (hashed, not raw, for dedupe/identity; raw ID only captured at proctoring if required, never stored beyond retention window)
-- `resume_ref` (storage pointer; optional)
+- `resume_url` (required Google Drive sharing URL)
+- `transcript_url` (optional Google Drive sharing URL)
 - `college_email` (nullable; used for verification)
 
 **`college`** (reference table — canonical, not free text)

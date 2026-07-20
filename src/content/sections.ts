@@ -1,110 +1,121 @@
-// src/content/sections.ts
-import type { ComponentType } from "react";
-import {
-  Binary,
-  Cpu,
-  Flag,
-  ListChecks,
-  Timer,
-  Trophy,
-} from "lucide-react";
-
-export type IconType = ComponentType<{
-  className?: string;
-  "aria-hidden"?: boolean | "true" | "false";
-}>;
-
-export type AboutCard = { icon: IconType; title: string; body: string };
-export type Track = { badge: string; title: string; body: string };
-export type TimelinePhase = {
-  icon: IconType;
+export type HeroStat = { label: string; value: string };
+export type ScoringStep = {
+  label: string;
+  title: string;
+  body: string;
+};
+export type CompetitionRound = {
+  number: string;
   phase: string;
-  date: string;
+  participation: string;
+  setting: string;
+  focus: string;
+};
+export type TimelinePhase = {
+  phase: string;
+  timing: string;
   body: string;
 };
 export type FaqItem = { q: string; a: string };
-export type HeroStat = { label: string; value: string };
 
 export const HERO_STATS: HeroStat[] = [
-  { label: "Judged on", value: "Speed" },
-  { label: "Standard", value: "C++20" },
+  { label: "Scoring", value: "Measured speedup" },
+  { label: "Language", value: "C++20" },
   { label: "Entry", value: "Free" },
 ];
 
-export const ABOUT_CARDS: AboutCard[] = [
+export const SCORING_STEPS: ScoringStep[] = [
   {
-    icon: Cpu,
-    title: "Pure C++",
-    body: "One language, no shortcuts. Every solution compiles with modern g++ and the C++20 standard library.",
+    label: "01 / Correct",
+    title: "Preserve the result",
+    body: "Every optimization must remain correct. A faster wrong answer does not score.",
   },
   {
-    icon: Binary,
-    title: "Algorithmic",
-    body: "Graphs, DP, number theory and clever data structures — problems that reward the right idea, not boilerplate.",
+    label: "02 / Measure",
+    title: "Run against the baseline",
+    body: "Valid submissions are evaluated in a controlled environment against the same starting point.",
   },
   {
-    icon: Timer,
-    title: "Timed rounds",
-    body: "Live, judged rounds with an instant verdict. Speed and correctness both count toward the leaderboard.",
+    label: "03 / Rank",
+    title: "Climb through speedup",
+    body: "Measured performance—not submission decoration or pedigree—separates the ranklist.",
   },
 ];
 
-export const TRACKS: Track[] = [
+export const COMPETITION_ROUNDS: CompetitionRound[] = [
   {
-    badge: "Div 2",
-    title: "Beginner",
-    body: "New to competitive C++? Friendlier constraints and guided problems to make your first accepted submission.",
+    number: "01",
+    phase: "C++ qualifier",
+    participation: "Individual",
+    setting: "AMS Access",
+    focus: "Performance-focused C++ problems establish who advances.",
   },
   {
-    badge: "Div 1",
-    title: "Advanced",
-    body: "Tight time limits and hard problem sets for seasoned competitors chasing a top rank.",
+    number: "02",
+    phase: "Hub optimization",
+    participation: "Team",
+    setting: "Participating IIT hubs",
+    focus: "Profile, test, and improve code under a shared set of constraints.",
   },
   {
-    badge: "Relay",
-    title: "Team Relay",
-    body: "Teams of three share a single judge queue — coordinate, split the set and climb together.",
+    number: "03",
+    phase: "Codebase finale",
+    participation: "Finalists",
+    setting: "IIT Bombay",
+    focus: "Optimize a real codebase while preserving its required behaviour.",
   },
 ];
 
 export const TIMELINE: TimelinePhase[] = [
   {
-    icon: Flag,
     phase: "Registration",
-    date: "Jul 1 – Jul 20, 2026",
-    body: "Sign up solo or form your relay team. Warm-up problems unlock as soon as you register.",
+    timing: "Schedule pending",
+    body: "Submit your contact, education, and competition details in one three-stage form.",
   },
   {
-    icon: ListChecks,
-    phase: "Prelims",
-    date: "Jul 26, 2026",
-    body: "A timed online round across both divisions. Top scorers advance to the finals.",
+    phase: "C++ qualifier",
+    timing: "Date to be announced",
+    body: "The first scored round runs on AMS Access. Qualification details will be published with the rules.",
   },
   {
-    icon: Cpu,
-    phase: "Finals",
-    date: "Aug 9, 2026",
-    body: "The summit set — harder constraints, live standings and a frozen scoreboard for the last hour.",
+    phase: "Hub optimization",
+    timing: "Date to be announced",
+    body: "Selected competitors move into team-based optimization at participating IIT hubs.",
   },
   {
-    icon: Trophy,
-    phase: "Results",
-    date: "Aug 12, 2026",
-    body: "Final rankings, editorials and prizes announced. Bragging rights are permanent.",
+    phase: "Codebase finale",
+    timing: "Date to be announced",
+    body: "Finalists meet at IIT Bombay for the real-codebase performance round.",
   },
 ];
 
 export const FAQ: FaqItem[] = [
   {
-    q: "Do I need a team to compete?",
-    a: "No. Div 1 and Div 2 are individual tracks. Only the Team Relay requires a squad of three.",
+    q: "Who can register?",
+    a: "Anyone can register. Ascent uses contest performance and the qualification process—not a pedigree screen—as the merit gate.",
   },
   {
-    q: "Which compiler is used?",
-    a: "The judge runs g++ with -O2 -std=c++20. Anything in the standard library is fair game.",
+    q: "What determines my score?",
+    a: "Correctness comes first. Valid solutions are then measured against a common baseline, and performance improvement drives the ranking.",
   },
   {
-    q: "How much does it cost?",
-    a: "Ascent is free to enter. All you need is a C++ toolchain and a willingness to climb.",
+    q: "Do I need a team when I register?",
+    a: "No. Registration and the qualifier are individual. Team-based work is introduced only for competitors who advance to the hub round.",
+  },
+  {
+    q: "Which compiler and hardware will be used?",
+    a: "The competition uses C++20. The exact compiler, flags, target hardware, allowed libraries, and measurement method will be published with the official rules before the qualifier.",
+  },
+  {
+    q: "When will the competition dates be confirmed?",
+    a: "The schedule is still being finalized. Confirmed dates will replace the clearly marked pending states on this page; placeholder dates are not presented as facts.",
+  },
+  {
+    q: "What happens after I submit the form?",
+    a: "The final stage records your competition entry and shows an on-site confirmation. Keep your email and mobile number accurate so the event team can share administrative next steps.",
+  },
+  {
+    q: "Is there an entry fee?",
+    a: "No. Registration for Ascent is free.",
   },
 ];

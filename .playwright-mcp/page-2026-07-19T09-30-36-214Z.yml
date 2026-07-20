@@ -1,0 +1,7 @@
+- generic [active] [ref=f29e1]:
+  - alert [ref=f29e9]
+  - iframe [ref=f29e10]:
+    
+  - main [ref=f29e46]:
+    - heading "You're registered, task15_vit_user." [level=1] [ref=f29e47]
+    - paragraph [ref=f29e48]: You'll compete in the qualifier round on AMS Access. Scheduling opens soon — you'll get an email when it's ready.

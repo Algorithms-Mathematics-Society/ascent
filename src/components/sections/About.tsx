@@ -1,35 +1,60 @@
 // src/components/sections/About.tsx
-import { Card, Container, Section, SectionHeading } from "@/components/ui";
-import { ABOUT_CARDS } from "@/content/sections";
+import { Container, Section, SectionHeading } from "@/components/ui";
+import { SCORING_STEPS } from "@/content/sections";
 
 export default function About() {
   return (
-    <Section id="about">
+    <Section
+      id="about"
+      className="scroll-mt-16 border-b border-ascent-border bg-ascent-surface"
+    >
       <Container>
-        <SectionHeading
-          eyebrow="What is Ascent"
-          title="A C++-only climb to the algorithmic summit."
-          lede="Ascent strips competitive programming back to its core: one language, sharp problems and a live judge. Whether you are landing your first accepted submission or hunting a podium finish, every round is designed to push how you think in C++."
-        />
-        <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {ABOUT_CARDS.map(({ icon: Icon, title, body }, i) => (
-            <Card key={title} className="p-6">
-              <div className="flex items-center justify-between">
-                <Icon
-                  aria-hidden="true"
-                  className="h-7 w-7 text-ascent-accent"
-                />
-                <span className="font-mono text-xs text-ascent-muted">
-                  {String(i + 1).padStart(2, "0")}
-                </span>
-              </div>
-              <h3 className="mt-4 text-lg font-semibold text-ascent-ink">
-                {title}
-              </h3>
-              <p className="mt-2 text-sm leading-relaxed text-ascent-muted">
-                {body}
-              </p>
-            </Card>
+        <div className="grid gap-12 lg:grid-cols-[minmax(0,0.82fr)_minmax(0,1.18fr)] lg:gap-20">
+          <SectionHeading
+            eyebrow="How scoring works"
+            title="Correctness is the gate. Performance is the score."
+            lede="Ascent begins where a normal accepted verdict ends. Once the program is correct, the question becomes how much faster, leaner, and more deliberate you can make it."
+          />
+
+          <ol className="border-y border-ascent-border">
+            {SCORING_STEPS.map((step) => (
+              <li
+                key={step.label}
+                className="grid gap-3 border-b border-ascent-border py-6 last:border-b-0 sm:grid-cols-[8rem_1fr] sm:gap-6"
+              >
+                <p className="font-mono text-[0.6875rem] font-semibold uppercase tracking-[0.14em] text-ascent-brand">
+                  {step.label}
+                </p>
+                <div>
+                  <h3 className="text-lg font-semibold text-ascent-ink">
+                    {step.title}
+                  </h3>
+                  <p className="mt-1.5 text-sm leading-6 text-ascent-muted">
+                    {step.body}
+                  </p>
+                </div>
+              </li>
+            ))}
+          </ol>
+        </div>
+
+        <div className="mt-12 grid border border-ascent-border bg-ascent-brand-tint sm:grid-cols-3">
+          {[
+            "Correct output",
+            "Controlled benchmark",
+            "Measured improvement",
+          ].map((item, index) => (
+            <div
+              key={item}
+              className="flex min-h-16 items-center gap-3 border-b border-ascent-border px-5 py-4 last:border-b-0 sm:border-b-0 sm:border-r sm:last:border-r-0"
+            >
+              <span className="font-mono text-xs font-semibold text-ascent-brand">
+                0{index + 1}
+              </span>
+              <span className="text-sm font-semibold text-ascent-ink">
+                {item}
+              </span>
+            </div>
           ))}
         </div>
       </Container>

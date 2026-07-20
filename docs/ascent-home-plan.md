@@ -1,6 +1,6 @@
-# AMS Ascent — Home Page Build Plan
+# Ascent — Home Page Build Plan
 
-Build the marketing **home page only** for **AMS Ascent**, a new AMS event focused on **C++**.
+Build the marketing **home page only** for **Ascent**, a new AMS event focused on **C++**.
 Single page with a **navbar** and **footer**. No other routes/pages.
 
 Design language is adapted from **AMS Access** (`/home/user/amsascent/FRONTEND-DESIGN.md`) but
@@ -35,9 +35,9 @@ Repo: `/home/user/amsascent` (git, branch `ascent-home`). Next.js project lives 
    - **Navbar:** fixed, full-bleed, frosted (`backdrop-blur`), thin bottom border, `h-16`, content capped `max-w-7xl`.
    - **Nav active/hover state by color + weight**, not underline.
    - Honor `@media (prefers-reduced-motion: reduce)` — any animation must have a reduced-motion off-switch.
-5. **Brand:** Product name "AMS Ascent". Tagline theme: the C++ ascent / climbing / competitive programming.
+5. **Brand:** Product name "Ascent". Tagline theme: the C++ ascent / climbing / competitive programming.
    Mono font (JetBrains Mono) used for code-flavored UI (the hero console, labels, timestamps).
-   No real logo asset required — render a text/SVG wordmark "AMS Ascent" (mono or a simple mountain glyph + text).
+   No real logo asset required — render a text/SVG wordmark "Ascent" (mono or a simple mountain glyph + text).
 6. **Quality:** `npm run build` MUST pass (no type errors, no lint-blocking errors). Page must render
    server-side without runtime errors. Semantic HTML, alt text, keyboard-focusable interactive elements.
 7. **No placeholder lorem ipsum** — write real, plausible copy for a C++ competitive-programming event.
@@ -59,9 +59,9 @@ Create the Next.js project at repo root and the shared design foundation.
   `.ascent-btn` (+ `-primary` blue gradient, `-secondary` glass, sizes sm/md/lg, **8px radius**, focus ring),
   `.glass-card`, a hero grid/glow utility, selection color, and the `prefers-reduced-motion` block.
 - `src/app/layout.tsx` — imports fontsource Geist + JetBrains Mono CSS + `globals.css`; sets
-  `--font-geist`/`--font-jetbrains` via CSS; `metadata` (title "AMS Ascent — The C++ Ascent", description);
+  `--font-geist`/`--font-jetbrains` via CSS; `metadata` (title "Ascent — The C++ Ascent", description);
   `<body className="font-sans bg-ascent-bg text-white antialiased">`.
-- `src/app/page.tsx` — temporary minimal placeholder (`<main>AMS Ascent</main>`) so the app builds.
+- `src/app/page.tsx` — temporary minimal placeholder (`<main>Ascent</main>`) so the app builds.
   (Task 3 replaces this.)
 - Run `npm install` then `npm run build`; build must pass. Commit.
 
@@ -74,7 +74,7 @@ Build the two shared chrome components, dark blue-forward, using Task 1's design
 
 **Deliverables:**
 - `src/components/Navbar.tsx` — `"use client"`. Fixed, frosted (`backdrop-blur`), translucent dark
-  bg, thin bottom border, `h-16`, `max-w-7xl` inner. Left: "AMS Ascent" wordmark (mono, with a small
+  bg, thin bottom border, `h-16`, `max-w-7xl` inner. Left: "Ascent" wordmark (mono, with a small
   mountain/chevron glyph via lucide e.g. `Mountain`/`ChevronsUp`). Center: nav links
   (About `#about`, Tracks `#tracks`, Timeline `#timeline`, Prizes `#prizes`, FAQ `#faq`) — hidden on
   mobile (`hidden lg:flex`), hover/active by color+weight. Right: a primary CTA button "Register"
@@ -82,7 +82,7 @@ Build the two shared chrome components, dark blue-forward, using Task 1's design
   of the same links (client state). Keyboard accessible; reduced-motion safe.
 - `src/components/Footer.tsx` — dark footer over near-black. Wordmark + one-line blurb, 2–4 link
   columns (Event: About/Tracks/Timeline/Rules; Resources: FAQ/Contact/Code of Conduct; Social
-  placeholders), a thin top border, bottom row with "© 2026 AMS Ascent" + small print. Links are `#`
+  placeholders), a thin top border, bottom row with "© 2026 Ascent" + small print. Links are `#`
   or in-page anchors. Responsive grid (2-col mobile → 4-col md+).
 - Components must be self-contained and render with no props. `npm run build` passes. Commit.
 

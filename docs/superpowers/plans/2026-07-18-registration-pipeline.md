@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Build the AMS Ascent 2026 registration pipeline: Firebase Auth account creation through profile completion, ending at a deterministic `qualification_path` assignment.
+**Goal:** Build the Ascent 2026 registration pipeline: Firebase Auth account creation through profile completion, ending at a deterministic `qualification_path` assignment.
 
 **Architecture:** Firestore as source of truth (deny-all client rules except `applications/{own uid}` read and `colleges/*` read), all writes mediated by Next.js App Router Route Handlers using the Admin SDK. Multi-route, server-gated flow (`/register` → `/register/handle` → `/register/profile` → `/register/path`), each route redirecting based on the caller's session + application state so the flow resumes correctly across visits.
 
@@ -2299,7 +2299,7 @@ export default function SignInForm() {
   return (
     <main className="mx-auto flex min-h-[70vh] max-w-md flex-col justify-center gap-6 px-4">
       <h1 className="text-2xl font-semibold text-white">
-        Register for AMS Ascent
+        Register for Ascent
       </h1>
       <button
         type="button"

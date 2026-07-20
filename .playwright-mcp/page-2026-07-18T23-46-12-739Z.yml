@@ -1,0 +1,21 @@
+- generic [ref=f14e1]:
+  - main [ref=f14e2]:
+    - heading "Pick your handle" [level=1] [ref=f14e3]
+    - generic [ref=f14e4]:
+      - generic [ref=f14e5]:
+        - generic [ref=f14e6]: Handle (shown on the ranklist)
+        - textbox "Handle (shown on the ranklist)" [ref=f14e7]:
+          - /placeholder: e.g. tilak_j
+      - generic [ref=f14e8]:
+        - generic [ref=f14e9]: College / Institution
+        - textbox "College / Institution" [active] [ref=f14e10]:
+          - /placeholder: Start typing your college name
+          - text: iit
+        - list [ref=f14e14]:
+          - listitem [ref=f14e15]:
+            - button "IIT Bombay — Mumbai" [ref=f14e16] [cursor=pointer]
+          - listitem [ref=f14e17]:
+            - button "IIT Delhi — Delhi" [ref=f14e18] [cursor=pointer]
+        - button "My college isn't listed" [ref=f14e13] [cursor=pointer]
+      - button "Continue" [ref=f14e11] [cursor=pointer]
+  - alert [ref=f14e12]

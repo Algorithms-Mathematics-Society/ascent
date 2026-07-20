@@ -1,0 +1,17 @@
+- generic [ref=f24e1]:
+  - main [ref=f24e2]:
+    - heading "Pick your handle" [level=1] [ref=f24e3]
+    - generic [ref=f24e4]:
+      - generic [ref=f24e5]:
+        - generic [ref=f24e6]: Handle (shown on the ranklist)
+        - textbox "Handle (shown on the ranklist)" [ref=f24e7]:
+          - /placeholder: e.g. tilak_j
+          - text: task13_leaktest
+      - generic [ref=f24e8]:
+        - generic [ref=f24e9]: College / Institution
+        - textbox "College / Institution" [ref=f24e10]:
+          - /placeholder: Start typing your college name
+          - text: x
+      - alert [ref=f24e20]: Select your college or mark it as unlisted.
+      - button "Continue" [active] [ref=f24e11] [cursor=pointer]
+  - alert [ref=f24e12]

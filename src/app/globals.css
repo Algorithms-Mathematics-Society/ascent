@@ -3,43 +3,59 @@
 @tailwind utilities;
 
 /* ============================================================
-   AMS Ascent — semantic token system (DARK, electric)
+   Ascent — semantic token system (LIGHT, institutional)
    Values are space-separated RGB triples (Tailwind <alpha-value>).
 
-   Identity: near-black canvas, elevated dark surfaces, off-white
-   text. Electric cyan-leaning blue is the restrained signal/glow
-   (the brand, references C++). Hot magenta is reserved STRICTLY for
-   performance / speedup moments ("4.7× faster") — never decoration.
-
-   Theme is the single source: every color flows through these
-   tokens, so a light variant is a `:root` swap, not a rewrite.
-   Elevation reads via surface lightness + accent glow, NOT dark
-   drop-shadows (which vanish on near-black).
+   Identity: the supplied Ascent palette. Ice carries the canvas,
+   white carries working surfaces, Midnight carries text, and Glacier
+   carries brand/action emphasis. Gold is retained as an available
+   identity token but is not used as interface decoration. Feedback
+   colors communicate state only.
    ============================================================ */
 :root {
-  /* Surfaces — near-black canvas, elevated dark panels */
-  --ascent-bg: 10 12 18; /* #0a0c12 — near-black, faint cool cast */
-  --ascent-surface: 17 23 34; /* #111722 — elevated card / panel */
-  --ascent-panel: 17 23 34; /* alias of surface */
-  --ascent-border: 30 41 59; /* slate-800 — hairline on dark */
+  /* Brand primitives — supplied Ascent identity */
+  --ascent-glacier: 20 40 58; /* #14283A */
+  --ascent-gold: 169 130 47; /* #A9822F — intentionally unused in UI */
+  --ascent-ice: 237 241 242; /* #EDF1F2 */
+  --ascent-midnight: 13 24 34; /* #0D1822 */
 
-  /* Brand / accent — electric, cyan-leaning blue */
-  --ascent-accent: 96 165 250; /* blue-400 #60a5fa — electric signal */
-  --ascent-accent-bright: 125 211 252; /* sky-300 #7dd3fc — glow / gradient stop */
-  --ascent-blue-deep: 59 130 246; /* blue-500 #3b82f6 — deeper / hover */
-  --ascent-cyan: 34 211 238; /* cyan-400 #22d3ee — secondary electric */
+  /* Canvas and working surfaces */
+  --ascent-canvas: var(--ascent-ice);
+  --ascent-surface: 255 255 255; /* #FFFFFF */
+  --ascent-surface-subtle: var(--ascent-ice);
+  --ascent-surface-strong: 221 228 231; /* #DDE4E7 */
 
-  /* Hot speedup accent — performance moments ONLY */
-  --ascent-hot: 255 61 113; /* #FF3D71 — hot magenta */
-  --ascent-hot-bright: 255 110 150; /* #ff6e96 — hot glow stop */
+  /* Text and rules */
+  --ascent-ink: var(--ascent-midnight);
+  --ascent-muted: 82 99 115; /* #526373 */
+  --ascent-border: 204 215 219; /* #CCD7DB */
+  --ascent-border-strong: 166 183 190; /* #A6B7BE */
 
-  /* Text */
-  --ascent-ink: 226 232 240; /* slate-200 #e2e8f0 — off-white, not pure */
-  --ascent-muted: 148 163 184; /* slate-400 #94a3b8 — secondary text */
+  /* Brand and interaction */
+  --ascent-brand: var(--ascent-glacier);
+  --ascent-brand-hover: var(--ascent-midnight);
+  --ascent-brand-pressed: 8 17 25; /* #081119 */
+  --ascent-brand-tint: var(--ascent-ice);
+  --ascent-brand-tint-strong: 218 227 230; /* #DAE3E6 */
+  --ascent-on-brand: 255 255 255;
+  --ascent-focus: var(--ascent-glacier);
 
-  /* Component tokens */
-  --ascent-btn-primary-bg: 59 130 246; /* blue-500 — electric CTA fill */
-  --ascent-btn-primary-bg-hover: 96 165 250; /* blue-400 — brighter on hover */
+  /* Forms */
+  --ascent-field-bg: 255 255 255;
+  --ascent-field-border: 166 183 190;
+  --ascent-field-border-hover: 99 121 134;
+  --ascent-field-focus: var(--ascent-glacier);
+  --ascent-field-invalid: 180 35 24;
+  --ascent-field-disabled: 228 234 236;
+  --ascent-field-placeholder: 99 118 130;
+
+  /* Feedback — reserved for status and validation */
+  --ascent-danger: 180 35 24; /* #B42318 */
+  --ascent-danger-tint: 254 243 242; /* #FEF3F2 */
+  --ascent-success: 22 101 52; /* #166534 */
+  --ascent-success-tint: 240 253 244; /* #F0FDF4 */
+  --ascent-info: var(--ascent-glacier);
+  --ascent-info-tint: var(--ascent-ice);
 }
 
 /* ------------------------------------------------------------
@@ -56,19 +72,19 @@
   }
 
   body {
-    background-color: rgb(var(--ascent-bg));
+    background-color: rgb(var(--ascent-canvas));
     color: rgb(var(--ascent-ink));
     min-height: 100vh;
     text-rendering: optimizeLegibility;
   }
 
   ::selection {
-    background-color: rgb(var(--ascent-accent) / 0.18);
+    background-color: rgb(var(--ascent-brand-tint));
     color: rgb(var(--ascent-ink));
   }
 
   :focus-visible {
-    outline: 2px solid rgb(var(--ascent-accent) / 0.5);
+    outline: 2px solid rgb(var(--ascent-focus));
     outline-offset: 2px;
   }
 }
@@ -86,7 +102,7 @@
     min-height: 2.5rem;
     padding: 0 0.875rem;
     border: 1px solid transparent;
-    border-radius: 0.5rem; /* 8px */
+    border-radius: 0.375rem;
     font-size: 0.875rem;
     font-weight: 600;
     line-height: 1;
@@ -96,25 +112,25 @@
     transition:
       background-color 160ms ease,
       border-color 160ms ease,
-      color 160ms ease,
-      box-shadow 160ms ease,
-      transform 160ms ease;
+      color 160ms ease;
   }
 
   .ascent-btn:focus-visible {
-    outline: 2px solid rgb(var(--ascent-accent) / 0.5);
+    outline: 2px solid rgb(var(--ascent-focus));
     outline-offset: 2px;
   }
 
   .ascent-btn:disabled,
   .ascent-btn[aria-disabled="true"] {
-    opacity: 0.56;
+    color: rgb(var(--ascent-muted));
+    background-color: rgb(var(--ascent-field-disabled));
+    border-color: rgb(var(--ascent-border));
     cursor: not-allowed;
   }
 
   /* Sizes */
   .ascent-btn-sm {
-    min-height: 2rem;
+    min-height: 2.75rem;
     padding: 0 0.75rem;
     font-size: 0.75rem;
   }
@@ -130,79 +146,167 @@
     font-size: 0.9375rem;
   }
 
-  /* Primary — electric blue fill, near-black text, subtle glow */
+  /* Primary — institutional navy, white foreground, no elevation effects. */
   .ascent-btn-primary {
-    color: rgb(var(--ascent-bg));
-    background-color: rgb(var(--ascent-btn-primary-bg));
-    border-color: rgb(var(--ascent-btn-primary-bg));
-    box-shadow: 0 8px 24px -6px rgb(var(--ascent-accent) / 0.45);
+    color: rgb(var(--ascent-on-brand));
+    background-color: rgb(var(--ascent-brand));
+    border-color: rgb(var(--ascent-brand));
   }
 
-  .ascent-btn-primary:hover {
-    background-color: rgb(var(--ascent-btn-primary-bg-hover));
-    border-color: rgb(var(--ascent-btn-primary-bg-hover));
-    box-shadow: 0 10px 30px -6px rgb(var(--ascent-accent) / 0.6);
+  .ascent-btn-primary:hover:not(:disabled) {
+    background-color: rgb(var(--ascent-brand-hover));
+    border-color: rgb(var(--ascent-brand-hover));
   }
 
-  /* Secondary — quiet outline on dark, accent edge on hover */
+  .ascent-btn-primary:active:not(:disabled) {
+    background-color: rgb(var(--ascent-brand-pressed));
+    border-color: rgb(var(--ascent-brand-pressed));
+  }
+
+  /* Secondary — white utility action with a neutral rule. */
   .ascent-btn-secondary {
-    color: rgb(var(--ascent-muted));
-    background-color: rgb(var(--ascent-surface) / 0.4);
+    color: rgb(var(--ascent-ink));
+    background-color: rgb(var(--ascent-surface));
     border-color: rgb(var(--ascent-border));
   }
 
-  .ascent-btn-secondary:hover {
-    color: rgb(var(--ascent-ink));
-    background-color: rgb(var(--ascent-surface));
-    border-color: rgb(var(--ascent-accent) / 0.5);
+  .ascent-btn-secondary:hover:not(:disabled) {
+    color: rgb(var(--ascent-brand));
+    background-color: rgb(var(--ascent-brand-tint));
+    border-color: rgb(var(--ascent-brand));
   }
 
-  /* Card — flat dark panel: hairline edge + a machined 1px top highlight.
-     No soft drop-shadow (that's the "SaaS slop" tell on dark); elevation reads
-     from the surface being lighter than the canvas. Tight 10px radius reads
-     engineered, not friendly-bubble. Accent edge on hover. */
-  .glass-card {
+  .ascent-btn-secondary:active:not(:disabled) {
+    background-color: rgb(var(--ascent-brand-tint-strong));
+  }
+
+  /* Form controls ------------------------------------------- */
+  .ascent-field-control {
+    width: 100%;
+    min-height: 2.875rem;
+    border: 1px solid rgb(var(--ascent-field-border));
+    border-radius: 0.375rem;
+    background-color: rgb(var(--ascent-field-bg));
+    color: rgb(var(--ascent-ink));
+    font-size: 1rem;
+    line-height: 1.5;
+    transition:
+      background-color 160ms ease,
+      border-color 160ms ease;
+  }
+
+  .ascent-field-control:hover:not(:disabled) {
+    border-color: rgb(var(--ascent-field-border-hover));
+  }
+
+  .ascent-field-control:focus {
+    border-color: rgb(var(--ascent-field-focus));
+    outline: none;
+    box-shadow: 0 0 0 3px rgb(var(--ascent-brand-tint-strong));
+  }
+
+  .ascent-field-control[aria-invalid="true"] {
+    border-color: rgb(var(--ascent-field-invalid));
+  }
+
+  .ascent-field-control[aria-invalid="true"]:focus {
+    box-shadow: 0 0 0 3px rgb(var(--ascent-danger-tint));
+  }
+
+  .ascent-field-control:disabled {
+    border-color: rgb(var(--ascent-border));
+    background-color: rgb(var(--ascent-field-disabled));
+    color: rgb(var(--ascent-muted));
+    cursor: not-allowed;
+  }
+
+  .ascent-field-control::placeholder {
+    color: rgb(var(--ascent-field-placeholder));
+    opacity: 1;
+  }
+
+  .ascent-input,
+  .ascent-select {
+    padding: 0.625rem 0.75rem;
+  }
+
+  .ascent-select {
+    cursor: pointer;
+  }
+
+  .ascent-select:disabled {
+    cursor: not-allowed;
+  }
+
+  .ascent-input[type="file"] {
+    padding: 0.375rem;
+  }
+
+  .ascent-input[type="file"]::file-selector-button {
+    min-height: 2rem;
+    margin-right: 0.75rem;
+    padding: 0 0.75rem;
+    border: 1px solid rgb(var(--ascent-field-border));
+    border-radius: 0.25rem;
+    background-color: rgb(var(--ascent-surface-subtle));
+    color: rgb(var(--ascent-ink));
+    font: inherit;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .ascent-input[type="file"]:disabled::file-selector-button {
+    color: rgb(var(--ascent-muted));
+    cursor: not-allowed;
+  }
+
+  .ascent-form-panel {
+    border: 1px solid rgb(var(--ascent-border));
+    border-radius: 0.375rem;
+    background-color: rgb(var(--ascent-surface));
+    box-shadow: none;
+  }
+
+  /* Feedback ------------------------------------------------ */
+  .ascent-notice {
+    border: 1px solid;
+    border-radius: 0.375rem;
+    padding: 0.75rem 0.875rem;
+    font-size: 0.875rem;
+    line-height: 1.5;
+  }
+
+  .ascent-notice-danger {
+    border-color: rgb(var(--ascent-danger) / 0.35);
+    background-color: rgb(var(--ascent-danger-tint));
+    color: rgb(var(--ascent-danger));
+  }
+
+  .ascent-notice-success {
+    border-color: rgb(var(--ascent-success) / 0.32);
+    background-color: rgb(var(--ascent-success-tint));
+    color: rgb(var(--ascent-success));
+  }
+
+  .ascent-notice-info {
+    border-color: rgb(var(--ascent-info) / 0.3);
+    background-color: rgb(var(--ascent-info-tint));
+    color: rgb(var(--ascent-info));
+  }
+
+  /* Neutral surface. Interaction belongs to the caller, never every card. */
+  .ascent-card {
     position: relative;
-    border-radius: 10px;
+    border-radius: 0.375rem;
     border: 1px solid rgb(var(--ascent-border));
     background-color: rgb(var(--ascent-surface));
-    box-shadow: inset 0 1px 0 0 rgb(255 255 255 / 0.04);
     contain: paint;
-    transition:
-      border-color 200ms ease,
-      box-shadow 200ms ease,
-      transform 200ms ease;
-  }
-
-  .glass-card:hover {
-    border-color: rgb(var(--ascent-accent) / 0.5);
-    transform: translateY(-1px);
-    box-shadow:
-      inset 0 1px 0 0 rgb(255 255 255 / 0.05),
-      0 0 0 1px rgb(var(--ascent-accent) / 0.12),
-      0 0 24px -6px rgb(var(--ascent-accent) / 0.16);
   }
 }
 
 /* ------------------------------------------------------------
-   Pulse — draws the eye to the "Run on your machine" trigger.
-   Auto-disabled by the reduced-motion block below.
-   ------------------------------------------------------------ */
-@keyframes ascent-pulse {
-  0%,
-  100% {
-    box-shadow: 0 0 0 0 rgb(var(--ascent-accent) / 0);
-  }
-  50% {
-    box-shadow: 0 0 0 4px rgb(var(--ascent-accent) / 0.12);
-  }
-}
-.ascent-pulse {
-  animation: ascent-pulse 2.2s ease-in-out infinite;
-}
-
-/* ------------------------------------------------------------
-   Reduced motion — off-switch for ambient animation.
+   Reduced motion — off-switch for non-essential animation.
    ------------------------------------------------------------ */
 @media (prefers-reduced-motion: reduce) {
   *,

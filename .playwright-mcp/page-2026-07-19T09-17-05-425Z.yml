@@ -1,0 +1,24 @@
+- main [ref=f26e2]:
+  - heading "Complete your profile" [level=1] [ref=f26e3]
+  - generic [ref=f26e4]:
+    - generic [ref=f26e5]:
+      - generic [ref=f26e6]: Status
+      - combobox "Status" [ref=f26e7]:
+        - option "Student" [selected]
+        - option "Professional"
+        - option "Other"
+    - generic [ref=f26e8]:
+      - generic [ref=f26e9]: Year of study
+      - textbox "Year of study" [ref=f26e10]:
+        - /placeholder: e.g. 3rd year
+    - generic [ref=f26e11]:
+      - generic [ref=f26e12]: Graduation year
+      - spinbutton "Graduation year" [ref=f26e13]
+    - generic [ref=f26e14]:
+      - generic [ref=f26e15]: Phone number
+      - textbox "Phone number" [ref=f26e16]:
+        - /placeholder: 10-digit Indian number
+    - generic [ref=f26e17]:
+      - generic [ref=f26e18]: Resume (PDF, under 500KB)
+      - button "Resume (PDF, under 500KB)" [ref=f26e19]
+    - button "Continue" [ref=f26e20] [cursor=pointer]

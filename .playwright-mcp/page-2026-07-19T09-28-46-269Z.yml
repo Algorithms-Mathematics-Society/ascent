@@ -1,0 +1,18 @@
+- generic [active] [ref=f29e1]:
+  - alert [ref=f29e9]
+  - iframe [ref=f29e10]:
+    
+  - main [ref=f29e11]:
+    - heading "Pick your handle" [level=1] [ref=f29e12]
+    - generic [ref=f29e13]:
+      - generic [ref=f29e14]:
+        - generic [ref=f29e15]: Handle (shown on the ranklist)
+        - textbox "Handle (shown on the ranklist)" [ref=f29e16]:
+          - /placeholder: e.g. tilak_j
+          - text: task15_vit_user
+      - generic [ref=f29e17]:
+        - generic [ref=f29e18]: College / Institution
+        - textbox "College / Institution" [ref=f29e19]:
+          - /placeholder: Start typing your college name
+          - text: VIT Vellore
+      - button "Continue" [ref=f29e20] [cursor=pointer]

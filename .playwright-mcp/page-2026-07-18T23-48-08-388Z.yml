@@ -1,0 +1,14 @@
+- generic [active] [ref=f18e1]:
+  - main [ref=f18e2]:
+    - heading "Pick your handle" [level=1] [ref=f18e3]
+    - generic [ref=f18e4]:
+      - generic [ref=f18e5]:
+        - generic [ref=f18e6]: Handle (shown on the ranklist)
+        - textbox "Handle (shown on the ranklist)" [ref=f18e7]:
+          - /placeholder: e.g. tilak_j
+      - generic [ref=f18e8]:
+        - generic [ref=f18e9]: College / Institution
+        - textbox "College / Institution" [ref=f18e10]:
+          - /placeholder: Start typing your college name
+      - button "Continue" [ref=f18e11] [cursor=pointer]
+  - alert [ref=f18e12]

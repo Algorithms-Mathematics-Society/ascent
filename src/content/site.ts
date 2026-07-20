@@ -1,17 +1,15 @@
 // src/content/site.ts
-export type NavLink = { label: string; href: string };
-export type FooterColumn = { heading: string; links: NavLink[] };
 export type ProofStat = { value: string; label: string };
 
-/** Single source of truth for brand, footer and SEO copy. */
+/** Single source of truth for brand and SEO copy. */
 export const site = {
-  name: "AMS Ascent",
+  name: "Ascent",
   tagline:
-    "A C++ competitive-programming ascent — climb from your first g++ build to the algorithmic summit.",
+    "A C++ optimization competition where correctness is the gate and measured performance drives the ranklist.",
   seo: {
-    title: "AMS Ascent — The C++ Ascent",
+    title: "Ascent — C++ Performance Competition",
     description:
-      "AMS Ascent is a C++ competitive-programming event. Climb the C++ ladder through algorithmic rounds — from prelims to finals.",
+      "Ascent is a C++ optimization competition spanning an individual qualifier, team optimization at IIT hubs, and a real-codebase finale.",
   },
 
   /**
@@ -38,31 +36,4 @@ export const site = {
   registration: {
     closeISO: null as string | null,
   },
-  footer: [
-    {
-      heading: "Event",
-      links: [
-        { label: "About", href: "#about" },
-        { label: "Tracks", href: "#tracks" },
-        { label: "Timeline", href: "#timeline" },
-        { label: "Rules", href: "#rules" },
-      ],
-    },
-    {
-      heading: "Resources",
-      links: [
-        { label: "FAQ", href: "#faq" },
-        { label: "Contact", href: "#contact" },
-        { label: "Code of Conduct", href: "#conduct" },
-      ],
-    },
-    {
-      heading: "Social",
-      links: [
-        { label: "GitHub", href: "#" },
-        { label: "Discord", href: "#" },
-        { label: "X / Twitter", href: "#" },
-      ],
-    },
-  ] satisfies FooterColumn[],
 };

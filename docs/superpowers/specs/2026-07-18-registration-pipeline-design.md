@@ -1,4 +1,4 @@
-# AMS Ascent: Registration Pipeline (Firebase) Design
+# Ascent: Registration Pipeline (Firebase) Design
 
 **Date:** 2026-07-18
 **Branch:** `ascent-home`
@@ -8,7 +8,7 @@ implements a bounded slice of that document. Section references below (`§N`) po
 
 ## Goal
 
-Build the registration pipeline for AMS Ascent 2026: account creation through profile completion,
+Build the registration pipeline for Ascent 2026: account creation through profile completion,
 ending at a deterministic qualification-path assignment (`AUTO` vs `QUALIFIER`). This is the first
 piece of a larger system described in the architecture doc; later specs build on the schema and
 security rules this one establishes.

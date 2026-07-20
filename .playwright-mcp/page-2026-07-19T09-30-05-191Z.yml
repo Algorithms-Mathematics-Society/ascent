@@ -1,0 +1,31 @@
+- generic [active] [ref=f29e1]:
+  - alert [ref=f29e9]
+  - iframe [ref=f29e10]:
+    
+  - main [ref=f29e25]:
+    - heading "Complete your profile" [level=1] [ref=f29e26]
+    - generic [ref=f29e27]:
+      - generic [ref=f29e28]:
+        - generic [ref=f29e29]: Status
+        - combobox "Status" [ref=f29e30]:
+          - option "Student" [selected]
+          - option "Professional"
+          - option "Other"
+      - generic [ref=f29e31]:
+        - generic [ref=f29e32]: Year of study
+        - textbox "Year of study" [ref=f29e33]:
+          - /placeholder: e.g. 3rd year
+          - text: 2nd year
+      - generic [ref=f29e34]:
+        - generic [ref=f29e35]: Graduation year
+        - spinbutton "Graduation year" [ref=f29e36]: "2028"
+      - generic [ref=f29e37]:
+        - generic [ref=f29e38]: Phone number
+        - textbox "Phone number" [ref=f29e39]:
+          - /placeholder: 10-digit Indian number
+          - text: "9123456780"
+      - generic [ref=f29e40]:
+        - generic [ref=f29e41]: Resume (PDF, under 500KB)
+        - button "Resume (PDF, under 500KB)" [ref=f29e42]
+      - alert [ref=f29e45]: This phone number is already registered.
+      - button "Continue" [ref=f29e43] [cursor=pointer]

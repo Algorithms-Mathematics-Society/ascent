@@ -5,7 +5,8 @@ import Eyebrow from "./Eyebrow";
 
 /**
  * Eyebrow + h2 + optional lede, matching the site's section-header rhythm.
- * `align="center"` centers the block (FAQ, Prizes); default is left.
+ * `align="center"` centers the block when a composition requires it; default
+ * is left.
  */
 export default function SectionHeading({
   eyebrow,

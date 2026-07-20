@@ -1,35 +1,128 @@
 import { describe, it, expect } from "vitest";
 import {
-  validateHandle,
+  normalizeCodeforcesHandle,
+  normalizeEmail,
+  normalizeGoogleDriveUrl,
   normalizeIndianPhone,
-  validateResumeBuffer,
+  validateLegalName,
+  validateSubmissionToken,
 } from "../src/lib/validators";
 
-describe("validateHandle", () => {
-  it("accepts a well-formed handle", () => {
-    expect(validateHandle("tilak_j").valid).toBe(true);
+describe("validateLegalName", () => {
+  it("accepts and normalizes Unicode names", () => {
+    expect(validateLegalName("  साक्षी   शर्मा ")).toEqual({
+      valid: true,
+      normalized: "साक्षी शर्मा",
+    });
+    expect(validateLegalName("Élodie O’Connor").valid).toBe(true);
   });
 
-  it("rejects handles under 3 characters", () => {
-    const result = validateHandle("ab");
-    expect(result.valid).toBe(false);
-    expect(result.error).toMatch(/3-24 characters/);
+  it("rejects implausible names and out-of-range lengths", () => {
+    expect(validateLegalName("A").valid).toBe(false);
+    expect(validateLegalName("A".repeat(101)).valid).toBe(false);
+    expect(validateLegalName("Robert <script>").valid).toBe(false);
+    expect(validateLegalName("User 123").valid).toBe(false);
+  });
+});
+
+describe("normalizeEmail", () => {
+  it("trims and lowercases a valid address", () => {
+    expect(normalizeEmail("  Student@Example.COM ")).toEqual({
+      valid: true,
+      normalized: "student@example.com",
+    });
   });
 
-  it("rejects handles over 24 characters", () => {
-    const result = validateHandle("a".repeat(25));
-    expect(result.valid).toBe(false);
+  it("rejects invalid addresses", () => {
+    expect(normalizeEmail("student@example").valid).toBe(false);
+    expect(normalizeEmail("two words@example.com").valid).toBe(false);
+    expect(normalizeEmail(`${"a".repeat(250)}@example.com`).valid).toBe(false);
+  });
+});
+
+describe("validateSubmissionToken", () => {
+  it("accepts a canonical UUID", () => {
+    expect(
+      validateSubmissionToken("5d46dc84-2bbb-4b7e-a8dc-1eb9de16c074"),
+    ).toBe(true);
   });
 
-  it("rejects a handle starting with a digit", () => {
-    const result = validateHandle("1tilak");
-    expect(result.valid).toBe(false);
-    expect(result.error).toMatch(/start with a letter/);
+  it("rejects arbitrary idempotency keys", () => {
+    expect(validateSubmissionToken("not-a-uuid")).toBe(false);
+  });
+});
+
+describe("normalizeCodeforcesHandle", () => {
+  it("treats an empty handle as an intentional optional value", () => {
+    expect(normalizeCodeforcesHandle("  ")).toEqual({
+      valid: true,
+      normalized: null,
+    });
   });
 
-  it("rejects handles with spaces or symbols", () => {
-    expect(validateHandle("til ak").valid).toBe(false);
-    expect(validateHandle("til@ak").valid).toBe(false);
+  it("accepts and trims common Codeforces handles", () => {
+    expect(normalizeCodeforcesHandle("  tourist  ")).toEqual({
+      valid: true,
+      normalized: "tourist",
+    });
+    expect(normalizeCodeforcesHandle("user.name-1").valid).toBe(true);
+  });
+
+  it("rejects invalid lengths and characters", () => {
+    expect(normalizeCodeforcesHandle("ab").valid).toBe(false);
+    expect(normalizeCodeforcesHandle("a".repeat(25)).valid).toBe(false);
+    expect(normalizeCodeforcesHandle("tour ist").valid).toBe(false);
+    expect(normalizeCodeforcesHandle("tour/ist").valid).toBe(false);
+  });
+});
+
+describe("normalizeGoogleDriveUrl", () => {
+  it("requires a resume link but permits a blank optional transcript", () => {
+    expect(normalizeGoogleDriveUrl("", true).valid).toBe(false);
+    expect(normalizeGoogleDriveUrl("", false)).toEqual({
+      valid: true,
+      normalized: null,
+    });
+  });
+
+  it("accepts Drive file and Google Docs sharing links", () => {
+    expect(
+      normalizeGoogleDriveUrl(
+        "http://drive.google.com/file/d/resume-file-id/view?usp=sharing#top",
+        true,
+      ),
+    ).toEqual({
+      valid: true,
+      normalized:
+        "https://drive.google.com/file/d/resume-file-id/view?usp=sharing",
+    });
+    expect(
+      normalizeGoogleDriveUrl(
+        "https://docs.google.com/document/d/resume-doc-id/edit?usp=sharing",
+        true,
+      ).valid,
+    ).toBe(true);
+    expect(
+      normalizeGoogleDriveUrl(
+        "drive.google.com/open?id=transcript-file-id",
+        false,
+      ).valid,
+    ).toBe(true);
+  });
+
+  it("rejects non-Google URLs, folders, and bare Drive pages", () => {
+    expect(
+      normalizeGoogleDriveUrl("https://dropbox.com/resume.pdf", true).valid,
+    ).toBe(false);
+    expect(
+      normalizeGoogleDriveUrl(
+        "https://drive.google.com/drive/folders/folder-id",
+        true,
+      ).valid,
+    ).toBe(false);
+    expect(
+      normalizeGoogleDriveUrl("https://drive.google.com/", true).valid,
+    ).toBe(false);
   });
 });
 
@@ -63,35 +156,5 @@ describe("normalizeIndianPhone", () => {
   it("rejects a too-short number", () => {
     const result = normalizeIndianPhone("98765");
     expect(result.valid).toBe(false);
-  });
-});
-
-describe("validateResumeBuffer", () => {
-  const pdfBuffer = Buffer.concat([
-    Buffer.from("%PDF-1.4\n"),
-    Buffer.alloc(100),
-  ]);
-
-  it("accepts a small valid PDF", () => {
-    expect(validateResumeBuffer(pdfBuffer, 500 * 1024)).toEqual({
-      valid: true,
-    });
-  });
-
-  it("rejects an empty buffer", () => {
-    const result = validateResumeBuffer(Buffer.alloc(0), 500 * 1024);
-    expect(result.valid).toBe(false);
-  });
-
-  it("rejects a buffer over the size cap", () => {
-    const result = validateResumeBuffer(pdfBuffer, 50);
-    expect(result.valid).toBe(false);
-    expect(result.error).toMatch(/under/);
-  });
-
-  it("rejects a buffer without the PDF magic bytes", () => {
-    const result = validateResumeBuffer(Buffer.from("not a pdf"), 500 * 1024);
-    expect(result.valid).toBe(false);
-    expect(result.error).toMatch(/valid PDF/);
   });
 });

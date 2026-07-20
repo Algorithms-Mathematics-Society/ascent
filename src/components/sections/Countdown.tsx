@@ -46,7 +46,7 @@ export default function Countdown({ closeISO }: { closeISO: string }) {
   // Expired (only after client mount confirms it).
   if (ready && left === null) {
     return (
-      <Button href="#register" size="sm">
+      <Button href="/register" size="sm">
         Registration closed — see next edition
       </Button>
     );

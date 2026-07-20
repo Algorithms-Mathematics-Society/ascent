@@ -16,7 +16,7 @@ export default function Section({
   children: ReactNode;
 }) {
   return (
-    <section id={id} className={cn("py-24 md:py-32", className)}>
+    <section id={id} className={cn("py-20 md:py-28", className)}>
       {children}
     </section>
   );

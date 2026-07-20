@@ -1,0 +1,7 @@
+- main [ref=e2]:
+  - heading "Register for AMS Ascent" [level=1] [ref=e3]
+  - button "Continue with Google" [ref=e4] [cursor=pointer]
+  - generic [ref=e5]: or
+  - generic [ref=e6]:
+    - textbox "you@example.com" [ref=e7]
+    - button "Email me a sign-in link" [ref=e8] [cursor=pointer]

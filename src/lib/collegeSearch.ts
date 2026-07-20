@@ -1,6 +1,6 @@
 export function buildSearchTerms(
   canonicalName: string,
-  aliases: string[],
+  aliases: readonly string[],
 ): string[] {
   const words = [canonicalName, ...aliases]
     .join(" ")

@@ -6,7 +6,7 @@ import {
   About,
   Tracks,
   Timeline,
-  PrizesCta,
+  RegistrationCta,
   Faq,
 } from "@/components/sections";
 
@@ -14,12 +14,12 @@ export default function Home() {
   return (
     <>
       <Navbar />
-      <main id="top">
+      <main id="top" tabIndex={-1}>
         <Hero />
         <About />
         <Tracks />
         <Timeline />
-        <PrizesCta />
+        <RegistrationCta />
         <Faq />
       </main>
       <Footer />

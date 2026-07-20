@@ -14,7 +14,7 @@ export type ApplicantStatus = "STUDENT" | "PROFESSIONAL" | "OTHER";
 export interface Application {
   edition: Edition;
   state: ApplicationState;
-  handle: string;
+  codeforces_handle: string | null;
   college_id: string | null;
   college_tier: CollegeTier;
   year_of_study: string | null;
@@ -32,7 +32,8 @@ export interface Pii {
   email: string;
   email_masked: string;
   phone: string | null;
-  resume_ref: string | null;
+  resume_url: string;
+  transcript_url: string | null;
   college_email: string | null;
 }
 

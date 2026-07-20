@@ -33,7 +33,7 @@ export default function RootLayout({
         } as React.CSSProperties
       }
     >
-      <body className="font-sans bg-ascent-bg text-ascent-ink antialiased">
+      <body className="bg-ascent-canvas font-sans text-ascent-ink antialiased">
         {children}
       </body>
     </html>

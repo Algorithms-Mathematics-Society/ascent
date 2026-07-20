@@ -2,7 +2,7 @@
 import type { HTMLAttributes, ReactNode } from "react";
 import { cn } from "@/lib/cn";
 
-/** Surface wrapper over the .glass-card class. `as` allows <li> for lists. */
+/** Neutral bordered surface. `as` allows semantic list items. */
 export default function Card({
   as: Tag = "div",
   className,
@@ -14,7 +14,7 @@ export default function Card({
   children: ReactNode;
 } & HTMLAttributes<HTMLElement>) {
   return (
-    <Tag className={cn("glass-card", className)} {...rest}>
+    <Tag className={cn("ascent-card", className)} {...rest}>
       {children}
     </Tag>
   );

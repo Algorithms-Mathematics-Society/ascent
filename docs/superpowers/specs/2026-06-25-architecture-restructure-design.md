@@ -1,4 +1,4 @@
-# AMS Ascent — Architecture, Components & Theming Restructure
+# Ascent — Architecture, Components & Theming Restructure
 
 **Date:** 2026-06-25
 **Branch:** `ascent-home`
@@ -6,7 +6,7 @@
 
 ## Goal
 
-Restructure the AMS Ascent marketing site to a principal-engineer-grade
+Restructure the Ascent marketing site to a principal-engineer-grade
 architecture: a thin composition root, per-section components, a typed reusable
 UI primitive set, a single-source content/data layer, and a documented,
 dark-ready semantic token system. **The rendered light-mode output must remain
@@ -138,7 +138,7 @@ export default function Home() {
 
 Single source of truth for marketing copy and event facts.
 
-- **`site.ts`** — exports a `site` object: name (`"AMS Ascent"`), tagline, the
+- **`site.ts`** — exports a `site` object: name (`"Ascent"`), tagline, the
   SEO `title`/`description` (consumed by `layout.tsx` metadata), `NAV_LINKS`
   (moved from Navbar), `FOOTER_COLUMNS` (moved from Footer), and event dates as
   named constants so Timeline copy references one place.

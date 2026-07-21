@@ -37,22 +37,6 @@ type Particle = {
   velocityY: number;
 };
 
-type WakeParticle = {
-  x: number;
-  y: number;
-  velocityX: number;
-  velocityY: number;
-  life: number;
-  size: number;
-  kind: number;
-};
-
-type TracePoint = {
-  x: number;
-  y: number;
-  life: number;
-};
-
 type Exclusion = {
   left: number;
   right: number;
@@ -64,9 +48,6 @@ const PARTICLES_DESKTOP = 44;
 const PARTICLES_TABLET = 32;
 const PARTICLES_MOBILE = 24;
 const POINTER_RADIUS = 204;
-const MAX_WAKE_PARTICLES = 42;
-const MAX_TRACE_POINTS = 16;
-const WAKE_DISTANCE = 8;
 
 function seeded(index: number): number {
   const value = Math.sin(index * 12.9898 + 78.233) * 43758.5453;
@@ -294,10 +275,8 @@ export default function CtaOptimizationCurrent() {
     let track: Track | null = null;
     let groups: ParticleGroup[] = [];
     let particles: Particle[] = [];
-    let wakeParticles: WakeParticle[] = [];
     let exclusions: Exclusion[] = [];
     let frame = 0;
-    let tracePoints: TracePoint[] = [];
     let lastTime = performance.now();
     let isVisible = true;
 
@@ -310,8 +289,6 @@ export default function CtaOptimizationCurrent() {
       velocityY: 0,
       targetStrength: 0,
       strength: 0,
-      lastEmissionX: -9999,
-      lastEmissionY: -9999,
     };
 
     const updateExclusions = () => {
@@ -481,51 +458,6 @@ export default function CtaOptimizationCurrent() {
       context.restore();
     };
 
-    const updateWakeParticles = (delta: number, shouldAdvance: boolean) => {
-      if (!shouldAdvance) {
-        wakeParticles = [];
-        tracePoints = [];
-        return;
-      }
-
-      const frameScale = Math.max(0.35, Math.min(2.1, delta / 16.67));
-      const damping = Math.pow(0.9, frameScale);
-
-      wakeParticles = wakeParticles.filter((particle) => {
-        particle.life -= delta / 940;
-        particle.velocityX *= damping;
-        particle.velocityY = particle.velocityY * damping - 0.012 * frameScale;
-        particle.x += particle.velocityX * frameScale;
-        particle.y += particle.velocityY * frameScale;
-        return particle.life > 0;
-      });
-      tracePoints = tracePoints.filter((point) => {
-        point.life -= delta / 720;
-        return point.life > 0;
-      });
-    };
-
-
-    const drawTracePath = () => {
-      if (tracePoints.length < 2) return;
-
-      context.save();
-      context.lineCap = "square";
-      for (let index = 1; index < tracePoints.length; index += 1) {
-        const previous = tracePoints[index - 1];
-        const current = tracePoints[index];
-        const alpha =
-          Math.min(previous.life, current.life) * pointer.strength * 0.4;
-        context.beginPath();
-        context.moveTo(previous.x, previous.y);
-        context.lineTo(current.x, current.y);
-        context.lineWidth = index % 3 === 0 ? 1 : 0.65;
-        context.strokeStyle = ice(alpha);
-        context.stroke();
-      }
-      context.restore();
-    };
-
     const drawPointerProbe = (time: number) => {
       if (pointer.strength < 0.01) return;
 
@@ -605,39 +537,6 @@ export default function CtaOptimizationCurrent() {
       }
       context.restore();
     };
-    const drawWakeParticles = () => {
-      context.save();
-      for (const particle of wakeParticles) {
-        const alpha = Math.max(0, particle.life) * 0.56;
-        context.fillStyle = ice(alpha);
-        context.strokeStyle = ice(alpha);
-        context.lineWidth = 0.8;
-
-        if (particle.kind === 0) {
-          context.beginPath();
-          context.moveTo(particle.x - particle.size, particle.y);
-          context.lineTo(particle.x + particle.size, particle.y);
-          context.moveTo(particle.x, particle.y - particle.size);
-          context.lineTo(particle.x, particle.y + particle.size);
-          context.stroke();
-        } else if (particle.kind === 1) {
-          context.fillRect(
-            particle.x - particle.size,
-            particle.y - 0.55,
-            particle.size * 2,
-            1.1,
-          );
-        } else {
-          context.fillRect(
-            particle.x - particle.size / 2,
-            particle.y - particle.size / 2,
-            particle.size,
-            particle.size,
-          );
-        }
-      }
-      context.restore();
-    };
 
     const drawParticles = () => {
       context.save();
@@ -685,10 +584,7 @@ export default function CtaOptimizationCurrent() {
       if (!track || !width || !height) return;
       context.clearRect(0, 0, width, height);
       updateParticles(time, delta, shouldAdvance);
-      updateWakeParticles(delta, shouldAdvance);
       drawConnections();
-      drawTracePath();
-      drawWakeParticles();
       drawParticles();
       drawPointerProbe(time);
     };
@@ -729,12 +625,10 @@ export default function CtaOptimizationCurrent() {
       track = createTrack(width, height);
       updateExclusions();
       initializeParticles();
-      wakeParticles = [];
       draw(performance.now(), 0, false);
       start();
     };
 
-      tracePoints = [];
     const handlePointerMove = (event: PointerEvent) => {
       if (
         reduceMotion.matches ||
@@ -752,34 +646,6 @@ export default function CtaOptimizationCurrent() {
         pointer.velocityY = nextY - pointer.previousY;
       }
 
-      const emissionDistance = Math.hypot(
-        nextX - pointer.lastEmissionX,
-        nextY - pointer.lastEmissionY,
-      );
-      if (pointer.lastEmissionX < -1000 || emissionDistance >= WAKE_DISTANCE) {
-        const speed = Math.hypot(pointer.velocityX, pointer.velocityY) || 1;
-        const lateralX = -pointer.velocityY / speed;
-        const lateralY = pointer.velocityX / speed;
-        const wakeIndex = wakeParticles.length;
-
-        for (const side of [-1, 1]) {
-          wakeParticles.push({
-            x: nextX + lateralX * side * 3.2,
-            y: nextY + lateralY * side * 3.2,
-            velocityX: -pointer.velocityX * 0.055 + lateralX * side * 0.18,
-            velocityY: -pointer.velocityY * 0.055 + lateralY * side * 0.18,
-            life: 1,
-            size: 1.5 + seeded(wakeIndex + side + 811) * 1.25,
-            kind: (wakeIndex + (side > 0 ? 1 : 0)) % 3,
-          });
-        }
-        wakeParticles = wakeParticles.slice(-MAX_WAKE_PARTICLES);
-        pointer.lastEmissionX = nextX;
-        pointer.lastEmissionY = nextY;
-      }
-
-        tracePoints.push({ x: nextX, y: nextY, life: 1 });
-        tracePoints = tracePoints.slice(-MAX_TRACE_POINTS);
       pointer.x = nextX;
       pointer.y = nextY;
       pointer.previousX = nextX;
@@ -791,8 +657,6 @@ export default function CtaOptimizationCurrent() {
       pointer.targetStrength = 0;
       pointer.previousX = -9999;
       pointer.previousY = -9999;
-      pointer.lastEmissionX = -9999;
-      pointer.lastEmissionY = -9999;
     };
 
     const handleVisibilityChange = () => {
@@ -804,12 +668,10 @@ export default function CtaOptimizationCurrent() {
       if (reduceMotion.matches) {
         pointer.targetStrength = 0;
         pointer.strength = 0;
-        wakeParticles = [];
       }
       start();
     };
 
-        tracePoints = [];
     const resizeObserver = new ResizeObserver(resize);
     const intersectionObserver = new IntersectionObserver(
       ([entry]) => {

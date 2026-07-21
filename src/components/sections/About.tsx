@@ -38,7 +38,7 @@ export default function About() {
           </ol>
         </div>
 
-        <div data-cache-obstacle className="mt-12 grid overflow-hidden rounded-panel border border-ascent-border bg-ascent-brand-tint sm:grid-cols-3">
+        <div className="mt-12 grid overflow-hidden rounded-panel border border-ascent-border bg-ascent-brand-tint sm:grid-cols-3">
           {[
             "Correct output",
             "Controlled benchmark",

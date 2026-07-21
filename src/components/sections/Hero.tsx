@@ -3,6 +3,7 @@ import { Button } from "@/components/ui";
 import { HERO_STATS } from "@/content/sections";
 import { site } from "@/content/site";
 import Countdown from "./Countdown";
+import HeroCacheField from "./HeroCacheField";
 
 export default function Hero() {
   const { proof, registration } = site;
@@ -12,6 +13,7 @@ export default function Hero() {
       aria-labelledby="hero-title"
       className="relative isolate overflow-hidden border-b border-ascent-border bg-ascent-canvas px-4 pb-14 pt-24 sm:px-6 sm:pb-20 sm:pt-32 lg:px-8 lg:pb-24 lg:pt-36"
     >
+      <HeroCacheField />
       <div className="relative z-10 mx-auto max-w-7xl">
         <div className="max-w-5xl">
           <div>

@@ -26,6 +26,7 @@ const ROWS: AdminRegistrationRow[] = [
     transcriptUrl: null,
     linkedInUrl: null,
     githubUrl: null,
+    tags: ["HIGH_PRIORITY"],
   },
   {
     id: "two",
@@ -48,6 +49,7 @@ const ROWS: AdminRegistrationRow[] = [
     transcriptUrl: null,
     linkedInUrl: null,
     githubUrl: null,
+    tags: ["INSTITUTION_CHECK"],
   },
 ];
 
@@ -59,6 +61,7 @@ describe("filterAdminRegistrations", () => {
           query,
           decision: "ALL",
           path: "ALL",
+          tag: "ALL",
         }).map((row) => row.id),
       ).toEqual(["one"]);
     }
@@ -70,6 +73,7 @@ describe("filterAdminRegistrations", () => {
         query: "",
         decision: "APPROVED",
         path: "QUALIFIER",
+        tag: "ALL",
       }).map((row) => row.id),
     ).toEqual(["two"]);
   });
@@ -80,7 +84,19 @@ describe("filterAdminRegistrations", () => {
         query: "asha",
         decision: "APPROVED",
         path: "ALL",
+        tag: "ALL",
       }),
     ).toEqual([]);
+  });
+
+  it("filters by controlled operational tag", () => {
+    expect(
+      filterAdminRegistrations(ROWS, {
+        query: "",
+        decision: "ALL",
+        path: "ALL",
+        tag: "INSTITUTION_CHECK",
+      }).map((row) => row.id),
+    ).toEqual(["two"]);
   });
 });

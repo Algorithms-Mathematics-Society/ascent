@@ -1,6 +1,10 @@
 import "server-only";
 
 import { getEligibleInstitutionById } from "@/content/institutions";
+import {
+  normalizeAdminTags,
+  type AdminRegistrationTag,
+} from "@/lib/adminOperations";
 import { adminDb } from "@/lib/firebaseAdmin";
 import type {
   AdminDecision,
@@ -29,6 +33,13 @@ export interface AdminRegistrationAuditEvent {
   timestamp: string | null;
 }
 
+export interface AdminRegistrationNote {
+  id: string;
+  body: string;
+  actorEmail: string;
+  createdAt: string | null;
+}
+
 export interface AdminRegistrationDetail extends AdminRegistrationRow {
   edition: string;
   applicationState: string;
@@ -41,10 +52,12 @@ export interface AdminRegistrationDetail extends AdminRegistrationRow {
   emailVerified: boolean;
   updatedAt: string | null;
   decisionRevision: number;
+  operationsRevision: number;
   consentGranted: boolean;
   consentPolicyVersion: string | null;
   consentGrantedAt: string | null;
   auditEvents: AdminRegistrationAuditEvent[];
+  notes: AdminRegistrationNote[];
 }
 
 function stringValue(value: unknown, fallback = "") {
@@ -57,6 +70,12 @@ function nullableString(value: unknown) {
 
 function booleanValue(value: unknown) {
   return value === true;
+}
+
+function nonNegativeInteger(value: unknown) {
+  return typeof value === "number" && Number.isSafeInteger(value) && value >= 0
+    ? value
+    : 0;
 }
 
 function decisionValue(value: unknown): AdminDecision {
@@ -138,10 +157,14 @@ export async function getLatestAdminRegistrations(): Promise<
   const decisionRefs = applicationsSnapshot.docs.map((doc) =>
     adminDb.collection("admin_registration_decisions").doc(doc.id),
   );
+  const operationsRefs = applicationsSnapshot.docs.map((doc) =>
+    adminDb.collection("admin_registration_operations").doc(doc.id),
+  );
   const joinedSnapshots = await adminDb.getAll(
     ...piiRefs,
     ...unlistedRefs,
     ...decisionRefs,
+    ...operationsRefs,
   );
   const piiById = new Map(
     joinedSnapshots
@@ -157,6 +180,12 @@ export async function getLatestAdminRegistrations(): Promise<
   const decisionsById = new Map(
     joinedSnapshots
       .slice(piiRefs.length + unlistedRefs.length)
+      .slice(0, decisionRefs.length)
+      .map((snapshot) => [snapshot.id, snapshot.data() ?? {}]),
+  );
+  const operationsById = new Map(
+    joinedSnapshots
+      .slice(piiRefs.length + unlistedRefs.length + decisionRefs.length)
       .map((snapshot) => [snapshot.id, snapshot.data() ?? {}]),
   );
 
@@ -165,6 +194,7 @@ export async function getLatestAdminRegistrations(): Promise<
     const pii = piiById.get(applicationDocument.id) ?? {};
     const unlisted = unlistedById.get(applicationDocument.id) ?? {};
     const decision = decisionsById.get(applicationDocument.id) ?? {};
+    const operations = operationsById.get(applicationDocument.id) ?? {};
     const institution =
       listedInstitutionLabel(application.college_id) ??
       stringValue(unlisted.typed_name, "Institution not recorded");
@@ -193,6 +223,7 @@ export async function getLatestAdminRegistrations(): Promise<
       transcriptUrl: nullableString(pii.transcript_url),
       linkedInUrl: nullableString(pii.linkedin_url),
       githubUrl: nullableString(pii.github_url),
+      tags: normalizeAdminTags(operations.tags),
     };
   });
 }
@@ -209,23 +240,34 @@ export async function getAdminRegistrationDetail(
     .collection("admin_registration_decisions")
     .doc(applicationId);
   const consentRef = adminDb.collection("consent").doc(applicationId);
+  const operationsRef = adminDb
+    .collection("admin_registration_operations")
+    .doc(applicationId);
 
-  const [documents, auditSnapshot] = await Promise.all([
+  const [documents, auditSnapshot, notesSnapshot] = await Promise.all([
     adminDb.getAll(
       applicationRef,
       piiRef,
       unlistedRef,
       decisionRef,
       consentRef,
+      operationsRef,
     ),
     adminDb
       .collection("audit_log")
       .where("subject_id", "==", applicationId)
       .get(),
+    operationsRef.collection("notes").get(),
   ]);
 
-  const [applicationDocument, piiDocument, unlistedDocument, decisionDocument, consentDocument] =
-    documents;
+  const [
+    applicationDocument,
+    piiDocument,
+    unlistedDocument,
+    decisionDocument,
+    consentDocument,
+    operationsDocument,
+  ] = documents;
   if (!applicationDocument.exists) return null;
 
   const application = applicationDocument.data() ?? {};
@@ -233,6 +275,7 @@ export async function getAdminRegistrationDetail(
   const unlisted = unlistedDocument.data() ?? {};
   const decision = decisionDocument.data() ?? {};
   const consent = consentDocument.data() ?? {};
+  const operations = operationsDocument.data() ?? {};
   const participationConsent =
     consent.CONTEST_PARTICIPATION &&
     typeof consent.CONTEST_PARTICIPATION === "object"
@@ -262,6 +305,20 @@ export async function getAdminRegistrationDetail(
       (right.timestamp ?? "").localeCompare(left.timestamp ?? ""),
     );
 
+  const notes = notesSnapshot.docs
+    .map((document): AdminRegistrationNote => {
+      const note = document.data();
+      return {
+        id: document.id,
+        body: stringValue(note.body, "Private note unavailable."),
+        actorEmail: stringValue(note.actor_email, "Administrator"),
+        createdAt: timestampIso(note.created_at),
+      };
+    })
+    .sort((left, right) =>
+      (right.createdAt ?? "").localeCompare(left.createdAt ?? ""),
+    );
+
   return {
     id: applicationDocument.id,
     reference: stringValue(application.reference, "Reference pending"),
@@ -286,6 +343,7 @@ export async function getAdminRegistrationDetail(
     transcriptUrl: nullableString(pii.transcript_url),
     linkedInUrl: nullableString(pii.linkedin_url),
     githubUrl: nullableString(pii.github_url),
+    tags: normalizeAdminTags(operations.tags) as AdminRegistrationTag[],
     edition: stringValue(application.edition, "—"),
     applicationState: stringValue(application.state, "—"),
     applicantStatus: stringValue(application.status, "—"),
@@ -303,10 +361,12 @@ export async function getAdminRegistrationDetail(
     emailVerified: booleanValue(application.email_verified),
     updatedAt: timestampIso(application.updated_at),
     decisionRevision:
-      typeof decision.revision === "number" ? decision.revision : 0,
+      nonNegativeInteger(decision.revision),
+    operationsRevision: nonNegativeInteger(operations.revision),
     consentGranted: booleanValue(participationConsent.granted),
     consentPolicyVersion: nullableString(participationConsent.policy_version),
     consentGrantedAt: timestampIso(participationConsent.granted_at),
     auditEvents,
+    notes,
   };
 }

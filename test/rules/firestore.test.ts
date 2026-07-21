@@ -109,6 +109,57 @@ describe("admin_registration_decisions/{uid}: deny-all", () => {
   });
 });
 
+describe("admin_registration_operations/{uid}: deny-all", () => {
+  it("denies applicant access to operations and nested notes", async () => {
+    await testEnv.withSecurityRulesDisabled(async (ctx) => {
+      await setDoc(
+        doc(ctx.firestore(), "admin_registration_operations/uid-1"),
+        { tags: ["HIGH_PRIORITY"] },
+      );
+      await setDoc(
+        doc(
+          ctx.firestore(),
+          "admin_registration_operations/uid-1/notes/note-1",
+        ),
+        { body: "Private operational note" },
+      );
+    });
+    const ownerDb = testEnv.authenticatedContext("uid-1").firestore();
+    await assertFails(
+      getDoc(doc(ownerDb, "admin_registration_operations/uid-1")),
+    );
+    await assertFails(
+      getDoc(
+        doc(
+          ownerDb,
+          "admin_registration_operations/uid-1/notes/note-1",
+        ),
+      ),
+    );
+    await assertFails(
+      setDoc(doc(ownerDb, "admin_registration_operations/uid-1"), {
+        tags: [],
+      }),
+    );
+  });
+});
+
+describe("admin_bulk_operations/{id}: deny-all", () => {
+  it("denies applicant reads and writes", async () => {
+    await testEnv.withSecurityRulesDisabled(async (ctx) => {
+      await setDoc(doc(ctx.firestore(), "admin_bulk_operations/batch-1"), {
+        decision: "APPROVED",
+        count: 2,
+      });
+    });
+    const ownerDb = testEnv.authenticatedContext("uid-1").firestore();
+    await assertFails(getDoc(doc(ownerDb, "admin_bulk_operations/batch-1")));
+    await assertFails(
+      setDoc(doc(ownerDb, "admin_bulk_operations/batch-1"), { count: 0 }),
+    );
+  });
+});
+
 describe("handles/{id} and phones/{id}: deny-all", () => {
   it("denies client read on handles", async () => {
     await testEnv.withSecurityRulesDisabled(async (ctx) => {

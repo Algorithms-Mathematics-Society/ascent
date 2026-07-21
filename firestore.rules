@@ -36,6 +36,18 @@ service cloud.firestore {
       allow read, write: if false;
     }
 
+    match /admin_registration_operations/{id} {
+      allow read, write: if false;
+
+      match /notes/{noteId} {
+        allow read, write: if false;
+      }
+    }
+
+    match /admin_bulk_operations/{id} {
+      allow read, write: if false;
+    }
+
     match /_rate_limits/{id} {
       allow read, write: if false;
     }

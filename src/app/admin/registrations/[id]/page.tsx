@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { notFound } from "next/navigation";
 import AdminDecisionWorkspace from "@/components/admin/AdminDecisionWorkspace";
+import AdminOperationsPanel from "@/components/admin/AdminOperationsPanel";
 import AdminRegistrationStatus from "@/components/admin/AdminRegistrationStatus";
 import { isSafeApplicationId } from "@/lib/adminDecision";
 import {
@@ -348,7 +349,7 @@ export default async function AdminRegistrationDetailPage({
           </ReviewSection>
         </div>
 
-        <aside className="lg:sticky lg:top-6">
+        <aside className="grid gap-6 lg:sticky lg:top-6">
           <AdminDecisionWorkspace
             applicationId={registration.id}
             applicantName={registration.legalName}
@@ -358,6 +359,12 @@ export default async function AdminRegistrationDetailPage({
             decidedAt={registration.decidedAt}
             decidedBy={registration.decidedBy}
             revision={registration.decisionRevision}
+          />
+          <AdminOperationsPanel
+            applicationId={registration.id}
+            initialTags={registration.tags}
+            initialRevision={registration.operationsRevision}
+            notes={registration.notes}
           />
         </aside>
       </div>

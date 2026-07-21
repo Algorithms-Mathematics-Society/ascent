@@ -1,7 +1,13 @@
 import type { Metadata } from "next";
 import AdminDecisionControl from "@/components/admin/AdminDecisionControl";
+import AdminBulkReview from "@/components/admin/AdminBulkReview";
 import AdminMetric from "@/components/admin/AdminMetric";
 import { Button } from "@/components/ui";
+import {
+  ADMIN_REGISTRATION_TAG_LABEL,
+  ADMIN_REGISTRATION_TAGS,
+  isAdminRegistrationTag,
+} from "@/lib/adminOperations";
 import {
   filterAdminRegistrations,
   type AdminDecision,
@@ -36,6 +42,10 @@ function parsePath(value: string): AdminRegistrationFilters["path"] {
   return value === "AUTO" || value === "QUALIFIER" || value === "UNDETERMINED"
     ? value
     : "ALL";
+}
+
+function parseTag(value: string): AdminRegistrationFilters["tag"] {
+  return isAdminRegistrationTag(value) ? value : "ALL";
 }
 
 function formatSubmittedAt(value: string | null) {
@@ -95,6 +105,22 @@ function DocumentLinks({ row }: { row: AdminRegistrationRow }) {
   );
 }
 
+function OperationalTags({ row }: { row: AdminRegistrationRow }) {
+  if (!row.tags.length) return null;
+  return (
+    <div className="mt-3 flex flex-wrap gap-1.5">
+      {row.tags.map((tag) => (
+        <span
+          key={tag}
+          className="border border-ascent-border bg-ascent-canvas px-2 py-1 font-mono text-[0.58rem] uppercase tracking-[0.06em] text-ascent-muted"
+        >
+          {ADMIN_REGISTRATION_TAG_LABEL[tag]}
+        </span>
+      ))}
+    </div>
+  );
+}
+
 function DesktopTable({ rows }: { rows: AdminRegistrationRow[] }) {
   return (
     <div className="hidden overflow-x-auto lg:block">
@@ -130,6 +156,7 @@ function DesktopTable({ rows }: { rows: AdminRegistrationRow[] }) {
                   <p className="mt-2 font-mono text-[0.66rem] uppercase tracking-[0.08em] text-ascent-muted">
                     {row.reference}
                   </p>
+                  <OperationalTags row={row} />
                   <a
                     href={`/admin/registrations/${row.id}`}
                     className="mt-2 inline-flex text-xs font-semibold text-ascent-brand underline underline-offset-4"
@@ -196,6 +223,7 @@ function MobileCards({ rows }: { rows: AdminRegistrationRow[] }) {
                   </a>
                 </h2>
                 <p className="mt-1 text-xs text-ascent-muted">{row.email}</p>
+                <OperationalTags row={row} />
               </div>
             </div>
             <dl className="mt-5 grid gap-4 text-sm sm:grid-cols-2">
@@ -258,14 +286,26 @@ export default async function AdminHomePage({
     query: firstParam(searchParams.q),
     decision: parseDecision(firstParam(searchParams.decision)),
     path: parsePath(firstParam(searchParams.path)),
+    tag: parseTag(firstParam(searchParams.tag)),
   };
   const [stats, latestRows] = await Promise.all([
     getAdminRegistrationStats(),
     getLatestAdminRegistrations(),
   ]);
   const rows = filterAdminRegistrations(latestRows, filters);
+  const exportParams = new URLSearchParams();
+  if (filters.query) exportParams.set("q", filters.query);
+  if (filters.decision !== "ALL") exportParams.set("decision", filters.decision);
+  if (filters.path !== "ALL") exportParams.set("path", filters.path);
+  if (filters.tag !== "ALL") exportParams.set("tag", filters.tag);
+  const exportHref = `/api/admin/registrations/export${
+    exportParams.size ? `?${exportParams.toString()}` : ""
+  }`;
   const filtering =
-    Boolean(filters.query) || filters.decision !== "ALL" || filters.path !== "ALL";
+    Boolean(filters.query) ||
+    filters.decision !== "ALL" ||
+    filters.path !== "ALL" ||
+    filters.tag !== "ALL";
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 lg:py-12">
@@ -305,16 +345,48 @@ export default async function AdminHomePage({
 
       <section className="mt-6 border border-ascent-border bg-ascent-surface" aria-labelledby="entries-title">
         <div className="border-b border-ascent-border p-5 sm:p-6">
-          <div className="flex flex-col gap-1 sm:flex-row sm:items-baseline sm:justify-between">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <h2 id="entries-title" className="text-xl font-semibold tracking-tight">
               Entries
             </h2>
-            <p className="text-xs text-ascent-muted" aria-live="polite">
-              {rows.length} {rows.length === 1 ? "registration" : "registrations"} shown
-            </p>
+            <div className="flex flex-wrap items-center gap-3">
+              <p className="text-xs text-ascent-muted" aria-live="polite">
+                {rows.length} {rows.length === 1 ? "registration" : "registrations"} shown
+              </p>
+              <Button href={exportHref} variant="secondary" className="min-h-9 px-3 py-2 text-xs">
+                Export current view · CSV
+              </Button>
+            </div>
           </div>
 
-          <form className="mt-5 grid gap-3 lg:grid-cols-[minmax(240px,1fr)_190px_190px_auto]" method="get">
+          <div className="mt-5 flex flex-wrap gap-2" aria-label="Saved queue views">
+            <a
+              href="/admin?decision=PENDING"
+              className="border border-ascent-border px-3 py-2 text-xs font-semibold text-ascent-muted hover:border-ascent-brand hover:text-ascent-brand"
+            >
+              Pending review
+            </a>
+            <a
+              href="/admin?tag=INSTITUTION_CHECK"
+              className="border border-ascent-border px-3 py-2 text-xs font-semibold text-ascent-muted hover:border-ascent-brand hover:text-ascent-brand"
+            >
+              Institution checks
+            </a>
+            <a
+              href="/admin?tag=NEEDS_FOLLOW_UP"
+              className="border border-ascent-border px-3 py-2 text-xs font-semibold text-ascent-muted hover:border-ascent-brand hover:text-ascent-brand"
+            >
+              Follow-ups
+            </a>
+            <a
+              href="/admin?decision=WAITLISTED"
+              className="border border-ascent-border px-3 py-2 text-xs font-semibold text-ascent-muted hover:border-ascent-brand hover:text-ascent-brand"
+            >
+              Waitlist
+            </a>
+          </div>
+
+          <form className="mt-4 grid gap-3 lg:grid-cols-[minmax(220px,1fr)_170px_170px_180px_auto]" method="get">
             <label className="flex flex-col gap-2 text-xs font-semibold text-ascent-ink">
               Search this view
               <input
@@ -352,6 +424,21 @@ export default async function AdminHomePage({
                 <option value="UNDETERMINED">Path pending</option>
               </select>
             </label>
+            <label className="flex flex-col gap-2 text-xs font-semibold text-ascent-ink">
+              Operational tag
+              <select
+                className="ascent-field-control ascent-select"
+                name="tag"
+                defaultValue={filters.tag}
+              >
+                <option value="ALL">All tags</option>
+                {ADMIN_REGISTRATION_TAGS.map((tag) => (
+                  <option key={tag} value={tag}>
+                    {ADMIN_REGISTRATION_TAG_LABEL[tag]}
+                  </option>
+                ))}
+              </select>
+            </label>
             <div className="flex items-end gap-2">
               <Button type="submit" className="min-h-11 flex-1 lg:flex-none">
                 Apply filters
@@ -364,6 +451,17 @@ export default async function AdminHomePage({
             </div>
           </form>
         </div>
+
+        <AdminBulkReview
+          rows={rows
+            .filter((row) => row.decision === "PENDING")
+            .map((row) => ({
+              id: row.id,
+              reference: row.reference,
+              legalName: row.legalName,
+              institution: row.institution,
+            }))}
+        />
 
         {rows.length ? (
           <>

@@ -15,6 +15,8 @@ import "@fontsource/jetbrains-mono/700.css";
 
 import "./globals.css";
 
+export const preferredRegion = "bom1";
+
 export const metadata: Metadata = {
   title: site.seo.title,
   description: site.seo.description,

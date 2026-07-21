@@ -17,6 +17,11 @@ import {
   normalizeGoogleDriveUrl,
 } from "@/lib/validators";
 import {
+  millisecondsUntilRegistrationOpens,
+  REGISTRATION_OPENING_MESSAGE,
+  registrationHasOpened,
+} from "@/lib/registrationLaunch";
+import {
   Button,
   FormField,
   Input,
@@ -43,6 +48,7 @@ const CollegeTypeahead = dynamic(loadCollegeTypeahead, {
 });
 
 const SUBMIT_TIMEOUT_MS = 20_000;
+const OPENING_CHECK_INTERVAL_MS = 60 * 60 * 1000;
 const CURRENT_YEAR = new Date().getFullYear();
 
 const EDUCATION_OPTIONS = [
@@ -494,6 +500,7 @@ function SuccessReceipt({ receipt }: { receipt: RegistrationReceipt }) {
 
 export default function RegistrationForm() {
   const [step, setStep] = useState<RegistrationStep>(1);
+  const [registrationOpen, setRegistrationOpen] = useState(false);
   const [values, setValues] = useState<FormValues>(INITIAL_VALUES);
   const [selectedCollege, setSelectedCollege] = useState<CollegeResult | null>(
     null,
@@ -511,6 +518,30 @@ export default function RegistrationForm() {
   const submissionTokenRef = useRef<string | null>(null);
   const submittingRef = useRef(false);
   const errorSummaryRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    let timer: number | undefined;
+
+    function syncRegistrationOpening() {
+      if (registrationHasOpened()) {
+        setRegistrationOpen(true);
+        return;
+      }
+
+      timer = window.setTimeout(
+        syncRegistrationOpening,
+        Math.min(
+          millisecondsUntilRegistrationOpens(),
+          OPENING_CHECK_INTERVAL_MS,
+        ),
+      );
+    }
+
+    syncRegistrationOpening();
+    return () => {
+      if (timer !== undefined) window.clearTimeout(timer);
+    };
+  }, []);
 
   function clearFieldError(field: FieldName) {
     setFieldErrors((current) => {
@@ -960,16 +991,48 @@ export default function RegistrationForm() {
               these contact details are used for competition administration and
               are not shown on the public ranklist.
             </p>
-            <Button
-              type="button"
-              onPointerEnter={prepareEducationSearch}
-              onFocus={prepareEducationSearch}
-              onTouchStart={prepareEducationSearch}
-              onClick={() => continueFrom(1)}
-              className="w-full sm:w-auto"
-            >
-              Continue to education
-            </Button>
+            <div className="group relative w-full sm:w-auto">
+              <div
+                tabIndex={registrationOpen ? undefined : 0}
+                aria-disabled={registrationOpen ? undefined : true}
+                aria-describedby={
+                  registrationOpen ? undefined : "registration-opening-note"
+                }
+                className={
+                  registrationOpen
+                    ? undefined
+                    : "rounded-control focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ascent-focus"
+                }
+              >
+                <Button
+                  type="button"
+                  onPointerEnter={
+                    registrationOpen ? prepareEducationSearch : undefined
+                  }
+                  onFocus={registrationOpen ? prepareEducationSearch : undefined}
+                  onTouchStart={
+                    registrationOpen ? prepareEducationSearch : undefined
+                  }
+                  onClick={() => continueFrom(1)}
+                  disabled={!registrationOpen || submitting}
+                  aria-describedby={
+                    registrationOpen ? undefined : "registration-opening-note"
+                  }
+                  className="w-full sm:w-auto"
+                >
+                  Continue to education
+                </Button>
+              </div>
+              {!registrationOpen ? (
+                <span
+                  id="registration-opening-note"
+                  role="tooltip"
+                  className="pointer-events-none absolute bottom-[calc(100%+0.5rem)] right-0 z-20 w-64 max-w-[calc(100vw-2.5rem)] rounded-control border border-ascent-border bg-ascent-ink px-3 py-2 text-center text-xs leading-5 text-ascent-on-brand opacity-0 transition-opacity duration-150 group-hover:opacity-100 group-focus-within:opacity-100"
+                >
+                  {REGISTRATION_OPENING_MESSAGE}
+                </span>
+              ) : null}
+            </div>
           </div>
         </StageFrame>
 

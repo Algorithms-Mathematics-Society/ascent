@@ -13,6 +13,10 @@ import logger, { genReqId, maskEmail } from "@/lib/logger";
 import { determinePath } from "@/lib/qualificationEngine";
 import { checkSlidingWindow, sha256 } from "@/lib/rateLimit";
 import {
+  REGISTRATION_OPENING_MESSAGE,
+  registrationHasOpened,
+} from "@/lib/registrationLaunch";
+import {
   registrationAvailability,
   registrationSettingsFromData,
 } from "@/lib/registrationSettings";
@@ -257,6 +261,10 @@ export async function POST(req: NextRequest) {
       { success: false, error: "Registration could not be checked. Try again." },
       { status: 500 },
     );
+  }
+
+  if (!registrationHasOpened()) {
+    return fieldError("registration", REGISTRATION_OPENING_MESSAGE, 423);
   }
 
   try {

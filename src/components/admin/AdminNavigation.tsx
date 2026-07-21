@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 const ITEMS = [
   { href: "/admin", label: "Registrations" },
   { href: "/admin/activity", label: "Activity" },
+  { href: "/admin/settings", label: "Settings" },
 ] as const;
 
 export default function AdminNavigation() {

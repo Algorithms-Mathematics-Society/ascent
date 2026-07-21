@@ -57,6 +57,9 @@ export function adminActivityLabel(event: string) {
   if (event === "REGISTRATION_REJECTED") return "Registration rejected";
   if (event === "ADMIN_NOTE_ADDED") return "Private note added";
   if (event === "ADMIN_TAGS_UPDATED") return "Operational tags updated";
+  if (event === "ADMIN_REGISTRATION_SETTINGS_UPDATED") {
+    return "Registration controls updated";
+  }
   if (event === "QUALIFICATION_DETERMINED") {
     return "Qualification route determined";
   }

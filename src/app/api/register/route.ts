@@ -11,6 +11,11 @@ import { adminDb, adminServerTimestamp } from "@/lib/firebaseAdmin";
 import logger, { genReqId, maskEmail } from "@/lib/logger";
 import { determinePath } from "@/lib/qualificationEngine";
 import { checkSlidingWindow, sha256 } from "@/lib/rateLimit";
+import {
+  registrationAvailability,
+  registrationSettingsFromData,
+} from "@/lib/registrationSettings";
+import { getRegistrationAvailability } from "@/lib/registrationSettingsData";
 import type {
   ApplicantStatus,
   CollegeTier,
@@ -57,7 +62,8 @@ type DuplicateField = "email" | "phone";
 type TransactionResult =
   | { kind: "written" }
   | { kind: "duplicate"; field: DuplicateField }
-  | { kind: "idempotent"; receipt: RegistrationReceipt };
+  | { kind: "idempotent"; receipt: RegistrationReceipt }
+  | { kind: "unavailable"; message: string };
 
 function fieldError(field: string, error: string, status = 400) {
   return NextResponse.json({ success: false, error, field }, { status });
@@ -237,6 +243,24 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(
       { success: false, error: "Registration could not be checked. Try again." },
       { status: 500 },
+    );
+  }
+
+  try {
+    const { availability } = await getRegistrationAvailability();
+    if (!availability.acceptsRegistrations) {
+      return fieldError("registration", availability.message, 423);
+    }
+  } catch (error) {
+    logger.error(
+      "direct_registration",
+      "availability_preflight_failed",
+      { reqId, status: "failed" },
+      error,
+    );
+    return NextResponse.json(
+      { success: false, error: "Registration availability could not be checked. Try again." },
+      { status: 503 },
     );
   }
 
@@ -507,6 +531,7 @@ export async function POST(req: NextRequest) {
   const phoneRef = adminDb
     .collection("phones")
     .doc(`${EDITION}_${normalizedPhone}`);
+  const settingsRef = adminDb.collection("admin_config").doc("registration");
 
   try {
     const [emailSnap, phoneSnap] = await Promise.all([
@@ -556,12 +581,20 @@ export async function POST(req: NextRequest) {
         return { kind: "idempotent", receipt: existingReceipt };
       }
 
-      const [emailSnap, phoneSnap] = await Promise.all([
+      const [emailSnap, phoneSnap, settingsSnap] = await Promise.all([
         tx.get(emailRef),
         tx.get(phoneRef),
+        tx.get(settingsRef),
       ]);
       if (emailSnap.exists) return { kind: "duplicate", field: "email" };
       if (phoneSnap.exists) return { kind: "duplicate", field: "phone" };
+      const operationalSettings = registrationSettingsFromData(
+        settingsSnap.data(),
+      );
+      const availability = registrationAvailability(operationalSettings);
+      if (!availability.acceptsRegistrations) {
+        return { kind: "unavailable", message: availability.message };
+      }
 
       const applicationRef = adminDb.collection("applications").doc(subjectId);
       const piiRef = adminDb.collection("pii").doc(subjectId);
@@ -642,6 +675,11 @@ export async function POST(req: NextRequest) {
         ...receipt,
         created_at: adminServerTimestamp(),
       });
+      if (settingsSnap.exists) {
+        tx.update(settingsRef, {
+          accepted_count: operationalSettings.acceptedCount + 1,
+        });
+      }
       return { kind: "written" };
     });
   } catch (error) {
@@ -718,6 +756,10 @@ export async function POST(req: NextRequest) {
       messages[transactionResult.field],
       409,
     );
+  }
+
+  if (transactionResult.kind === "unavailable") {
+    return fieldError("registration", transactionResult.message, 423);
   }
 
   logger.info("direct_registration", "registration_completed", {

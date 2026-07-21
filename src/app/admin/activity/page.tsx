@@ -73,6 +73,16 @@ function CategoryBadge({ category }: { category: AdminActivityEntry["category"] 
 }
 
 function ApplicantLink({ entry }: { entry: AdminActivityEntry }) {
+  if (!entry.subjectId) {
+    return (
+      <div>
+        <span className="block font-semibold text-ascent-ink">Competition-wide</span>
+        <span className="mt-1 block font-mono text-[0.64rem] uppercase tracking-[0.08em] text-ascent-muted">
+          No applicant record
+        </span>
+      </div>
+    );
+  }
   const content = (
     <>
       <span className="block font-semibold text-ascent-ink">{entry.applicantName}</span>
@@ -81,7 +91,7 @@ function ApplicantLink({ entry }: { entry: AdminActivityEntry }) {
       </span>
     </>
   );
-  return entry.subjectId && isSafeApplicationId(entry.subjectId) ? (
+  return isSafeApplicationId(entry.subjectId) ? (
     <a
       href={`/admin/registrations/${entry.subjectId}`}
       className="group hover:text-ascent-brand"

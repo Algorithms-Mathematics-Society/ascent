@@ -5,10 +5,12 @@ import { registrationsCsv } from "@/lib/adminExport";
 import { isAdminRegistrationTag } from "@/lib/adminOperations";
 import {
   filterAdminRegistrations,
+  sortAdminRegistrations,
   type AdminRegistrationFilters,
+  type AdminRegistrationSort,
 } from "@/lib/adminRegistrationView";
 import { ADMIN_SESSION_COOKIE } from "@/lib/adminSecurity";
-import { getLatestAdminRegistrations } from "@/lib/adminRegistrations";
+import { getAllAdminRegistrations } from "@/lib/adminRegistrations";
 
 function parseFilters(request: NextRequest): AdminRegistrationFilters {
   const decision = request.nextUrl.searchParams.get("decision") || "";
@@ -24,6 +26,16 @@ function parseFilters(request: NextRequest): AdminRegistrationFilters {
     tag: isAdminRegistrationTag(tag) ? tag : "ALL",
   };
 }
+
+function parseSort(request: NextRequest): AdminRegistrationSort {
+  const sort = request.nextUrl.searchParams.get("sort") || "";
+  return sort === "OLDEST" ||
+    sort === "NAME" ||
+    sort === "INSTITUTION" ||
+    sort === "DECISION"
+    ? sort
+    : "NEWEST";
+}
 export async function GET(request: NextRequest) {
   const sessionValue = request.cookies.get(ADMIN_SESSION_COOKIE)?.value || "";
   const session = await verifyAdminSessionValue(sessionValue);
@@ -34,9 +46,12 @@ export async function GET(request: NextRequest) {
     );
   }
 
-  const rows = filterAdminRegistrations(
-    await getLatestAdminRegistrations(),
-    parseFilters(request),
+  const rows = sortAdminRegistrations(
+    filterAdminRegistrations(
+      (await getAllAdminRegistrations()).rows,
+      parseFilters(request),
+    ),
+    parseSort(request),
   );
   const date = new Intl.DateTimeFormat("en-CA", {
     timeZone: "Asia/Kolkata",

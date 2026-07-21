@@ -48,6 +48,10 @@ service cloud.firestore {
       allow read, write: if false;
     }
 
+    match /admin_config/{id} {
+      allow read, write: if false;
+    }
+
     match /_rate_limits/{id} {
       allow read, write: if false;
     }

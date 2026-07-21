@@ -160,6 +160,24 @@ describe("admin_bulk_operations/{id}: deny-all", () => {
   });
 });
 
+describe("admin_config/{id}: deny-all", () => {
+  it("denies applicants and unauthenticated clients", async () => {
+    await testEnv.withSecurityRulesDisabled(async (ctx) => {
+      await setDoc(doc(ctx.firestore(), "admin_config/registration"), {
+        is_open: false,
+        capacity: 100,
+      });
+    });
+    const ownerDb = testEnv.authenticatedContext("uid-1").firestore();
+    const anonDb = testEnv.unauthenticatedContext().firestore();
+    await assertFails(getDoc(doc(ownerDb, "admin_config/registration")));
+    await assertFails(getDoc(doc(anonDb, "admin_config/registration")));
+    await assertFails(
+      setDoc(doc(ownerDb, "admin_config/registration"), { is_open: true }),
+    );
+  });
+});
+
 describe("handles/{id} and phones/{id}: deny-all", () => {
   it("denies client read on handles", async () => {
     await testEnv.withSecurityRulesDisabled(async (ctx) => {

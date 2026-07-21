@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 import {
   filterAdminRegistrations,
+  paginateAdminRegistrations,
+  sortAdminRegistrations,
   type AdminRegistrationRow,
 } from "../src/lib/adminRegistrationView";
 
@@ -98,5 +100,42 @@ describe("filterAdminRegistrations", () => {
         tag: "INSTITUTION_CHECK",
       }).map((row) => row.id),
     ).toEqual(["two"]);
+  });
+});
+
+describe("admin registration data operations", () => {
+  it("sorts by oldest, applicant, institution, and review priority", () => {
+    expect(sortAdminRegistrations(ROWS, "OLDEST").map((row) => row.id)).toEqual([
+      "one",
+      "two",
+    ]);
+    expect(sortAdminRegistrations(ROWS, "NAME").map((row) => row.id)).toEqual([
+      "one",
+      "two",
+    ]);
+    expect(
+      sortAdminRegistrations(ROWS, "INSTITUTION").map((row) => row.id),
+    ).toEqual(["one", "two"]);
+    expect(
+      sortAdminRegistrations([...ROWS].reverse(), "DECISION").map(
+        (row) => row.id,
+      ),
+    ).toEqual(["one", "two"]);
+  });
+
+  it("paginates deterministically and clamps an out-of-range page", () => {
+    const rows = Array.from({ length: 53 }, (_, index) => ({
+      ...ROWS[0],
+      id: `row-${index + 1}`,
+    }));
+    const second = paginateAdminRegistrations(rows, 2, 25);
+    expect(second.rows).toHaveLength(25);
+    expect(second.start).toBe(26);
+    expect(second.end).toBe(50);
+    expect(second.pageCount).toBe(3);
+    const clamped = paginateAdminRegistrations(rows, 99, 25);
+    expect(clamped.page).toBe(3);
+    expect(clamped.rows).toHaveLength(3);
+    expect(clamped.end).toBe(53);
   });
 });

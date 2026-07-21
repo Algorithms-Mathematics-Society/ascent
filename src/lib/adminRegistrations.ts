@@ -11,7 +11,13 @@ import type {
   AdminRegistrationRow,
 } from "@/lib/adminRegistrationView";
 
-const LATEST_REGISTRATIONS_LIMIT = 100;
+const ADMIN_REGISTRATIONS_SAFETY_LIMIT = 2000;
+const ADMIN_JOIN_BATCH_SIZE = 100;
+
+export interface AdminRegistrationDataset {
+  rows: AdminRegistrationRow[];
+  truncated: boolean;
+}
 
 export interface AdminRegistrationStats {
   total: number;
@@ -137,59 +143,41 @@ export async function getAdminRegistrationStats(): Promise<AdminRegistrationStat
   };
 }
 
-export async function getLatestAdminRegistrations(): Promise<
-  AdminRegistrationRow[]
-> {
+export async function getAllAdminRegistrations(): Promise<AdminRegistrationDataset> {
   const applicationsSnapshot = await adminDb
     .collection("applications")
     .orderBy("created_at", "desc")
-    .limit(LATEST_REGISTRATIONS_LIMIT)
+    .limit(ADMIN_REGISTRATIONS_SAFETY_LIMIT + 1)
     .get();
 
-  if (applicationsSnapshot.empty) return [];
+  if (applicationsSnapshot.empty) return { rows: [], truncated: false };
 
-  const piiRefs = applicationsSnapshot.docs.map((doc) =>
-    adminDb.collection("pii").doc(doc.id),
+  const applicationDocuments = applicationsSnapshot.docs.slice(
+    0,
+    ADMIN_REGISTRATIONS_SAFETY_LIMIT,
   );
-  const unlistedRefs = applicationsSnapshot.docs.map((doc) =>
-    adminDb.collection("unlisted_college_submissions").doc(doc.id),
-  );
-  const decisionRefs = applicationsSnapshot.docs.map((doc) =>
-    adminDb.collection("admin_registration_decisions").doc(doc.id),
-  );
-  const operationsRefs = applicationsSnapshot.docs.map((doc) =>
-    adminDb.collection("admin_registration_operations").doc(doc.id),
-  );
-  const joinedSnapshots = await adminDb.getAll(
-    ...piiRefs,
-    ...unlistedRefs,
-    ...decisionRefs,
-    ...operationsRefs,
-  );
-  const piiById = new Map(
-    joinedSnapshots
-      .slice(0, piiRefs.length)
-      .map((snapshot) => [snapshot.id, snapshot.data() ?? {}]),
-  );
-  const unlistedById = new Map(
-    joinedSnapshots
-      .slice(piiRefs.length)
-      .slice(0, unlistedRefs.length)
-      .map((snapshot) => [snapshot.id, snapshot.data() ?? {}]),
-  );
-  const decisionsById = new Map(
-    joinedSnapshots
-      .slice(piiRefs.length + unlistedRefs.length)
-      .slice(0, decisionRefs.length)
-      .map((snapshot) => [snapshot.id, snapshot.data() ?? {}]),
-  );
-  const operationsById = new Map(
-    joinedSnapshots
-      .slice(piiRefs.length + unlistedRefs.length + decisionRefs.length)
-      .map((snapshot) => [snapshot.id, snapshot.data() ?? {}]),
-  );
+  const joinedSnapshots = [];
+  for (let start = 0; start < applicationDocuments.length; start += ADMIN_JOIN_BATCH_SIZE) {
+    const documents = applicationDocuments.slice(start, start + ADMIN_JOIN_BATCH_SIZE);
+    const refs = documents.flatMap((doc) => [
+      adminDb.collection("pii").doc(doc.id),
+      adminDb.collection("unlisted_college_submissions").doc(doc.id),
+      adminDb.collection("admin_registration_decisions").doc(doc.id),
+      adminDb.collection("admin_registration_operations").doc(doc.id),
+    ]);
+    joinedSnapshots.push(...(await adminDb.getAll(...refs)));
+  }
 
-  return applicationsSnapshot.docs.map((applicationDocument) => {
+  const piiById = new Map<string, Record<string, unknown>>();
+  const unlistedById = new Map<string, Record<string, unknown>>();
+  const decisionsById = new Map<string, Record<string, unknown>>();
+  const operationsById = new Map<string, Record<string, unknown>>();
+  joinedSnapshots.forEach((snapshot, index) => {
+    const target = [piiById, unlistedById, decisionsById, operationsById][index % 4];
+    target.set(snapshot.id, snapshot.data() ?? {});
+  });
+
+  const rows = applicationDocuments.map((applicationDocument) => {
     const application = applicationDocument.data();
     const pii = piiById.get(applicationDocument.id) ?? {};
     const unlisted = unlistedById.get(applicationDocument.id) ?? {};
@@ -226,6 +214,14 @@ export async function getLatestAdminRegistrations(): Promise<
       tags: normalizeAdminTags(operations.tags),
     };
   });
+  return {
+    rows,
+    truncated: applicationsSnapshot.size > ADMIN_REGISTRATIONS_SAFETY_LIMIT,
+  };
+}
+
+export async function getLatestAdminRegistrations(): Promise<AdminRegistrationRow[]> {
+  return (await getAllAdminRegistrations()).rows.slice(0, 100);
 }
 
 export async function getAdminRegistrationDetail(

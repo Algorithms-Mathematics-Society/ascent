@@ -10,13 +10,16 @@ import {
 } from "@/lib/adminOperations";
 import {
   filterAdminRegistrations,
+  paginateAdminRegistrations,
+  sortAdminRegistrations,
   type AdminDecision,
   type AdminRegistrationFilters,
   type AdminRegistrationRow,
+  type AdminRegistrationSort,
 } from "@/lib/adminRegistrationView";
 import {
+  getAllAdminRegistrations,
   getAdminRegistrationStats,
-  getLatestAdminRegistrations,
 } from "@/lib/adminRegistrations";
 
 export const metadata: Metadata = {
@@ -46,6 +49,20 @@ function parsePath(value: string): AdminRegistrationFilters["path"] {
 
 function parseTag(value: string): AdminRegistrationFilters["tag"] {
   return isAdminRegistrationTag(value) ? value : "ALL";
+}
+
+function parseSort(value: string): AdminRegistrationSort {
+  return value === "OLDEST" ||
+    value === "NAME" ||
+    value === "INSTITUTION" ||
+    value === "DECISION"
+    ? value
+    : "NEWEST";
+}
+
+function parsePage(value: string) {
+  const page = Number.parseInt(value, 10);
+  return Number.isSafeInteger(page) && page > 0 ? page : 1;
 }
 
 function formatSubmittedAt(value: string | null) {
@@ -288,16 +305,24 @@ export default async function AdminHomePage({
     path: parsePath(firstParam(searchParams.path)),
     tag: parseTag(firstParam(searchParams.tag)),
   };
-  const [stats, latestRows] = await Promise.all([
+  const sort = parseSort(firstParam(searchParams.sort));
+  const requestedPage = parsePage(firstParam(searchParams.page));
+  const [stats, dataset] = await Promise.all([
     getAdminRegistrationStats(),
-    getLatestAdminRegistrations(),
+    getAllAdminRegistrations(),
   ]);
-  const rows = filterAdminRegistrations(latestRows, filters);
+  const filteredRows = sortAdminRegistrations(
+    filterAdminRegistrations(dataset.rows, filters),
+    sort,
+  );
+  const pagination = paginateAdminRegistrations(filteredRows, requestedPage);
+  const rows = pagination.rows;
   const exportParams = new URLSearchParams();
   if (filters.query) exportParams.set("q", filters.query);
   if (filters.decision !== "ALL") exportParams.set("decision", filters.decision);
   if (filters.path !== "ALL") exportParams.set("path", filters.path);
   if (filters.tag !== "ALL") exportParams.set("tag", filters.tag);
+  if (sort !== "NEWEST") exportParams.set("sort", sort);
   const exportHref = `/api/admin/registrations/export${
     exportParams.size ? `?${exportParams.toString()}` : ""
   }`;
@@ -306,6 +331,12 @@ export default async function AdminHomePage({
     filters.decision !== "ALL" ||
     filters.path !== "ALL" ||
     filters.tag !== "ALL";
+  const viewParams = new URLSearchParams(exportParams);
+  const pageHref = (page: number) => {
+    const params = new URLSearchParams(viewParams);
+    if (page > 1) params.set("page", String(page));
+    return `/admin${params.size ? `?${params.toString()}` : ""}`;
+  };
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 lg:py-12">
@@ -323,7 +354,7 @@ export default async function AdminHomePage({
           </p>
         </div>
         <p className="font-mono text-[0.68rem] uppercase tracking-[0.12em] text-ascent-muted">
-          Latest 100 registrations · IST
+          {dataset.truncated ? "First 2,000" : "All"} registrations · 25 per page · IST
         </p>
       </div>
 
@@ -351,7 +382,9 @@ export default async function AdminHomePage({
             </h2>
             <div className="flex flex-wrap items-center gap-3">
               <p className="text-xs text-ascent-muted" aria-live="polite">
-                {rows.length} {rows.length === 1 ? "registration" : "registrations"} shown
+                {pagination.total
+                  ? `${pagination.start}–${pagination.end} of ${pagination.total}`
+                  : "0"} {pagination.total === 1 ? "registration" : "registrations"}
               </p>
               <Button href={exportHref} variant="secondary" className="min-h-9 px-3 py-2 text-xs">
                 Export current view · CSV
@@ -386,7 +419,7 @@ export default async function AdminHomePage({
             </a>
           </div>
 
-          <form className="mt-4 grid gap-3 lg:grid-cols-[minmax(220px,1fr)_170px_170px_180px_auto]" method="get">
+          <form className="mt-4 grid gap-3 lg:grid-cols-[minmax(220px,1fr)_150px_150px_170px_170px_auto]" method="get">
             <label className="flex flex-col gap-2 text-xs font-semibold text-ascent-ink">
               Search this view
               <input
@@ -439,6 +472,20 @@ export default async function AdminHomePage({
                 ))}
               </select>
             </label>
+            <label className="flex flex-col gap-2 text-xs font-semibold text-ascent-ink">
+              Sort by
+              <select
+                className="ascent-field-control ascent-select"
+                name="sort"
+                defaultValue={sort}
+              >
+                <option value="NEWEST">Newest first</option>
+                <option value="OLDEST">Oldest first</option>
+                <option value="NAME">Applicant name</option>
+                <option value="INSTITUTION">Institution</option>
+                <option value="DECISION">Review priority</option>
+              </select>
+            </label>
             <div className="flex items-end gap-2">
               <Button type="submit" className="min-h-11 flex-1 lg:flex-none">
                 Apply filters
@@ -463,10 +510,37 @@ export default async function AdminHomePage({
             }))}
         />
 
+        {dataset.truncated ? (
+          <div className="border-b border-ascent-border bg-ascent-info-tint px-5 py-3 text-xs leading-5 text-ascent-muted">
+            This view reached the 2,000-record operational safety limit. Export and
+            filtering cover the same loaded set.
+          </div>
+        ) : null}
+
         {rows.length ? (
           <>
             <DesktopTable rows={rows} />
             <MobileCards rows={rows} />
+            <nav
+              aria-label="Registration pages"
+              className="flex flex-col gap-3 border-t border-ascent-border px-5 py-4 sm:flex-row sm:items-center sm:justify-between"
+            >
+              <p className="text-xs text-ascent-muted">
+                Page {pagination.page} of {pagination.pageCount}
+              </p>
+              <div className="flex gap-2">
+                {pagination.page > 1 ? (
+                  <Button href={pageHref(pagination.page - 1)} variant="secondary" size="sm">
+                    ← Previous
+                  </Button>
+                ) : null}
+                {pagination.page < pagination.pageCount ? (
+                  <Button href={pageHref(pagination.page + 1)} variant="secondary" size="sm">
+                    Next →
+                  </Button>
+                ) : null}
+              </div>
+            </nav>
           </>
         ) : (
           <div className="px-5 py-14 text-center sm:px-8 sm:py-20">

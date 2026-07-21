@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import type { ReactNode } from "react";
 import AdminLogoutButton from "@/components/admin/AdminLogoutButton";
+import AdminNavigation from "@/components/admin/AdminNavigation";
 import { requireAdminSession } from "@/lib/adminAuth";
 
 export const dynamic = "force-dynamic";
@@ -17,7 +18,7 @@ export default async function AdminLayout({ children }: { children: ReactNode })
   return (
     <div className="min-h-screen bg-ascent-canvas text-ascent-ink">
       <header className="border-b border-ascent-border bg-ascent-surface">
-        <div className="mx-auto flex min-h-16 max-w-7xl items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-8">
+        <div className="mx-auto flex min-h-16 max-w-7xl flex-wrap items-center justify-between gap-3 px-4 py-3 sm:flex-nowrap sm:px-6 lg:px-8">
           <div className="flex min-w-0 items-center gap-3">
             <a href="/admin" aria-label="Ascent admin home" className="shrink-0">
               <Image
@@ -34,10 +35,13 @@ export default async function AdminLayout({ children }: { children: ReactNode })
               <p className="font-mono text-[0.65rem] font-semibold uppercase tracking-[0.16em] text-ascent-brand">
                 Ascent admin
               </p>
-              <p className="truncate text-sm text-ascent-muted">{session.email}</p>
+              <p className="hidden truncate text-sm text-ascent-muted md:block">{session.email}</p>
             </div>
           </div>
-          <AdminLogoutButton />
+          <div className="order-3 flex w-full items-center justify-between gap-3 border-t border-ascent-border pt-3 sm:order-none sm:w-auto sm:border-0 sm:pt-0">
+            <AdminNavigation />
+            <AdminLogoutButton />
+          </div>
         </div>
       </header>
       <main>{children}</main>

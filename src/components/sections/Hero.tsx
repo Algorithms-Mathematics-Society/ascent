@@ -34,10 +34,15 @@ export default function Hero() {
             </p>
 
             <div className="mt-7 flex flex-wrap items-center gap-3 sm:mt-8">
-              <Button href="/register" size="lg">
+              <Button href="/register" size="lg" className="w-full sm:w-64">
                 Register for Ascent
               </Button>
-              <Button href="#tracks" variant="secondary" size="lg">
+              <Button
+                href="#tracks"
+                variant="secondary"
+                size="lg"
+                className="w-full sm:w-64"
+              >
                 Explore competition tracks
               </Button>
             </div>

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import AdminMetric from "@/components/admin/AdminMetric";
 import AdminTeamManager from "@/components/admin/AdminTeamManager";
 import { requireOwnerSession } from "@/lib/adminAuth";
-import { ownerRecoveryReadiness } from "@/lib/adminTeam";
+import { adminMfaReadiness, ownerRecoveryReadiness } from "@/lib/adminTeam";
 import { getAdminTeamMembers } from "@/lib/adminTeamData";
 
 export const metadata: Metadata = {
@@ -16,6 +16,45 @@ export default async function AdminTeamPage() {
   const reviewerCount = members.filter((member) => member.role === "REVIEWER" && !member.disabled).length;
   const mfaCount = members.filter((member) => member.factorCount > 0 && !member.disabled).length;
   const recovery = ownerRecoveryReadiness(members);
+  const mfaReadiness = adminMfaReadiness(members);
+  const enforcementEnabled = process.env.ADMIN_MFA_ENFORCEMENT === "true";
+  const enforcementHealthy =
+    enforcementEnabled && mfaReadiness.state === "READY";
+  const mfaCopy =
+    enforcementEnabled && !enforcementHealthy
+      ? {
+          eyebrow: "Recovery gap",
+          title: "Enforcement is active before readiness",
+          detail: "Password-only sessions are being rejected while the protected-owner gate is incomplete. Restore the staged policy or enrol the missing administrator immediately.",
+        }
+      : enforcementEnabled
+    ? {
+        eyebrow: "Enforcement active",
+        title: "Every admin session requires TOTP",
+        detail: "Password-only ID tokens and old non-MFA session cookies are rejected by the server. Keep two protected owners available before any factor reset.",
+      }
+    : {
+        OWNER_REDUNDANCY_REQUIRED: {
+          eyebrow: "Activation blocked",
+          title: "A second owner is required",
+          detail: "Mandatory MFA cannot be activated without an independent recovery owner.",
+        },
+        OWNER_ENROLLMENT_REQUIRED: {
+          eyebrow: "Activation blocked",
+          title: "Enrol the remaining owner",
+          detail: "At least two enabled owners must pair authenticators before password-only sessions can be rejected safely.",
+        },
+        ADMIN_ENROLLMENT_REQUIRED: {
+          eyebrow: "Activation blocked",
+          title: "Enrol every enabled administrator",
+          detail: "Both owners are protected. Complete enrollment for the remaining reviewers before activating the server policy.",
+        },
+        READY: {
+          eyebrow: "Ready for activation",
+          title: "The team meets the MFA gate",
+          detail: "Every enabled administrator is enrolled and two protected owners remain available. Complete the fresh-login drill before activation.",
+        },
+      }[mfaReadiness.state];
   const recoveryCopy = {
     SECOND_OWNER_REQUIRED: {
       eyebrow: "Action required",
@@ -53,7 +92,7 @@ export default async function AdminTeamPage() {
       <dl className="mt-6 grid gap-px border border-ascent-border bg-ascent-border sm:grid-cols-3">
         <AdminMetric label="Enabled owners" value={ownerCount} detail="Team and settings control" emphasis />
         <AdminMetric label="Enabled reviewers" value={reviewerCount} detail="Applicant operations only" />
-        <AdminMetric label="MFA enrolled" value={mfaCount} detail={`Of ${members.filter((member) => !member.disabled).length} enabled admins · staged rollout`} />
+        <AdminMetric label="MFA enrolled" value={mfaCount} detail={`Of ${members.filter((member) => !member.disabled).length} enabled admins · ${enforcementEnabled ? "enforced" : "staged"}`} />
       </dl>
 
       <section className={`mt-6 border p-5 sm:p-6 ${recovery.state === "READY" ? "border-ascent-success bg-ascent-success-tint" : "border-ascent-danger bg-ascent-danger-tint"}`} aria-labelledby="recovery-readiness-title">
@@ -106,15 +145,29 @@ export default async function AdminTeamPage() {
 
       <div className="mt-6"><AdminTeamManager members={members} currentUid={session.uid} /></div>
 
-      <section className="mt-6 border border-ascent-border bg-ascent-surface-subtle p-5 sm:p-6" aria-labelledby="mfa-posture-title">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <p className="font-mono text-[0.66rem] font-semibold uppercase tracking-[0.14em] text-ascent-brand">Authentication posture</p>
-            <h2 id="mfa-posture-title" className="mt-2 text-lg font-semibold tracking-tight">TOTP enrollment is open; enforcement is staged</h2>
-            <p className="mt-2 max-w-3xl text-sm leading-6 text-ascent-muted">Each administrator can now pair an authenticator from the Security page. Enrolled accounts receive a six-digit challenge on fresh login. Server-wide enforcement remains off until every owner enrolls and Block 3 completes the recovery drill.</p>
+      <section className={`mt-6 border p-5 sm:p-6 ${enforcementHealthy ? "border-ascent-success bg-ascent-success-tint" : mfaReadiness.state === "READY" ? "border-ascent-brand bg-ascent-surface-subtle" : "border-ascent-danger bg-ascent-danger-tint"}`} aria-labelledby="mfa-posture-title">
+        <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+          <div className="max-w-2xl">
+            <p className={`font-mono text-[0.66rem] font-semibold uppercase tracking-[0.14em] ${enforcementHealthy ? "text-ascent-success" : mfaReadiness.state === "READY" ? "text-ascent-brand" : "text-ascent-danger"}`}>{mfaCopy.eyebrow}</p>
+            <h2 id="mfa-posture-title" className="mt-2 text-xl font-semibold tracking-tight">{mfaCopy.title}</h2>
+            <p className="mt-2 text-sm leading-6 text-ascent-muted">{mfaCopy.detail}</p>
           </div>
           <a href="/admin/security" className="inline-flex min-h-11 shrink-0 items-center justify-center border border-ascent-brand bg-ascent-brand px-4 py-2 text-sm font-semibold text-ascent-on-brand hover:bg-ascent-ink">Open my security setup</a>
         </div>
+        <dl className="mt-5 grid gap-px border border-ascent-border bg-ascent-border sm:grid-cols-3">
+          <div className="bg-ascent-surface p-4">
+            <dt className="font-mono text-[0.58rem] uppercase tracking-[0.08em] text-ascent-muted">Protected owners</dt>
+            <dd className="mt-1 text-lg font-semibold tabular-nums text-ascent-ink">{mfaReadiness.enrolledOwners}/2</dd>
+          </div>
+          <div className="bg-ascent-surface p-4">
+            <dt className="font-mono text-[0.58rem] uppercase tracking-[0.08em] text-ascent-muted">Protected admins</dt>
+            <dd className="mt-1 text-lg font-semibold tabular-nums text-ascent-ink">{mfaReadiness.enrolledAdmins}/{mfaReadiness.enabledAdmins}</dd>
+          </div>
+          <div className="bg-ascent-surface p-4">
+            <dt className="font-mono text-[0.58rem] uppercase tracking-[0.08em] text-ascent-muted">Server policy</dt>
+            <dd className={`mt-1 text-sm font-semibold ${enforcementHealthy ? "text-ascent-success" : enforcementEnabled ? "text-ascent-danger" : "text-ascent-muted"}`}>{enforcementEnabled ? "Required" : "Staged"}</dd>
+          </div>
+        </dl>
       </section>
     </div>
   );

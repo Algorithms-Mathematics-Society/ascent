@@ -154,8 +154,8 @@ export default function AdminMfaEnrollment({ email }: { email: string }) {
     return (
       <Notice tone="success" heading="Authenticator enrolled">
         The shared secret has been cleared from this page. Your next fresh sign-in will ask for
-        a six-digit authenticator code. Block 3 will enforce MFA on every server session after
-        both owners have completed this setup.
+        a six-digit authenticator code. Mandatory server enforcement activates only after two
+        owners complete enrollment and the recovery drill passes.
       </Notice>
     );
   }

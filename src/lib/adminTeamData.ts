@@ -22,7 +22,10 @@ export async function getAdminTeamMembers(): Promise<AdminTeamMember[]> {
         createdAt: user.metadata.creationTime || null,
         lastSignInAt: user.metadata.lastSignInTime || null,
         tokensValidAfter: user.tokensValidAfterTime || null,
-        factorCount: user.multiFactor?.enrolledFactors.length ?? 0,
+        factorCount:
+          user.multiFactor?.enrolledFactors.filter(
+            (factor) => factor.factorId === "totp",
+          ).length ?? 0,
       });
     }
     pageToken = page.pageToken;

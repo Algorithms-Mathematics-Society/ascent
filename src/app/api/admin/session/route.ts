@@ -1,12 +1,13 @@
-import { randomBytes } from "node:crypto";
+import { randomBytes, randomUUID } from "node:crypto";
 import { type NextRequest, NextResponse } from "next/server";
-import { adminAuth, adminDb } from "@/lib/firebaseAdmin";
+import { adminAuth, adminDb, adminServerTimestamp } from "@/lib/firebaseAdmin";
 import {
   ADMIN_CSRF_COOKIE,
   ADMIN_CSRF_MAX_AGE_SECONDS,
   ADMIN_RECENT_SIGN_IN_SECONDS,
   ADMIN_SESSION_COOKIE,
   ADMIN_SESSION_MAX_AGE_SECONDS,
+  adminSessionMeetsMfaPolicy,
   hasAdminClaim,
   isRecentAuthentication,
   requestHasSameOrigin,
@@ -147,6 +148,23 @@ export async function POST(request: NextRequest) {
       await attemptLimit.recordFailure().catch(() => undefined);
       return noStoreJson({ success: false, error: "Sign-in failed." }, 401);
     }
+
+    if (!adminSessionMeetsMfaPolicy(decoded)) {
+      await attemptLimit.recordFailure().catch(() => undefined);
+      return noStoreJson({ success: false, error: "Authenticator verification is required." }, 403);
+    }
+
+    await adminDb
+      .collection("audit_log")
+      .doc(`admin_sign_in_${randomUUID()}`)
+      .create({
+        event: "ADMIN_SIGN_IN",
+        actor_uid: decoded.uid,
+        actor_email: typeof decoded.email === "string" ? decoded.email : null,
+        second_factor: decoded.firebase.sign_in_second_factor ?? null,
+        timestamp: adminServerTimestamp(),
+      });
+
 
     const sessionCookie = await adminAuth.createSessionCookie(idToken, {
       expiresIn: ADMIN_SESSION_MAX_AGE_SECONDS * 1000,

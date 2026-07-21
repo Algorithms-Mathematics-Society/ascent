@@ -66,6 +66,10 @@ export function adminActivityLabel(event: string) {
   if (event === "ADMIN_SESSIONS_REVOKED") return "Administrator sessions revoked";
   if (event === "ADMIN_ACCESS_REVOKED") return "Administrator access revoked";
   if (event === "ADMIN_MFA_ENROLLED") return "Administrator authenticator enrolled";
+  if (event === "ADMIN_SIGN_IN") return "Administrator signed in";
+  if (event === "ADMIN_MFA_RESET_REQUESTED") return "Authenticator reset requested";
+  if (event === "ADMIN_MFA_RESET") return "Administrator authenticator reset";
+  if (event === "ADMIN_MFA_RESET_FAILED") return "Authenticator reset failed";
   if (event === "QUALIFICATION_DETERMINED") {
     return "Qualification route determined";
   }

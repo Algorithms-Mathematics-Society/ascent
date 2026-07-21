@@ -24,6 +24,27 @@ export function hasAdminClaim(claims: Record<string, unknown>): boolean {
   return adminRoleFromClaims(claims) !== null;
 }
 
+export function hasTotpSecondFactor(claims: Record<string, unknown>): boolean {
+  const firebase = claims.firebase;
+  if (!firebase || typeof firebase !== "object") return false;
+  return (
+    (firebase as Record<string, unknown>).sign_in_second_factor === "totp"
+  );
+}
+
+export function adminMfaEnforcementEnabled(
+  value = process.env.ADMIN_MFA_ENFORCEMENT,
+): boolean {
+  return value === "true";
+}
+
+export function adminSessionMeetsMfaPolicy(
+  claims: Record<string, unknown>,
+  enforcementEnabled = adminMfaEnforcementEnabled(),
+): boolean {
+  return !enforcementEnabled || hasTotpSecondFactor(claims);
+}
+
 export function isRecentAuthentication(
   authTime: unknown,
   nowSeconds = Math.floor(Date.now() / 1000),

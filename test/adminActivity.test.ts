@@ -56,6 +56,9 @@ describe("admin activity oversight", () => {
     expect(adminActivityLabel("ADMIN_MFA_ENROLLED")).toBe(
       "Administrator authenticator enrolled",
     );
+    expect(adminActivityLabel("ADMIN_SIGN_IN")).toBe(
+      "Administrator signed in",
+    );
   });
 
   it("combines time, category, and text filters", () => {

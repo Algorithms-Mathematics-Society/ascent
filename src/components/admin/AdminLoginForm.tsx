@@ -52,6 +52,9 @@ export default function AdminLoginForm() {
       if (sessionResponse.status === 429 && sessionPayload.error) {
         throw new Error(sessionPayload.error);
       }
+      if (sessionResponse.status === 403 && sessionPayload.error) {
+        throw new Error(sessionPayload.error);
+      }
       throw new Error("credentials");
     }
   }
@@ -112,7 +115,9 @@ export default function AdminLoginForm() {
       }
       if (auth) await signOut(auth).catch(() => undefined);
       setGlobalError(
-        error instanceof Error && error.message.startsWith("Too many")
+        error instanceof Error &&
+          (error.message.startsWith("Too many") ||
+            error.message.startsWith("Authenticator"))
           ? error.message
           : "Email or password is incorrect, or this account does not have admin access.",
       );

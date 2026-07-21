@@ -2,6 +2,9 @@ import { describe, expect, it } from "vitest";
 import {
   ADMIN_RECENT_SIGN_IN_SECONDS,
   adminRoleFromClaims,
+  adminMfaEnforcementEnabled,
+  adminSessionMeetsMfaPolicy,
+  hasTotpSecondFactor,
   hasAdminClaim,
   isRecentAuthentication,
   requestHasSameOrigin,
@@ -42,6 +45,23 @@ describe("admin security helpers", () => {
     expect(secureTokenEqual("abc123", "abc123")).toBe(true);
     expect(secureTokenEqual("abc123", "abc124")).toBe(false);
     expect(secureTokenEqual("short", "a-longer-token")).toBe(false);
+  });
+
+  it("requires a TOTP sign-in claim only when enforcement is enabled", () => {
+    const totpClaims = {
+      firebase: { sign_in_second_factor: "totp" },
+    };
+    expect(hasTotpSecondFactor(totpClaims)).toBe(true);
+    expect(
+      hasTotpSecondFactor({ firebase: { sign_in_second_factor: "phone" } }),
+    ).toBe(false);
+    expect(hasTotpSecondFactor({})).toBe(false);
+    expect(adminMfaEnforcementEnabled("true")).toBe(true);
+    expect(adminMfaEnforcementEnabled("false")).toBe(false);
+    expect(adminMfaEnforcementEnabled(undefined)).toBe(false);
+    expect(adminSessionMeetsMfaPolicy({}, false)).toBe(true);
+    expect(adminSessionMeetsMfaPolicy({}, true)).toBe(false);
+    expect(adminSessionMeetsMfaPolicy(totpClaims, true)).toBe(true);
   });
 
   it("accepts only requests whose origin matches the served host", () => {

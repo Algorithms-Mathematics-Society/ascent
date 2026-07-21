@@ -183,3 +183,45 @@ export function ownerRecoveryReadiness(
     testedOwners: testedOwners.length,
   };
 }
+
+export type AdminMfaReadinessState =
+  | "OWNER_REDUNDANCY_REQUIRED"
+  | "OWNER_ENROLLMENT_REQUIRED"
+  | "ADMIN_ENROLLMENT_REQUIRED"
+  | "READY";
+
+export interface AdminMfaReadiness {
+  state: AdminMfaReadinessState;
+  enabledAdmins: number;
+  enrolledAdmins: number;
+  enabledOwners: number;
+  enrolledOwners: number;
+}
+
+export function adminMfaReadiness(
+  members: AdminTeamMember[],
+): AdminMfaReadiness {
+  const enabledAdmins = members.filter((member) => !member.disabled);
+  const enabledOwners = enabledAdmins.filter(
+    (member) => member.role === "OWNER",
+  );
+  const enrolledAdmins = enabledAdmins.filter((member) => member.factorCount > 0);
+  const enrolledOwners = enabledOwners.filter((member) => member.factorCount > 0);
+
+  const state: AdminMfaReadinessState =
+    enabledOwners.length < 2
+      ? "OWNER_REDUNDANCY_REQUIRED"
+      : enrolledOwners.length < 2
+        ? "OWNER_ENROLLMENT_REQUIRED"
+        : enrolledAdmins.length < enabledAdmins.length
+          ? "ADMIN_ENROLLMENT_REQUIRED"
+          : "READY";
+
+  return {
+    state,
+    enabledAdmins: enabledAdmins.length,
+    enrolledAdmins: enrolledAdmins.length,
+    enabledOwners: enabledOwners.length,
+    enrolledOwners: enrolledOwners.length,
+  };
+}

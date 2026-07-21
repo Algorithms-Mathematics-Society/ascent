@@ -342,7 +342,7 @@ export default function AdminTeamManager({
                     </div>
                     <div className="bg-ascent-surface-subtle p-3">
                       <dt className="font-mono text-[0.58rem] uppercase tracking-[0.08em] text-ascent-muted">MFA posture</dt>
-                      <dd className={`mt-1 text-xs font-semibold ${member.factorCount ? "text-ascent-success" : "text-ascent-muted"}`}>{member.factorCount ? `${member.factorCount} factor${member.factorCount === 1 ? "" : "s"} enrolled` : "Not enrolled"}</dd>
+                      <dd className={`mt-1 text-xs font-semibold ${member.factorCount ? "text-ascent-success" : "text-ascent-muted"}`}>{member.factorCount ? `${member.factorCount} TOTP factor${member.factorCount === 1 ? "" : "s"}` : "TOTP not enrolled"}</dd>
                     </div>
                     <div className="bg-ascent-surface-subtle p-3 sm:col-span-2">
                       <dt className="font-mono text-[0.58rem] uppercase tracking-[0.08em] text-ascent-muted">Last sign-in</dt>

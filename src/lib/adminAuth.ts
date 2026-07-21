@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { adminAuth } from "@/lib/firebaseAdmin";
 import {
   ADMIN_SESSION_COOKIE,
+  adminSessionMeetsMfaPolicy,
   adminRoleFromClaims,
   type AdminRole,
 } from "@/lib/adminSecurity";
@@ -23,7 +24,7 @@ export async function verifyAdminSessionValue(
   try {
     const decoded = await adminAuth.verifySessionCookie(sessionCookie, true);
     const role = adminRoleFromClaims(decoded);
-    if (!role) return null;
+    if (!role || !adminSessionMeetsMfaPolicy(decoded)) return null;
 
     return {
       uid: decoded.uid,

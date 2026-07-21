@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   activeOwnerCount,
+  adminMfaReadiness,
   ownerRecoveryReadiness,
   parseAdminTeamMutation,
   type AdminTeamMember,
@@ -110,6 +111,56 @@ describe("administrator team controls", () => {
       enabledOwners: 2,
       verifiedOwners: 2,
       testedOwners: 2,
+    });
+  });
+
+  it("blocks MFA enforcement until two owners and every admin are enrolled", () => {
+    const member = (
+      uid: string,
+      role: AdminTeamMember["role"],
+      factorCount: number,
+    ): AdminTeamMember => ({
+      uid,
+      email: `${uid}@example.com`,
+      role,
+      disabled: false,
+      emailVerified: true,
+      createdAt: null,
+      lastSignInAt: "2026-07-21T10:00:00.000Z",
+      tokensValidAfter: null,
+      factorCount,
+    });
+
+    expect(adminMfaReadiness([member("one", "OWNER", 1)])).toMatchObject({
+      state: "OWNER_REDUNDANCY_REQUIRED",
+    });
+    expect(
+      adminMfaReadiness([
+        member("one", "OWNER", 1),
+        member("two", "OWNER", 0),
+      ]),
+    ).toMatchObject({
+      state: "OWNER_ENROLLMENT_REQUIRED",
+      enrolledOwners: 1,
+      enabledOwners: 2,
+    });
+    expect(
+      adminMfaReadiness([
+        member("one", "OWNER", 1),
+        member("two", "OWNER", 1),
+        member("reviewer", "REVIEWER", 0),
+      ]),
+    ).toMatchObject({ state: "ADMIN_ENROLLMENT_REQUIRED" });
+    expect(
+      adminMfaReadiness([
+        member("one", "OWNER", 1),
+        member("two", "OWNER", 1),
+        member("reviewer", "REVIEWER", 1),
+      ]),
+    ).toMatchObject({
+      state: "READY",
+      enrolledAdmins: 3,
+      enabledAdmins: 3,
     });
   });
 });

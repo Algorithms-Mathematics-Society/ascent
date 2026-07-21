@@ -18,6 +18,10 @@
   --ascent-ice: 237 241 242; /* #EDF1F2 */
   --ascent-midnight: 13 24 34; /* #0D1822 */
 
+  /* Shape — restrained access-portal geometry */
+  --ascent-radius-control: 0.5rem;
+  --ascent-radius-panel: 0.875rem;
+
   /* Canvas and working surfaces */
   --ascent-canvas: var(--ascent-ice);
   --ascent-surface: 255 255 255; /* #FFFFFF */
@@ -101,7 +105,7 @@
     min-height: 2.5rem;
     padding: 0 0.875rem;
     border: 1px solid transparent;
-    border-radius: 0.375rem;
+    border-radius: var(--ascent-radius-control);
     font-size: 0.875rem;
     font-weight: 600;
     line-height: 1;
@@ -184,7 +188,7 @@
     width: 100%;
     min-height: 2.875rem;
     border: 1px solid rgb(var(--ascent-field-border));
-    border-radius: 0.375rem;
+    border-radius: var(--ascent-radius-control);
     background-color: rgb(var(--ascent-field-bg));
     color: rgb(var(--ascent-ink));
     font-size: 1rem;
@@ -246,7 +250,7 @@
     margin-right: 0.75rem;
     padding: 0 0.75rem;
     border: 1px solid rgb(var(--ascent-field-border));
-    border-radius: 0.25rem;
+    border-radius: var(--ascent-radius-control);
     background-color: rgb(var(--ascent-surface-subtle));
     color: rgb(var(--ascent-ink));
     font: inherit;
@@ -262,7 +266,7 @@
 
   .ascent-form-panel {
     border: 1px solid rgb(var(--ascent-border));
-    border-radius: 0.375rem;
+    border-radius: var(--ascent-radius-panel);
     background-color: rgb(var(--ascent-surface));
     box-shadow: none;
   }
@@ -270,7 +274,7 @@
   /* Feedback ------------------------------------------------ */
   .ascent-notice {
     border: 1px solid;
-    border-radius: 0.375rem;
+    border-radius: var(--ascent-radius-control);
     padding: 0.75rem 0.875rem;
     font-size: 0.875rem;
     line-height: 1.5;
@@ -297,7 +301,7 @@
   /* Neutral surface. Interaction belongs to the caller, never every card. */
   .ascent-card {
     position: relative;
-    border-radius: 0.375rem;
+    border-radius: var(--ascent-radius-panel);
     border: 1px solid rgb(var(--ascent-border));
     background-color: rgb(var(--ascent-surface));
     contain: paint;

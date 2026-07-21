@@ -16,7 +16,7 @@ export default function Timeline() {
               title="Know what happens next."
               lede="The round structure is fixed. Dates remain visibly pending until the event team confirms them—no countdown or placeholder deadline is presented as fact."
             />
-            <div className="mt-7 border-l-2 border-ascent-brand bg-ascent-brand-tint px-4 py-3 text-sm leading-6 text-ascent-brand">
+            <div className="mt-7 rounded-r-control border-l-2 border-ascent-brand bg-ascent-brand-tint px-4 py-3 text-sm leading-6 text-ascent-brand">
               Confirmed dates will be published here and shared through the
               contact details submitted during registration.
             </div>
@@ -36,7 +36,7 @@ export default function Timeline() {
                     <h3 className="text-lg font-semibold text-ascent-ink">
                       {item.phase}
                     </h3>
-                    <span className="w-fit border border-ascent-border-strong bg-ascent-surface-subtle px-2.5 py-1 font-mono text-[0.625rem] font-semibold uppercase tracking-[0.1em] text-ascent-muted">
+                    <span className="w-fit rounded-control border border-ascent-border-strong bg-ascent-surface-subtle px-2.5 py-1 font-mono text-[0.625rem] font-semibold uppercase tracking-[0.1em] text-ascent-muted">
                       {item.timing}
                     </span>
                   </div>

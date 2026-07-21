@@ -122,7 +122,7 @@ export default function SyllabusPage() {
                 </p>
               </div>
               <nav aria-label="Syllabus sections" className="border-t border-ascent-on-brand/25 pt-4 lg:border-l lg:border-t-0 lg:pl-6 lg:pt-0">
-                <ol className="grid gap-px bg-ascent-on-brand/20">
+                <ol className="grid gap-px overflow-hidden rounded-control bg-ascent-on-brand/20">
                   {[
                     ["01", "Round 1 topics", "#round-1"],
                     ["02", "Question formats", "#question-formats"],
@@ -174,7 +174,7 @@ export default function SyllabusPage() {
               {LIBRARY_GROUPS.map((group) => (
                 <TopicGroup key={group.title} group={group} />
               ))}
-              <aside className="border border-ascent-border bg-ascent-surface-strong p-5 sm:p-6" aria-labelledby="how-to-read-title">
+              <aside className="rounded-panel border border-ascent-border bg-ascent-surface-strong p-5 sm:p-6" aria-labelledby="how-to-read-title">
                 <p id="how-to-read-title" className="font-mono text-xs font-semibold text-ascent-gold">
                   {"// how to read this"}
                 </p>
@@ -193,7 +193,7 @@ export default function SyllabusPage() {
               <h3 id="question-formats-title" className="font-mono text-[0.7rem] font-semibold uppercase tracking-[0.24em] text-ascent-gold">
                 Question formats · Round 1
               </h3>
-              <div className="mt-5 grid gap-px border border-ascent-border bg-ascent-border md:grid-cols-2">
+              <div className="mt-5 grid gap-px overflow-hidden rounded-panel border border-ascent-border bg-ascent-border md:grid-cols-2">
                 {ROUND_ONE_FORMATS.map((format) => (
                   <article key={format.number} className="bg-ascent-surface-subtle p-5 sm:p-6">
                     <p className="font-mono text-[0.68rem] font-semibold text-ascent-gold">{format.number}</p>
@@ -218,7 +218,7 @@ export default function SyllabusPage() {
               description="The later-round scope is intentionally directional. Detailed topic lists will be published only when the competition design is locked."
             />
 
-            <div className="mt-9 grid gap-px border border-ascent-border bg-ascent-border md:grid-cols-2">
+            <div className="mt-9 grid gap-px overflow-hidden rounded-panel border border-ascent-border bg-ascent-border md:grid-cols-2">
               {LATER_ROUNDS.map((round) => (
                 <article key={round.round} className="bg-ascent-surface-strong p-6 sm:p-8">
                   <p className="font-mono text-[0.68rem] font-semibold uppercase tracking-[0.22em] text-ascent-gold">

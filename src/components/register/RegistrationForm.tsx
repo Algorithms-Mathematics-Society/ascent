@@ -257,7 +257,7 @@ function StageProgress({
   return (
     <nav
       aria-label="Registration progress"
-      className="border border-ascent-border bg-ascent-surface px-4 py-4 sm:px-6 sm:py-5"
+      className="overflow-hidden rounded-panel border border-ascent-border bg-ascent-surface px-4 py-4 sm:px-6 sm:py-5"
     >
       <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
         <p
@@ -273,14 +273,14 @@ function StageProgress({
       </div>
 
       <div
-        className="mt-3 h-1 bg-ascent-border"
+        className="mt-3 h-1 overflow-hidden rounded-full bg-ascent-border"
         role="progressbar"
         aria-valuemin={1}
         aria-valuemax={3}
         aria-valuenow={current}
         aria-label={`Registration step ${current} of 3`}
       >
-        <div className={`h-full bg-ascent-brand ${PROGRESS_WIDTH[current]}`} />
+        <div className={`h-full rounded-full bg-ascent-brand ${PROGRESS_WIDTH[current]}`} />
       </div>
 
       <ol className="mt-3 grid grid-cols-3">
@@ -361,7 +361,7 @@ function StageFrame({
 }) {
   return (
     <section hidden={hidden} aria-labelledby={`registration-stage-${number}`}>
-      <div className="border border-ascent-border bg-ascent-surface lg:grid lg:grid-cols-[15rem_minmax(0,1fr)]">
+      <div className="overflow-hidden rounded-panel border border-ascent-border bg-ascent-surface lg:grid lg:grid-cols-[15rem_minmax(0,1fr)]">
         <header className="border-b border-ascent-border bg-ascent-surface-subtle p-5 sm:p-7 lg:border-b-0 lg:border-r">
           <p className="font-mono text-xs font-semibold uppercase tracking-[0.14em] text-ascent-brand">
             Stage 0{number}
@@ -392,7 +392,7 @@ function SuccessReceipt({ receipt }: { receipt: RegistrationReceipt }) {
 
   return (
     <main className="mx-auto max-w-5xl">
-      <section className="border border-ascent-border bg-ascent-surface">
+      <section className="overflow-hidden rounded-panel border border-ascent-border bg-ascent-surface">
         <div className="border-b border-ascent-success/30 bg-ascent-success-tint p-6 sm:p-8">
           <div className="flex items-start gap-4">
             <CheckCircle2
@@ -450,7 +450,7 @@ function SuccessReceipt({ receipt }: { receipt: RegistrationReceipt }) {
             ))}
           </dl>
 
-          <div className="mt-6 border-l-2 border-ascent-brand bg-ascent-brand-tint px-4 py-3">
+          <div className="mt-6 rounded-r-control border-l-2 border-ascent-brand bg-ascent-brand-tint px-4 py-3">
             <p className="text-sm font-semibold text-ascent-brand">
               What happens next
             </p>
@@ -1014,7 +1014,7 @@ export default function RegistrationForm() {
             </FormField>
 
             {values.educationStage ? (
-              <div className="grid gap-5 border-l-2 border-ascent-brand bg-ascent-brand-tint p-4 sm:grid-cols-2">
+              <div className="grid gap-5 rounded-r-control border-l-2 border-ascent-brand bg-ascent-brand-tint p-4 sm:grid-cols-2">
                 {values.educationStage === "SCHOOL" ? (
                   <FormField
                     label="Current grade"
@@ -1173,7 +1173,7 @@ export default function RegistrationForm() {
           description="Add the required resume link first, then any optional context you want us to consider."
           hidden={step !== 3}
         >
-          <div className="border border-ascent-border bg-ascent-surface-subtle p-4 sm:p-5">
+          <div className="rounded-panel border border-ascent-border bg-ascent-surface-subtle p-4 sm:p-5">
             <h3 className="text-sm font-semibold text-ascent-ink">
               Check your details
             </h3>
@@ -1256,7 +1256,7 @@ export default function RegistrationForm() {
               />
             </FormField>
 
-            <details className="group border-l-2 border-ascent-brand bg-ascent-brand-tint px-4 py-3">
+            <details className="group rounded-r-control border-l-2 border-ascent-brand bg-ascent-brand-tint px-4 py-3">
               <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-sm font-semibold text-ascent-ink [&::-webkit-details-marker]:hidden">
                 <span>How to make a Drive link viewable</span>
                 <span aria-hidden="true" className="font-mono text-base font-normal text-ascent-brand transition-transform duration-150 motion-reduce:transition-none group-open:rotate-45">+</span>
@@ -1328,7 +1328,7 @@ export default function RegistrationForm() {
                 />
               </FormField>
             </div>
-            <div className="border border-ascent-border bg-ascent-surface-subtle p-4">
+            <div className="rounded-control border border-ascent-border bg-ascent-surface-subtle p-4">
               <p className="font-mono text-xs font-semibold uppercase tracking-[0.14em] text-ascent-brand">
                 Final confirmation
               </p>

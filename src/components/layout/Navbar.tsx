@@ -26,7 +26,7 @@ export default function Navbar({ page = "home" }: NavbarProps) {
     <header className="fixed inset-x-0 top-0 z-50 h-16 border-b border-ascent-border bg-ascent-surface">
       <a
         href="#top"
-        className="fixed left-4 top-3 z-[60] inline-flex min-h-11 -translate-y-20 items-center rounded border border-ascent-brand bg-ascent-surface px-4 text-sm font-semibold text-ascent-brand focus:translate-y-0"
+        className="fixed left-4 top-3 z-[60] inline-flex min-h-11 -translate-y-20 items-center rounded-control border border-ascent-brand bg-ascent-surface px-4 text-sm font-semibold text-ascent-brand focus:translate-y-0"
       >
         Skip to main content
       </a>
@@ -79,7 +79,7 @@ export default function Navbar({ page = "home" }: NavbarProps) {
 
         {isRegistration ? (
           <div className="flex items-center gap-3">
-            <span className="hidden rounded border border-ascent-border-strong bg-ascent-brand-tint px-2.5 py-1 font-mono text-[0.6875rem] uppercase tracking-[0.14em] text-ascent-brand sm:inline-flex">
+            <span className="hidden rounded-control border border-ascent-border-strong bg-ascent-brand-tint px-2.5 py-1 font-mono text-[0.6875rem] uppercase tracking-[0.14em] text-ascent-brand sm:inline-flex">
               Registration
             </span>
             <Button href="/" size="sm" variant="secondary">

@@ -52,7 +52,7 @@ export default async function AdminPageLogin() {
       >
         <section
           aria-labelledby="admin-login-title"
-          className="w-full border border-ascent-border bg-ascent-surface lg:grid lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1fr)]"
+          className="w-full overflow-hidden rounded-panel border border-ascent-border bg-ascent-surface lg:grid lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1fr)]"
         >
           <aside className="border-b border-ascent-border bg-ascent-brand p-6 text-ascent-on-brand sm:p-8 lg:border-b-0 lg:border-r lg:p-10">
             <p className="font-mono text-xs font-semibold uppercase tracking-[0.16em] text-ascent-on-brand/80">

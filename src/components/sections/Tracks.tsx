@@ -16,7 +16,7 @@ export default function Tracks() {
           className="max-w-3xl"
         />
 
-        <div className="mt-12 overflow-hidden border-y border-ascent-border bg-ascent-surface">
+        <div className="mt-12 overflow-hidden rounded-panel border border-ascent-border bg-ascent-surface">
           <div className="hidden grid-cols-[3.5rem_minmax(0,1.05fr)_minmax(0,0.72fr)_minmax(0,0.92fr)_minmax(0,1.45fr)] gap-5 border-b border-ascent-border bg-ascent-surface-subtle px-5 py-3 font-mono text-[0.625rem] font-semibold uppercase tracking-[0.12em] text-ascent-muted lg:grid">
             <span>Round</span>
             <span>Stage</span>

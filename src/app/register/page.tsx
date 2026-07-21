@@ -8,7 +8,7 @@ export default async function RegisterPage() {
   const { settings, availability } = await getRegistrationAvailability();
   if (!availability.acceptsRegistrations) {
     return (
-      <section className="mx-auto max-w-3xl border border-ascent-border bg-ascent-surface" aria-labelledby="registration-unavailable-title">
+      <section className="mx-auto max-w-3xl overflow-hidden rounded-panel border border-ascent-border bg-ascent-surface" aria-labelledby="registration-unavailable-title">
         <div className="border-b border-ascent-border p-6 sm:p-8">
           <p className="font-mono text-xs font-semibold uppercase tracking-[0.16em] text-ascent-brand">
             Registration status

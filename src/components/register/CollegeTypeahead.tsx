@@ -301,7 +301,7 @@ export default function CollegeTypeahead({
         />
 
         {showPopup ? (
-          <div className="absolute inset-x-0 top-full z-30 mt-2 overflow-hidden border border-ascent-field-border bg-ascent-field-bg">
+          <div className="absolute inset-x-0 top-full z-30 mt-2 overflow-hidden rounded-control border border-ascent-field-border bg-ascent-field-bg">
             <ul
               id={listboxId}
               role="listbox"
@@ -382,7 +382,7 @@ export default function CollegeTypeahead({
           aria-live="polite"
           aria-atomic="true"
           tabIndex={-1}
-          className="flex flex-wrap items-center justify-between gap-3 border border-ascent-success/35 bg-ascent-success-tint px-3 py-2 text-sm"
+          className="flex flex-wrap items-center justify-between gap-3 rounded-control border border-ascent-success/35 bg-ascent-success-tint px-3 py-2 text-sm"
         >
           <span className="min-w-0">
             <span className="block font-medium text-ascent-ink">
@@ -410,7 +410,7 @@ export default function CollegeTypeahead({
           aria-live="polite"
           aria-atomic="true"
           tabIndex={-1}
-          className="flex flex-wrap items-center justify-between gap-3 border border-ascent-border-strong bg-ascent-surface-subtle px-3 py-2 text-sm"
+          className="flex flex-wrap items-center justify-between gap-3 rounded-control border border-ascent-border-strong bg-ascent-surface-subtle px-3 py-2 text-sm"
         >
           <span className="min-w-0">
             <span className="block font-medium text-ascent-ink">
@@ -431,7 +431,7 @@ export default function CollegeTypeahead({
         </div>
       ) : canConfirmUnlisted ? (
         confirmingUnlisted ? (
-          <div className="border border-ascent-border-strong bg-ascent-surface-subtle p-4">
+          <div className="rounded-panel border border-ascent-border-strong bg-ascent-surface-subtle p-4">
             <p className="text-sm leading-5 text-ascent-ink">
               Register with “{normalizedQuery}” as an unlisted institution?
             </p>

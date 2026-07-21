@@ -98,6 +98,10 @@ const config: Config = {
           "monospace",
         ],
       },
+      borderRadius: {
+        control: "var(--ascent-radius-control)",
+        panel: "var(--ascent-radius-panel)",
+      },
       transitionTimingFunction: {
         expo: "cubic-bezier(0.16, 1, 0.3, 1)",
       },

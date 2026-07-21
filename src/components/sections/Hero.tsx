@@ -2,6 +2,7 @@
 import { Button } from "@/components/ui";
 import { HERO_STATS } from "@/content/sections";
 import { site } from "@/content/site";
+import HeroCacheField from "./HeroCacheField";
 import Countdown from "./Countdown";
 
 export default function Hero() {
@@ -10,9 +11,10 @@ export default function Hero() {
   return (
     <section
       aria-labelledby="hero-title"
-      className="border-b border-ascent-border bg-ascent-canvas px-4 pb-14 pt-24 sm:px-6 sm:pb-20 sm:pt-32 lg:px-8 lg:pb-24 lg:pt-36"
+      className="relative isolate overflow-hidden border-b border-ascent-border bg-ascent-canvas px-4 pb-14 pt-24 sm:px-6 sm:pb-20 sm:pt-32 lg:px-8 lg:pb-24 lg:pt-36"
     >
-      <div className="mx-auto max-w-7xl">
+      <HeroCacheField />
+      <div className="relative z-10 mx-auto max-w-7xl">
         <div className="max-w-5xl">
           <div>
             <p className="font-mono text-xs font-semibold uppercase tracking-[0.16em] text-ascent-brand">

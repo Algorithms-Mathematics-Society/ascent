@@ -53,7 +53,7 @@ export default async function AdminTeamPage() {
       <dl className="mt-6 grid gap-px border border-ascent-border bg-ascent-border sm:grid-cols-3">
         <AdminMetric label="Enabled owners" value={ownerCount} detail="Team and settings control" emphasis />
         <AdminMetric label="Enabled reviewers" value={reviewerCount} detail="Applicant operations only" />
-        <AdminMetric label="MFA enrolled" value={mfaCount} detail={`Of ${members.filter((member) => !member.disabled).length} enabled admins · not enforced`} />
+        <AdminMetric label="MFA enrolled" value={mfaCount} detail={`Of ${members.filter((member) => !member.disabled).length} enabled admins · staged rollout`} />
       </dl>
 
       <section className={`mt-6 border p-5 sm:p-6 ${recovery.state === "READY" ? "border-ascent-success bg-ascent-success-tint" : "border-ascent-danger bg-ascent-danger-tint"}`} aria-labelledby="recovery-readiness-title">
@@ -107,9 +107,14 @@ export default async function AdminTeamPage() {
       <div className="mt-6"><AdminTeamManager members={members} currentUid={session.uid} /></div>
 
       <section className="mt-6 border border-ascent-border bg-ascent-surface-subtle p-5 sm:p-6" aria-labelledby="mfa-posture-title">
-        <p className="font-mono text-[0.66rem] font-semibold uppercase tracking-[0.14em] text-ascent-brand">Authentication posture</p>
-        <h2 id="mfa-posture-title" className="mt-2 text-lg font-semibold tracking-tight">MFA is observed, not automatically enforced</h2>
-        <p className="mt-2 max-w-3xl text-sm leading-6 text-ascent-muted">This roster reports enrolled Firebase multi-factor methods so gaps are visible. Enforcement remains deliberately off in this block: turning it on before every owner enrolls can lock the competition out. Enrol owners first, verify recovery access, then make enforcement a separate deployment decision.</p>
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <p className="font-mono text-[0.66rem] font-semibold uppercase tracking-[0.14em] text-ascent-brand">Authentication posture</p>
+            <h2 id="mfa-posture-title" className="mt-2 text-lg font-semibold tracking-tight">TOTP enrollment is open; enforcement is staged</h2>
+            <p className="mt-2 max-w-3xl text-sm leading-6 text-ascent-muted">Each administrator can now pair an authenticator from the Security page. Enrolled accounts receive a six-digit challenge on fresh login. Server-wide enforcement remains off until every owner enrolls and Block 3 completes the recovery drill.</p>
+          </div>
+          <a href="/admin/security" className="inline-flex min-h-11 shrink-0 items-center justify-center border border-ascent-brand bg-ascent-brand px-4 py-2 text-sm font-semibold text-ascent-on-brand hover:bg-ascent-ink">Open my security setup</a>
+        </div>
       </section>
     </div>
   );

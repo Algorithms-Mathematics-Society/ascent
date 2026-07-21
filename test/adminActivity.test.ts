@@ -53,6 +53,9 @@ describe("admin activity oversight", () => {
     expect(adminActivityLabel("ADMIN_ACCESS_REVOKED")).toBe(
       "Administrator access revoked",
     );
+    expect(adminActivityLabel("ADMIN_MFA_ENROLLED")).toBe(
+      "Administrator authenticator enrolled",
+    );
   });
 
   it("combines time, category, and text filters", () => {

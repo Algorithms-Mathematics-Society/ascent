@@ -24,6 +24,12 @@ npm run admin:role -- grant reviewer@example.com reviewer "Competition review te
 npm run admin:role -- revoke reviewer@example.com "Review assignment ended"
 ```
 
-CLI changes are also audited. MFA enrollment is visible at `/admin/team`, but
-enforcement must not be enabled until every owner has enrolled and recovery
-access has been verified.
+CLI changes are also audited.
+
+TOTP authenticator setup is available to every administrator at
+`/admin/security`. Enrollment requires the account password again, binds the
+fresh Firebase identity to the active admin session, and records successful
+enrollment in the activity ledger. Enrolled accounts complete the TOTP
+challenge during fresh login. Server-wide enforcement intentionally remains a
+separate rollout step: do not activate it until every owner has enrolled and
+the independent recovery login has been tested.

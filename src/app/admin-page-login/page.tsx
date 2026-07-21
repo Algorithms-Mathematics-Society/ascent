@@ -82,7 +82,8 @@ export default async function AdminPageLogin() {
               Admin sign in
             </h1>
             <p className="mt-3 max-w-md text-sm leading-6 text-ascent-muted">
-              Use your assigned administrator email and password.
+              Use your assigned administrator email and password. Enrolled accounts
+              complete one authenticator check before access is issued.
             </p>
             <AdminLoginForm />
           </div>

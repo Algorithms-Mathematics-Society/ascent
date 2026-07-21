@@ -65,6 +65,7 @@ export function adminActivityLabel(event: string) {
   if (event === "ADMIN_ROLE_CHANGED") return "Administrator role changed";
   if (event === "ADMIN_SESSIONS_REVOKED") return "Administrator sessions revoked";
   if (event === "ADMIN_ACCESS_REVOKED") return "Administrator access revoked";
+  if (event === "ADMIN_MFA_ENROLLED") return "Administrator authenticator enrolled";
   if (event === "QUALIFICATION_DETERMINED") {
     return "Qualification route determined";
   }

@@ -20,6 +20,8 @@ import {
   Spinner,
 } from "@/components/ui";
 import {
+  APAC_PHONE_COUNTRIES,
+  normalizeApacPhone,
   normalizeCodeforcesHandle,
   normalizeGoogleDriveUrl,
 } from "@/lib/validators";
@@ -65,6 +67,7 @@ interface FormValues {
   legalName: string;
   email: string;
   phone: string;
+  phoneCountryCode: string;
   educationStage: "" | EducationStage;
   currentStudyLevel: string;
   graduationYear: string;
@@ -99,6 +102,7 @@ const INITIAL_VALUES: FormValues = {
   legalName: "",
   email: "",
   phone: "",
+  phoneCountryCode: "91",
   educationStage: "",
   currentStudyLevel: "",
   graduationYear: "",
@@ -152,13 +156,6 @@ const STAGE_LABELS: Record<EducationStage, string> = {
   GRADUATED: "Graduated",
   PROFESSIONAL: "Working professional",
 };
-
-function normalizePhoneDigits(value: string) {
-  let digits = value.replace(/\D/g, "");
-  if (digits.startsWith("91") && digits.length === 12) digits = digits.slice(2);
-  if (digits.startsWith("0") && digits.length === 11) digits = digits.slice(1);
-  return digits;
-}
 
 function normalizeOptionalUrl(value: string) {
   const trimmed = value.trim();
@@ -248,17 +245,21 @@ function StageProgress({
   onNavigate: (step: RegistrationStep) => void;
 }) {
   const steps = [
-    { number: 1, label: "Contact details" },
-    { number: 2, label: "Education & institution" },
-    { number: 3, label: "Entry & consent" },
+    { number: 1, label: "Contact details", shortLabel: "Contact" },
+    {
+      number: 2,
+      label: "Education & institution",
+      shortLabel: "Education",
+    },
+    { number: 3, label: "Review & submit", shortLabel: "Submit" },
   ] as const;
 
   return (
     <nav
       aria-label="Registration progress"
-      className="border-y border-ascent-border bg-ascent-surface py-5"
+      className="border border-ascent-border bg-ascent-surface px-4 py-4 sm:px-6 sm:py-5"
     >
-      <div className="flex flex-col gap-1 px-1 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+      <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
         <p
           className="font-mono text-xs font-semibold uppercase tracking-[0.14em] text-ascent-brand"
           aria-live="polite"
@@ -266,13 +267,13 @@ function StageProgress({
           Step {current} of 3
         </p>
         <p className="text-xs leading-5 text-ascent-muted">
-          Your entries stay in this tab. Review all three stages, then submit
-          once.
+          Three short stages. You can revisit completed details before you
+          submit.
         </p>
       </div>
 
       <div
-        className="mt-4 h-1 bg-ascent-border"
+        className="mt-3 h-1 bg-ascent-border"
         role="progressbar"
         aria-valuemin={1}
         aria-valuemax={3}
@@ -282,7 +283,7 @@ function StageProgress({
         <div className={`h-full bg-ascent-brand ${PROGRESS_WIDTH[current]}`} />
       </div>
 
-      <ol className="mt-4 grid grid-cols-3">
+      <ol className="mt-3 grid grid-cols-3">
         {steps.map((step) => {
           const complete = step.number < current;
           const active = step.number === current;
@@ -301,13 +302,14 @@ function StageProgress({
               <span
                 className={
                   active
-                    ? "mt-1 block text-xs font-semibold text-ascent-ink sm:text-sm"
+                    ? "mt-1 block text-xs font-semibold leading-5 text-ascent-ink sm:text-sm"
                     : complete
-                      ? "mt-1 block text-xs font-medium text-ascent-ink sm:text-sm"
-                      : "mt-1 block text-xs font-medium text-ascent-muted sm:text-sm"
+                      ? "mt-1 block text-xs font-medium leading-5 text-ascent-ink sm:text-sm"
+                      : "mt-1 block text-xs font-medium leading-5 text-ascent-muted sm:text-sm"
                 }
               >
-                {step.label}
+                <span className="sm:hidden">{step.shortLabel}</span>
+                <span className="hidden sm:inline">{step.label}</span>
               </span>
               <span className="sr-only">
                 {active
@@ -323,7 +325,7 @@ function StageProgress({
             <li
               key={step.number}
               aria-current={active ? "step" : undefined}
-              className="border-l border-ascent-border px-3 first:border-l-0 first:pl-1 last:pr-1 sm:px-5"
+              className="border-l border-ascent-border px-3 first:border-l-0 sm:px-5"
             >
               {complete ? (
                 <button
@@ -481,6 +483,7 @@ export default function RegistrationForm() {
     null,
   );
   const [unlistedName, setUnlistedName] = useState("");
+  const [optionalProfilesOpen, setOptionalProfilesOpen] = useState(false);
   const [website, setWebsite] = useState("");
   const [fieldErrors, setFieldErrors] = useState<
     Partial<Record<FieldName, string>>
@@ -511,6 +514,12 @@ export default function RegistrationForm() {
     setGlobalError("");
   }
 
+  function revealOptionalProfileErrors(
+    errors: Partial<Record<FieldName, string>>,
+  ) {
+    if (errors.linkedin_url || errors.github_url) setOptionalProfilesOpen(true);
+  }
+
   function validateStage(targetStep: RegistrationStep) {
     const errors: Partial<Record<FieldName, string>> = {};
 
@@ -529,8 +538,12 @@ export default function RegistrationForm() {
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.email.trim())) {
         errors.email = "Enter a valid email address.";
       }
-      if (!/^[6-9]\d{9}$/.test(normalizePhoneDigits(values.phone))) {
-        errors.phone = "Enter a valid 10-digit Indian mobile number.";
+      const phoneResult = normalizeApacPhone(
+        values.phone,
+        values.phoneCountryCode,
+      );
+      if (!phoneResult.valid) {
+        errors.phone = phoneResult.error ?? "Enter a valid mobile number.";
       }
     }
 
@@ -630,6 +643,7 @@ export default function RegistrationForm() {
     const errors = validateStage(targetStep);
     if (Object.keys(errors).length > 0) {
       setFieldErrors((current) => ({ ...current, ...errors }));
+      revealOptionalProfileErrors(errors);
       focusFirstError(errors, targetStep);
       return;
     }
@@ -663,6 +677,7 @@ export default function RegistrationForm() {
     };
     if (Object.keys(allErrors).length > 0) {
       setFieldErrors(allErrors);
+      revealOptionalProfileErrors(allErrors);
       const invalidStep =
         ([1, 2, 3] as RegistrationStep[]).find((candidate) =>
           STEP_FIELDS[candidate].some((field) => allErrors[field]),
@@ -681,7 +696,11 @@ export default function RegistrationForm() {
     const formData = new FormData();
     formData.set("legal_name", values.legalName.trim());
     formData.set("email", values.email.trim().toLowerCase());
-    formData.set("phone", values.phone.trim());
+    const phoneResult = normalizeApacPhone(
+      values.phone,
+      values.phoneCountryCode,
+    );
+    formData.set("phone", phoneResult.e164 ?? values.phone.trim());
     if (values.codeforcesHandle.trim())
       formData.set("codeforces_handle", values.codeforcesHandle.trim());
     if (selectedCollege) formData.set("college_id", selectedCollege.college_id);
@@ -729,6 +748,7 @@ export default function RegistrationForm() {
               STEP_FIELDS[candidate].includes(mappedField),
             ) ?? 3;
           setFieldErrors((current) => ({ ...current, [mappedField]: message }));
+          revealOptionalProfileErrors({ [mappedField]: message });
           if (mappedStep !== step) goToStep(mappedStep);
           window.requestAnimationFrame(() => focusTarget(mappedField));
         } else {
@@ -814,6 +834,9 @@ export default function RegistrationForm() {
           description="Tell the event team who you are and how to reach you with schedule and administration updates."
           hidden={step !== 1}
         >
+          <p className="mb-5 font-mono text-xs uppercase tracking-[0.12em] text-ascent-muted">
+            Required unless marked optional.
+          </p>
           <fieldset disabled={submitting} className="grid gap-5 sm:grid-cols-2">
             <legend className="sr-only">Contact details</legend>
             <FormField
@@ -851,26 +874,62 @@ export default function RegistrationForm() {
                 disabled={submitting}
               />
             </FormField>
-            <FormField
-              label="Mobile number"
-              id="phone"
-              required
-              description="Indian number, with or without +91."
-              error={fieldErrors.phone}
-            >
-              <Input
-                name="phone"
-                type="tel"
-                inputMode="tel"
-                value={values.phone}
-                onChange={(event) =>
-                  updateValue("phone", event.target.value, "phone")
-                }
-                autoComplete="tel"
-                placeholder="98765 43210"
-                disabled={submitting}
-              />
-            </FormField>
+            <div className="flex flex-col gap-2">
+              <label
+                htmlFor="phone"
+                className="text-sm font-semibold leading-5 text-ascent-ink"
+              >
+                Mobile number
+              </label>
+              <div className="grid grid-cols-[minmax(7.5rem,0.9fr)_minmax(0,1fr)] gap-3">
+                <Select
+                  name="phone_country_code"
+                  value={values.phoneCountryCode}
+                  onChange={(event) =>
+                    updateValue("phoneCountryCode", event.target.value, "phone")
+                  }
+                  aria-label="Mobile number country or territory"
+                  disabled={submitting}
+                >
+                  {APAC_PHONE_COUNTRIES.map((country) => (
+                    <option key={country.callingCode} value={country.callingCode}>
+                      {country.name} +{country.callingCode}
+                    </option>
+                  ))}
+                </Select>
+                <Input
+                  id="phone"
+                  name="phone"
+                  type="tel"
+                  inputMode="tel"
+                  value={values.phone}
+                  onChange={(event) =>
+                    updateValue("phone", event.target.value, "phone")
+                  }
+                  autoComplete="tel-national"
+                  placeholder="Mobile number"
+                  aria-describedby={
+                    fieldErrors.phone
+                      ? "phone-description phone-error"
+                      : "phone-description"
+                  }
+                  aria-invalid={Boolean(fieldErrors.phone)}
+                  disabled={submitting}
+                />
+              </div>
+              <p id="phone-description" className="text-xs leading-5 text-ascent-muted">
+                Enter the local number, without its country code.
+              </p>
+              {fieldErrors.phone ? (
+                <p
+                  id="phone-error"
+                  className="text-sm leading-5 text-ascent-danger"
+                  aria-live="polite"
+                >
+                  {fieldErrors.phone}
+                </p>
+              ) : null}
+            </div>
           </fieldset>
           <div className="mt-7 flex flex-col gap-4 border-t border-ascent-border pt-5 sm:flex-row sm:items-center sm:justify-between">
             <p className="max-w-md text-xs leading-5 text-ascent-muted">
@@ -896,6 +955,14 @@ export default function RegistrationForm() {
         >
           <fieldset disabled={submitting} className="space-y-6">
             <legend className="sr-only">Education and profiles</legend>
+            <div>
+              <p className="font-mono text-xs font-semibold uppercase tracking-[0.14em] text-ascent-brand">
+                Required for your competition route
+              </p>
+              <p className="mt-1 text-sm leading-5 text-ascent-muted">
+                Institution and current situation determine your competition route.
+              </p>
+            </div>
             <CollegeTypeahead
               disabled={submitting}
               error={fieldErrors.college}
@@ -1017,19 +1084,22 @@ export default function RegistrationForm() {
               </div>
             ) : null}
 
-            <div className="border-t border-ascent-border pt-6">
-              <div className="mb-5">
-                <h3 className="text-sm font-semibold text-ascent-ink">
-                  Public profiles
-                  <span className="ml-1 font-normal text-ascent-muted">
-                    (optional)
-                  </span>
-                </h3>
-                <p className="mt-1 text-sm leading-5 text-ascent-muted">
-                  Add either link only if you want it included with your entry.
-                </p>
-              </div>
-              <div className="grid gap-5 sm:grid-cols-2">
+            <details
+              className="group border-t border-ascent-border pt-6"
+              open={optionalProfilesOpen}
+              onToggle={(event) => setOptionalProfilesOpen(event.currentTarget.open)}
+            >
+              <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-sm font-semibold text-ascent-ink [&::-webkit-details-marker]:hidden">
+                <span>
+                  Optional profile links
+                  <span className="ml-1 font-normal text-ascent-muted">(optional)</span>
+                </span>
+                <span aria-hidden="true" className="font-mono text-base font-normal text-ascent-brand transition-transform duration-150 motion-reduce:transition-none group-open:rotate-45">+</span>
+              </summary>
+              <p className="mt-2 text-sm leading-5 text-ascent-muted">
+                Add LinkedIn or GitHub only if you want them included with your entry.
+              </p>
+              <div className="mt-5 grid gap-5 sm:grid-cols-2">
                 <FormField
                   label="LinkedIn profile"
                   id="linkedin_url"
@@ -1075,7 +1145,7 @@ export default function RegistrationForm() {
                   />
                 </FormField>
               </div>
-            </div>
+            </details>
           </fieldset>
 
           <div className="mt-7 flex flex-col gap-3 border-t border-ascent-border pt-5 sm:flex-row sm:items-center sm:justify-between">
@@ -1099,14 +1169,17 @@ export default function RegistrationForm() {
 
         <StageFrame
           number={3}
-          title="Entry & consent"
-          description="Review your details, add the document links needed for your entry, and consent to competition administration."
+          title="Review & submit"
+          description="Add the required resume link first, then any optional context you want us to consider."
           hidden={step !== 3}
         >
           <div className="border border-ascent-border bg-ascent-surface-subtle p-4 sm:p-5">
             <h3 className="text-sm font-semibold text-ascent-ink">
-              Earlier details
+              Check your details
             </h3>
+            <p className="mt-1 text-sm leading-5 text-ascent-muted">
+              You can revise either section before submitting.
+            </p>
             <dl className="mt-4 grid gap-5 sm:grid-cols-2">
               <div>
                 <dt className="text-xs text-ascent-muted">Contact</dt>
@@ -1124,7 +1197,7 @@ export default function RegistrationForm() {
                   onClick={() => goToStep(1)}
                   className="mt-2 min-h-11 text-xs font-semibold text-ascent-brand underline underline-offset-4"
                 >
-                  Edit contact
+                  Edit contact details
                 </button>
               </div>
               <div>
@@ -1142,7 +1215,7 @@ export default function RegistrationForm() {
                   onClick={() => goToStep(2)}
                   className="mt-2 min-h-11 text-xs font-semibold text-ascent-brand underline underline-offset-4"
                 >
-                  Edit education
+                  Edit education details
                 </button>
               </div>
             </dl>
@@ -1150,74 +1223,64 @@ export default function RegistrationForm() {
 
           <fieldset disabled={submitting} className="mt-6 space-y-6">
             <legend className="sr-only">Competition entry</legend>
+            <div>
+              <p className="font-mono text-xs font-semibold uppercase tracking-[0.14em] text-ascent-brand">
+                Required to complete
+              </p>
+              <p className="mt-1 text-sm leading-5 text-ascent-muted">
+                Share a Google Drive link to your resume. It must open without sign-in.
+              </p>
+            </div>
             <FormField
-              label="Codeforces handle"
-              id="codeforces_handle"
-              optional
-              description="Add this only if you have one. It helps us understand your competitive-programming background."
-              error={fieldErrors.codeforces_handle}
+              label="Resume link"
+              id="resume_url"
+              required
+              description="Paste your Google Drive sharing link."
+              error={fieldErrors.resume_url}
             >
               <Input
-                name="codeforces_handle"
-                value={values.codeforcesHandle}
+                name="resume_url"
+                type="url"
+                inputMode="url"
+                value={values.resumeUrl}
                 onChange={(event) =>
                   updateValue(
-                    "codeforcesHandle",
+                    "resumeUrl",
                     event.target.value,
-                    "codeforces_handle",
+                    "resume_url",
                   )
                 }
-                autoComplete="off"
-                autoCapitalize="none"
-                autoCorrect="off"
-                spellCheck={false}
-                placeholder="e.g. tourist"
-                maxLength={24}
+                placeholder="drive.google.com/file/d/..."
+                autoComplete="url"
                 disabled={submitting}
               />
             </FormField>
 
-            <div className="border-l-2 border-ascent-brand bg-ascent-brand-tint px-4 py-3">
-              <p className="text-sm font-semibold text-ascent-ink">
-                Make each link you provide viewable before you paste it.
-              </p>
+            <details className="group border-l-2 border-ascent-brand bg-ascent-brand-tint px-4 py-3">
+              <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-sm font-semibold text-ascent-ink [&::-webkit-details-marker]:hidden">
+                <span>How to make a Drive link viewable</span>
+                <span aria-hidden="true" className="font-mono text-base font-normal text-ascent-brand transition-transform duration-150 motion-reduce:transition-none group-open:rotate-45">+</span>
+              </summary>
               <p className="mt-1 text-sm leading-6 text-ascent-muted">
                 In Google Drive, open Share, set General access to “Anyone with
                 the link,” and choose “Viewer.” We never ask for Google sign-in.
               </p>
+            </details>
+
+            <div className="border-t border-ascent-border pt-6">
+              <p className="font-mono text-xs font-semibold uppercase tracking-[0.14em] text-ascent-brand">
+                Optional context
+              </p>
+              <p className="mt-1 text-sm leading-5 text-ascent-muted">
+                Add either item only if you want it considered with your entry.
+              </p>
             </div>
-
             <div className="grid gap-6 sm:grid-cols-2">
-              <FormField
-                label="Resume link"
-                id="resume_url"
-                required
-                description="Google Drive sharing link. Make sure it opens without sign-in."
-                error={fieldErrors.resume_url}
-              >
-                <Input
-                  name="resume_url"
-                  type="url"
-                  inputMode="url"
-                  value={values.resumeUrl}
-                  onChange={(event) =>
-                    updateValue(
-                      "resumeUrl",
-                      event.target.value,
-                      "resume_url",
-                    )
-                  }
-                  placeholder="drive.google.com/file/d/..."
-                  autoComplete="url"
-                  disabled={submitting}
-                />
-              </FormField>
-
               <FormField
                 label="Transcript link"
                 id="transcript_url"
                 optional
-                description="Google Drive sharing link. Leave blank if you do not want to provide it."
+                description="Paste a Google Drive sharing link if you would like to provide one."
                 error={fieldErrors.transcript_url}
               >
                 <Input
@@ -1237,13 +1300,43 @@ export default function RegistrationForm() {
                   disabled={submitting}
                 />
               </FormField>
+
+              <FormField
+                label="Codeforces handle"
+                id="codeforces_handle"
+                optional
+                description="Add this only if you have one. It helps us understand your competitive-programming background."
+                error={fieldErrors.codeforces_handle}
+              >
+                <Input
+                  name="codeforces_handle"
+                  value={values.codeforcesHandle}
+                  onChange={(event) =>
+                    updateValue(
+                      "codeforcesHandle",
+                      event.target.value,
+                      "codeforces_handle",
+                    )
+                  }
+                  autoComplete="off"
+                  autoCapitalize="none"
+                  autoCorrect="off"
+                  spellCheck={false}
+                  placeholder="e.g. tourist"
+                  maxLength={24}
+                  disabled={submitting}
+                />
+              </FormField>
             </div>
             <div className="border border-ascent-border bg-ascent-surface-subtle p-4">
+              <p className="font-mono text-xs font-semibold uppercase tracking-[0.14em] text-ascent-brand">
+                Final confirmation
+              </p>
               <label
                 className={
                   submitting
-                    ? "flex cursor-not-allowed items-start gap-3 text-sm leading-6 text-ascent-ink opacity-60"
-                    : "flex cursor-pointer items-start gap-3 text-sm leading-6 text-ascent-ink"
+                    ? "mt-3 flex cursor-not-allowed items-start gap-3 text-sm leading-6 text-ascent-ink opacity-60"
+                    : "mt-3 flex cursor-pointer items-start gap-3 text-sm leading-6 text-ascent-ink"
                 }
               >
                 <input
@@ -1299,6 +1392,9 @@ export default function RegistrationForm() {
             >
               Back
             </Button>
+            <p className="text-xs leading-5 text-ascent-muted sm:ml-auto">
+              Your confirmation reference appears on this page.
+            </p>
             <Button
               type="submit"
               size="lg"
@@ -1308,10 +1404,10 @@ export default function RegistrationForm() {
               {submitting ? (
                 <>
                   <Spinner />
-                  Submitting entry…
+                  Submitting competition entry…
                 </>
               ) : (
-                "Submit registration"
+                "Submit competition entry"
               )}
             </Button>
           </div>

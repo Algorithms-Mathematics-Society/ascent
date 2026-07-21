@@ -32,6 +32,10 @@ service cloud.firestore {
       allow read, write: if false;
     }
 
+    match /admin_registration_decisions/{id} {
+      allow read, write: if false;
+    }
+
     match /_rate_limits/{id} {
       allow read, write: if false;
     }
@@ -45,6 +49,10 @@ service cloud.firestore {
     }
 
     match /_rate_limits_search/{id} {
+      allow read, write: if false;
+    }
+
+    match /_rate_limits_admin_auth/{id} {
       allow read, write: if false;
     }
 

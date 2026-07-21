@@ -89,6 +89,26 @@ describe("pii/{uid}: deny-all, even for the owner", () => {
   });
 });
 
+describe("admin_registration_decisions/{uid}: deny-all", () => {
+  it("denies applicant reads and writes", async () => {
+    await testEnv.withSecurityRulesDisabled(async (ctx) => {
+      await setDoc(
+        doc(ctx.firestore(), "admin_registration_decisions/uid-1"),
+        { decision: "REJECTED", reason: "Internal review note" },
+      );
+    });
+    const ownerDb = testEnv.authenticatedContext("uid-1").firestore();
+    await assertFails(
+      getDoc(doc(ownerDb, "admin_registration_decisions/uid-1")),
+    );
+    await assertFails(
+      setDoc(doc(ownerDb, "admin_registration_decisions/uid-1"), {
+        decision: "APPROVED",
+      }),
+    );
+  });
+});
+
 describe("handles/{id} and phones/{id}: deny-all", () => {
   it("denies client read on handles", async () => {
     await testEnv.withSecurityRulesDisabled(async (ctx) => {

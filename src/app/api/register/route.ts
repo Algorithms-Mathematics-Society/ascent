@@ -1,5 +1,4 @@
 import { randomUUID } from "node:crypto";
-import { FieldValue } from "firebase-admin/firestore";
 import { type NextRequest, NextResponse } from "next/server";
 import { getEligibleInstitutionById } from "@/content/institutions";
 import {
@@ -8,7 +7,7 @@ import {
   IDENTIFIER_RATE_LIMIT_WINDOW_MS,
   IP_RATE_LIMIT_MAX_PER_HOUR,
 } from "@/lib/constants";
-import { adminDb } from "@/lib/firebaseAdmin";
+import { adminDb, adminServerTimestamp } from "@/lib/firebaseAdmin";
 import logger, { genReqId, maskEmail } from "@/lib/logger";
 import { determinePath } from "@/lib/qualificationEngine";
 import { checkSlidingWindow, sha256 } from "@/lib/rateLimit";
@@ -21,7 +20,7 @@ import {
   normalizeCodeforcesHandle,
   normalizeEmail,
   normalizeGoogleDriveUrl,
-  normalizeIndianPhone,
+  normalizeApacPhone,
   validateLegalName,
   validateSubmissionToken,
 } from "@/lib/validators";
@@ -265,7 +264,7 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const phoneResult = normalizeIndianPhone(textField(formData, "phone") ?? "");
+  const phoneResult = normalizeApacPhone(textField(formData, "phone") ?? "");
   if (!phoneResult.valid || !phoneResult.e164) {
     return fieldError(
       "phone",
@@ -573,16 +572,18 @@ export async function POST(req: NextRequest) {
 
       tx.set(emailRef, {
         subject_id: subjectId,
-        registered_at: FieldValue.serverTimestamp(),
+        registered_at: adminServerTimestamp(),
       });
       tx.set(phoneRef, {
         uid: subjectId,
         subject_id: subjectId,
-        registered_at: FieldValue.serverTimestamp(),
+        registered_at: adminServerTimestamp(),
       });
       tx.set(applicationRef, {
         edition: EDITION,
+        reference,
         state: "QUALIFICATION_DETERMINED",
+        admin_decision: "PENDING",
         codeforces_handle: codeforcesResult.normalized,
         college_id: resolvedCollegeId,
         college_tier: collegeTier,
@@ -596,8 +597,8 @@ export async function POST(req: NextRequest) {
         skills: null,
         qualification_path: qualification.path,
         qualification_reason: qualification.reason,
-        created_at: FieldValue.serverTimestamp(),
-        updated_at: FieldValue.serverTimestamp(),
+        created_at: adminServerTimestamp(),
+        updated_at: adminServerTimestamp(),
       });
       tx.set(piiRef, {
         legal_name: nameResult.normalized,
@@ -614,7 +615,7 @@ export async function POST(req: NextRequest) {
         CONTEST_PARTICIPATION: {
           granted: true,
           policy_version: "v1",
-          granted_at: FieldValue.serverTimestamp(),
+          granted_at: adminServerTimestamp(),
         },
       });
       tx.set(auditRef, {
@@ -623,7 +624,7 @@ export async function POST(req: NextRequest) {
         actor: "system",
         reason: qualification.reason,
         evidence_ref: null,
-        timestamp: FieldValue.serverTimestamp(),
+        timestamp: adminServerTimestamp(),
       });
       if (unlistedName) {
         tx.set(
@@ -631,7 +632,7 @@ export async function POST(req: NextRequest) {
           {
             subject_id: subjectId,
             typed_name: unlistedName,
-            submitted_at: FieldValue.serverTimestamp(),
+            submitted_at: adminServerTimestamp(),
           },
         );
       }
@@ -639,7 +640,7 @@ export async function POST(req: NextRequest) {
         subject_id: subjectId,
         state: "COMMITTED",
         ...receipt,
-        created_at: FieldValue.serverTimestamp(),
+        created_at: adminServerTimestamp(),
       });
       return { kind: "written" };
     });

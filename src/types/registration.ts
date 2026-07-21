@@ -13,7 +13,9 @@ export type ApplicantStatus = "STUDENT" | "PROFESSIONAL" | "OTHER";
 
 export interface Application {
   edition: Edition;
+  reference?: string;
   state: ApplicationState;
+  admin_decision?: "PENDING" | "APPROVED" | "WAITLISTED" | "REJECTED";
   codeforces_handle: string | null;
   college_id: string | null;
   college_tier: CollegeTier;

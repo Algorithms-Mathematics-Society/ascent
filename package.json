@@ -15,16 +15,20 @@
     "test:rules": "firebase emulators:exec --project=ascent-2026-dev --only firestore,storage \"VITEST_RULES=true vitest run test/rules\"",
     "test:emulated": "firebase emulators:exec --project=ascent-2026-dev --only firestore,auth,storage \"VITEST_RULES=true vitest run test/rateLimit.test.ts test/rules --no-file-parallelism\"",
     "emulators": "firebase emulators:start",
-    "seed:colleges": "tsx scripts/seed-colleges.ts"
+    "seed:colleges": "tsx scripts/seed-colleges.ts",
+    "admin:role": "tsx scripts/manage-admin.ts"
   },
   "dependencies": {
     "@fontsource/geist-sans": "^5.0.0",
     "@fontsource/jetbrains-mono": "^5.0.0",
+    "@google-cloud/firestore": "^8.6.0",
+    "@vercel/oidc": "^3.8.0",
     "clsx": "^2.1.1",
     "firebase": "^12.16.0",
-    "firebase-admin": "^14.2.0",
+    "firebase-admin": "13.10.0",
+    "google-auth-library": "^10.9.0",
     "lucide-react": "^0.400.0",
-    "next": "14.2.5",
+    "next": "14.2.35",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "tailwind-merge": "^2.4.0"

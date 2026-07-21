@@ -3,6 +3,7 @@ import {
   normalizeCodeforcesHandle,
   normalizeEmail,
   normalizeGoogleDriveUrl,
+  normalizeApacPhone,
   normalizeIndianPhone,
   validateLegalName,
   validateSubmissionToken,
@@ -157,4 +158,33 @@ describe("normalizeIndianPhone", () => {
     const result = normalizeIndianPhone("98765");
     expect(result.valid).toBe(false);
   });
+
+describe("normalizeApacPhone", () => {
+  it("normalizes selected APAC mobile numbers to E.164", () => {
+    expect(normalizeApacPhone("0412 345 678", "61")).toEqual({
+      valid: true,
+      e164: "+61412345678",
+    });
+    expect(normalizeApacPhone("8123 4567", "65")).toEqual({
+      valid: true,
+      e164: "+6581234567",
+    });
+    expect(normalizeApacPhone("090-1234-5678", "81")).toEqual({
+      valid: true,
+      e164: "+819012345678",
+    });
+  });
+
+  it("accepts a complete APAC E.164 number on the server boundary", () => {
+    expect(normalizeApacPhone("+639171234567")).toEqual({
+      valid: true,
+      e164: "+639171234567",
+    });
+  });
+
+  it("rejects an invalid selected country code and too-short numbers", () => {
+    expect(normalizeApacPhone("1234567", "44").valid).toBe(false);
+    expect(normalizeApacPhone("1234", "65").valid).toBe(false);
+  });
+});
 });

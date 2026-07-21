@@ -1,6 +1,8 @@
+import type { ReactNode } from "react";
+
 interface AdminMetricProps {
   label: string;
-  value: number;
+  value: ReactNode;
   detail: string;
   emphasis?: boolean;
 }

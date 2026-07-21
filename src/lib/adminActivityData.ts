@@ -90,6 +90,7 @@ export async function getLatestAdminActivity(): Promise<AdminActivityEntry[]> {
       category: adminActivityCategory(event),
       actor: stringValue(activity.actor, "system"),
       actorEmail: nullableString(activity.actor_email),
+      targetEmail: nullableString(activity.target_email),
       previousDecision: decisionValue(activity.previous_decision),
       decision: decisionValue(activity.decision),
       reason: nullableString(activity.reason),

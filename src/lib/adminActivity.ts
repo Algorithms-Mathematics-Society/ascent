@@ -17,6 +17,7 @@ export interface AdminActivityEntry {
   category: Exclude<AdminActivityCategory, "ALL">;
   actor: string;
   actorEmail: string | null;
+  targetEmail: string | null;
   previousDecision: AdminDecision | null;
   decision: AdminDecision | null;
   reason: string | null;
@@ -60,6 +61,10 @@ export function adminActivityLabel(event: string) {
   if (event === "ADMIN_REGISTRATION_SETTINGS_UPDATED") {
     return "Registration controls updated";
   }
+  if (event === "ADMIN_ACCESS_GRANTED") return "Administrator access granted";
+  if (event === "ADMIN_ROLE_CHANGED") return "Administrator role changed";
+  if (event === "ADMIN_SESSIONS_REVOKED") return "Administrator sessions revoked";
+  if (event === "ADMIN_ACCESS_REVOKED") return "Administrator access revoked";
   if (event === "QUALIFICATION_DETERMINED") {
     return "Qualification route determined";
   }
@@ -93,6 +98,7 @@ export function filterAdminActivity(
       entry.subjectId ?? "",
       adminActivityLabel(entry.event),
       entry.actorEmail ?? entry.actor,
+      entry.targetEmail ?? "",
       entry.reason ?? "",
       entry.bulkOperationId ?? "",
     ].some((value) => value.toLocaleLowerCase().includes(query));
@@ -142,6 +148,7 @@ export const ADMIN_ACTIVITY_EXPORT_HEADERS = [
   "Reference",
   "Application ID",
   "Actor",
+  "Target administrator",
   "Previous decision",
   "Decision",
   "Reason",
@@ -157,6 +164,7 @@ export function adminActivityCsv(entries: AdminActivityEntry[]) {
     entry.reference,
     entry.subjectId ?? "",
     entry.actorEmail ?? entry.actor,
+    entry.targetEmail ?? "",
     entry.previousDecision ?? "",
     entry.decision ?? "",
     entry.reason ?? "",

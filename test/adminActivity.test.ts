@@ -19,6 +19,7 @@ const entries: AdminActivityEntry[] = [
     category: "DECISIONS",
     actor: "admin:one",
     actorEmail: "admin@example.com",
+    targetEmail: null,
     previousDecision: "PENDING",
     decision: "APPROVED",
     reason: "Reviewed all evidence.",
@@ -34,6 +35,7 @@ const entries: AdminActivityEntry[] = [
     category: "OPERATIONS",
     actor: "admin:two",
     actorEmail: "ops@example.com",
+    targetEmail: null,
     previousDecision: null,
     decision: null,
     reason: "Needs transcript follow-up.",
@@ -48,6 +50,9 @@ describe("admin activity oversight", () => {
     expect(adminActivityCategory("ADMIN_TAGS_UPDATED")).toBe("OPERATIONS");
     expect(adminActivityCategory("QUALIFICATION_DETERMINED")).toBe("SYSTEM");
     expect(adminActivityLabel("ADMIN_NOTE_ADDED")).toBe("Private note added");
+    expect(adminActivityLabel("ADMIN_ACCESS_REVOKED")).toBe(
+      "Administrator access revoked",
+    );
   });
 
   it("combines time, category, and text filters", () => {

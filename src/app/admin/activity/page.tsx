@@ -76,9 +76,9 @@ function ApplicantLink({ entry }: { entry: AdminActivityEntry }) {
   if (!entry.subjectId) {
     return (
       <div>
-        <span className="block font-semibold text-ascent-ink">Competition-wide</span>
+        <span className="block font-semibold text-ascent-ink">{entry.targetEmail ? "Administrator access" : "Competition-wide"}</span>
         <span className="mt-1 block font-mono text-[0.64rem] uppercase tracking-[0.08em] text-ascent-muted">
-          No applicant record
+          {entry.targetEmail ?? "No applicant record"}
         </span>
       </div>
     );
@@ -217,7 +217,7 @@ export default async function AdminActivityPage({
         <div>
           <p className="font-mono text-xs font-semibold uppercase tracking-[0.16em] text-ascent-brand">Operations oversight</p>
           <h1 className="mt-3 text-3xl font-semibold tracking-tight text-ascent-ink sm:text-4xl">Activity ledger</h1>
-          <p className="mt-3 max-w-2xl text-sm leading-6 text-ascent-muted">Trace registration decisions, private operational changes and system actions with their actor and applicant context.</p>
+          <p className="mt-3 max-w-2xl text-sm leading-6 text-ascent-muted">Trace registration decisions, private operational changes, access controls and system actions with their actor and target context.</p>
         </div>
         <p className="font-mono text-[0.68rem] uppercase tracking-[0.12em] text-ascent-muted">Latest 250 events · IST</p>
       </div>
@@ -240,7 +240,7 @@ export default async function AdminActivityPage({
           </div>
 
           <form className="mt-5 grid gap-3 lg:grid-cols-[minmax(260px,1fr)_190px_170px_auto]" method="get">
-            <label className="flex flex-col gap-2 text-xs font-semibold text-ascent-ink">Search this ledger<input className="ascent-field-control ascent-input" type="search" name="q" defaultValue={filters.query} placeholder="Applicant, reference, actor, event" /></label>
+            <label className="flex flex-col gap-2 text-xs font-semibold text-ascent-ink">Search this ledger<input className="ascent-field-control ascent-input" type="search" name="q" defaultValue={filters.query} placeholder="Applicant, administrator, actor, event" /></label>
             <label className="flex flex-col gap-2 text-xs font-semibold text-ascent-ink">Event category<select className="ascent-field-control ascent-select" name="category" defaultValue={filters.category}><option value="ALL">All events</option><option value="DECISIONS">Decisions</option><option value="OPERATIONS">Operations</option><option value="SYSTEM">System</option></select></label>
             <label className="flex flex-col gap-2 text-xs font-semibold text-ascent-ink">Time range<select className="ascent-field-control ascent-select" name="range" defaultValue={filters.range}><option value="24H">Past 24 hours</option><option value="7D">Past 7 days</option><option value="30D">Past 30 days</option><option value="ALL">All loaded events</option></select></label>
             <div className="flex items-end gap-2"><Button type="submit" className="min-h-11 flex-1 lg:flex-none">Apply filters</Button>{filtering ? <Button href="/admin/activity" variant="secondary" className="min-h-11">Clear</Button> : null}</div>

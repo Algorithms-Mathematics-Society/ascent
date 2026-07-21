@@ -36,10 +36,13 @@ export default async function AdminLayout({ children }: { children: ReactNode })
                 Ascent admin
               </p>
               <p className="hidden truncate text-sm text-ascent-muted md:block">{session.email}</p>
+              <p className="hidden font-mono text-[0.58rem] font-semibold uppercase tracking-[0.12em] text-ascent-muted md:block">
+                {session.role === "OWNER" ? "Owner" : "Reviewer"}
+              </p>
             </div>
           </div>
           <div className="order-3 flex w-full items-center justify-between gap-3 border-t border-ascent-border pt-3 sm:order-none sm:w-auto sm:border-0 sm:pt-0">
-            <AdminNavigation />
+            <AdminNavigation role={session.role} />
             <AdminLogoutButton />
           </div>
         </div>

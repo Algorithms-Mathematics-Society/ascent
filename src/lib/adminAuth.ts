@@ -5,12 +5,14 @@ import { redirect } from "next/navigation";
 import { adminAuth } from "@/lib/firebaseAdmin";
 import {
   ADMIN_SESSION_COOKIE,
-  hasAdminClaim,
+  adminRoleFromClaims,
+  type AdminRole,
 } from "@/lib/adminSecurity";
 
 export interface AdminSession {
   uid: string;
   email: string;
+  role: AdminRole;
 }
 
 export async function verifyAdminSessionValue(
@@ -20,12 +22,14 @@ export async function verifyAdminSessionValue(
 
   try {
     const decoded = await adminAuth.verifySessionCookie(sessionCookie, true);
-    if (!hasAdminClaim(decoded)) return null;
+    const role = adminRoleFromClaims(decoded);
+    if (!role) return null;
 
     return {
       uid: decoded.uid,
       email:
         typeof decoded.email === "string" ? decoded.email : "Administrator",
+      role,
     };
   } catch {
     return null;
@@ -40,5 +44,11 @@ export async function getAdminSession(): Promise<AdminSession | null> {
 export async function requireAdminSession(): Promise<AdminSession> {
   const session = await getAdminSession();
   if (!session) redirect("/admin-page-login");
+  return session;
+}
+
+export async function requireOwnerSession(): Promise<AdminSession> {
+  const session = await requireAdminSession();
+  if (session.role !== "OWNER") redirect("/admin");
   return session;
 }

@@ -62,6 +62,12 @@ export async function PATCH(request: NextRequest) {
       401,
     );
   }
+  if (session.role !== "OWNER") {
+    return noStoreJson(
+      { success: false, error: "Owner access is required to change settings." },
+      403,
+    );
+  }
   const body = await readJson(request);
   if (!body || !csrfMatches(request, body.csrfToken)) {
     return noStoreJson(

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   ADMIN_RECENT_SIGN_IN_SECONDS,
+  adminRoleFromClaims,
   hasAdminClaim,
   isRecentAuthentication,
   requestHasSameOrigin,
@@ -12,6 +13,20 @@ describe("admin security helpers", () => {
     expect(hasAdminClaim({ ascent_admin: true })).toBe(true);
     expect(hasAdminClaim({ ascent_admin: false })).toBe(false);
     expect(hasAdminClaim({ admin: true })).toBe(false);
+  });
+
+  it("maps explicit roles and keeps legacy administrators as owners", () => {
+    expect(adminRoleFromClaims({ ascent_admin: true })).toBe("OWNER");
+    expect(
+      adminRoleFromClaims({ ascent_admin: true, ascent_admin_role: "owner" }),
+    ).toBe("OWNER");
+    expect(
+      adminRoleFromClaims({ ascent_admin: true, ascent_admin_role: "reviewer" }),
+    ).toBe("REVIEWER");
+    expect(
+      adminRoleFromClaims({ ascent_admin: true, ascent_admin_role: "unexpected" }),
+    ).toBeNull();
+    expect(adminRoleFromClaims({ ascent_admin: false })).toBeNull();
   });
 
   it("requires a recent authentication time", () => {

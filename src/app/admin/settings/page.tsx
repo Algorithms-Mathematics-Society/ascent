@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import AdminRegistrationSettingsForm from "@/components/admin/AdminRegistrationSettingsForm";
+import { requireOwnerSession } from "@/lib/adminAuth";
 import {
   getRegistrationAvailability,
   getRegistrationRetentionInventory,
@@ -19,6 +20,7 @@ function formatDate(value: string | null) {
 }
 
 export default async function AdminSettingsPage() {
+  await requireOwnerSession();
   const [{ settings, availability }, inventory] = await Promise.all([
     getRegistrationAvailability(),
     getRegistrationRetentionInventory(),

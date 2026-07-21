@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { activeOwnerCount, parseAdminTeamMutation } from "../src/lib/adminTeam";
+import {
+  activeOwnerCount,
+  ownerRecoveryReadiness,
+  parseAdminTeamMutation,
+  type AdminTeamMember,
+} from "../src/lib/adminTeam";
 
 describe("administrator team controls", () => {
   it("requires explicit email confirmation and a reason to grant access", () => {
@@ -48,6 +53,7 @@ describe("administrator team controls", () => {
           email: "one@example.com",
           role: "OWNER",
           disabled: false,
+          emailVerified: true,
           createdAt: null,
           lastSignInAt: null,
           tokensValidAfter: null,
@@ -58,6 +64,7 @@ describe("administrator team controls", () => {
           email: "two@example.com",
           role: "OWNER",
           disabled: true,
+          emailVerified: true,
           createdAt: null,
           lastSignInAt: null,
           tokensValidAfter: null,
@@ -65,5 +72,44 @@ describe("administrator team controls", () => {
         },
       ]),
     ).toBe(1);
+  });
+
+  it("requires two verified owners with successful sign-ins for recovery readiness", () => {
+    const owner = (
+      uid: string,
+      values: Partial<AdminTeamMember> = {},
+    ): AdminTeamMember => ({
+      uid,
+      email: `${uid}@example.com`,
+      role: "OWNER",
+      disabled: false,
+      emailVerified: true,
+      createdAt: null,
+      lastSignInAt: "2026-07-21T10:00:00.000Z",
+      tokensValidAfter: null,
+      factorCount: 0,
+      ...values,
+    });
+    expect(ownerRecoveryReadiness([owner("one")]).state).toBe(
+      "SECOND_OWNER_REQUIRED",
+    );
+    expect(
+      ownerRecoveryReadiness([
+        owner("one"),
+        owner("two", { emailVerified: false }),
+      ]).state,
+    ).toBe("EMAIL_VERIFICATION_REQUIRED");
+    expect(
+      ownerRecoveryReadiness([
+        owner("one"),
+        owner("two", { lastSignInAt: null }),
+      ]).state,
+    ).toBe("SIGN_IN_DRILL_REQUIRED");
+    expect(ownerRecoveryReadiness([owner("one"), owner("two")])).toMatchObject({
+      state: "READY",
+      enabledOwners: 2,
+      verifiedOwners: 2,
+      testedOwners: 2,
+    });
   });
 });

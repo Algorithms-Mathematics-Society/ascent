@@ -101,7 +101,7 @@ function GrantAccessForm() {
         </p>
         <h2 className="mt-2 text-xl font-semibold tracking-tight">Add an administrator</h2>
         <p className="mt-2 max-w-2xl text-sm leading-6 text-ascent-muted">
-          The person must already have an email/password account in Firebase Authentication.
+          The person must already have a verified email/password account in Firebase Authentication.
           Start with reviewer unless they must control access and competition settings.
         </p>
       </header>
@@ -338,7 +338,7 @@ export default function AdminTeamManager({
                   <dl className="mt-5 grid gap-px border border-ascent-border bg-ascent-border sm:grid-cols-2">
                     <div className="bg-ascent-surface-subtle p-3">
                       <dt className="font-mono text-[0.58rem] uppercase tracking-[0.08em] text-ascent-muted">Account</dt>
-                      <dd className={`mt-1 text-xs font-semibold ${member.disabled ? "text-ascent-danger" : "text-ascent-success"}`}>{member.disabled ? "Disabled" : "Enabled"}</dd>
+                      <dd className={`mt-1 text-xs font-semibold ${member.disabled || !member.emailVerified ? "text-ascent-danger" : "text-ascent-success"}`}>{member.disabled ? "Disabled" : member.emailVerified ? "Enabled · email verified" : "Enabled · email unverified"}</dd>
                     </div>
                     <div className="bg-ascent-surface-subtle p-3">
                       <dt className="font-mono text-[0.58rem] uppercase tracking-[0.08em] text-ascent-muted">MFA posture</dt>

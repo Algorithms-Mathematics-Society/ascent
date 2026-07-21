@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import AdminMetric from "@/components/admin/AdminMetric";
 import AdminTeamManager from "@/components/admin/AdminTeamManager";
 import { requireOwnerSession } from "@/lib/adminAuth";
+import { ownerRecoveryReadiness } from "@/lib/adminTeam";
 import { getAdminTeamMembers } from "@/lib/adminTeamData";
 
 export const metadata: Metadata = {
@@ -14,6 +15,29 @@ export default async function AdminTeamPage() {
   const ownerCount = members.filter((member) => member.role === "OWNER" && !member.disabled).length;
   const reviewerCount = members.filter((member) => member.role === "REVIEWER" && !member.disabled).length;
   const mfaCount = members.filter((member) => member.factorCount > 0 && !member.disabled).length;
+  const recovery = ownerRecoveryReadiness(members);
+  const recoveryCopy = {
+    SECOND_OWNER_REQUIRED: {
+      eyebrow: "Action required",
+      title: "Create a second recovery owner",
+      detail: "One account is still a single point of failure. Create and verify a separate Firebase email/password account, then grant it owner access below.",
+    },
+    EMAIL_VERIFICATION_REQUIRED: {
+      eyebrow: "Verification required",
+      title: "Verify the second owner's email",
+      detail: "Two enabled owner records exist, but at least one email is unverified. Verification is required before this recovery path is trusted.",
+    },
+    SIGN_IN_DRILL_REQUIRED: {
+      eyebrow: "Recovery drill required",
+      title: "Test the second owner independently",
+      detail: "Both owner emails are verified. Sign in to the second account from a separate browser before relying on it for recovery.",
+    },
+    READY: {
+      eyebrow: "Recovery ready",
+      title: "Owner redundancy is established",
+      detail: "At least two enabled, verified owners have successfully signed in. Keep their credentials and devices independent.",
+    },
+  }[recovery.state];
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 lg:py-12">
@@ -31,6 +55,41 @@ export default async function AdminTeamPage() {
         <AdminMetric label="Enabled reviewers" value={reviewerCount} detail="Applicant operations only" />
         <AdminMetric label="MFA enrolled" value={mfaCount} detail={`Of ${members.filter((member) => !member.disabled).length} enabled admins · not enforced`} />
       </dl>
+
+      <section className={`mt-6 border p-5 sm:p-6 ${recovery.state === "READY" ? "border-ascent-success bg-ascent-success-tint" : "border-ascent-danger bg-ascent-danger-tint"}`} aria-labelledby="recovery-readiness-title">
+        <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+          <div className="max-w-2xl">
+            <p className={`font-mono text-[0.66rem] font-semibold uppercase tracking-[0.14em] ${recovery.state === "READY" ? "text-ascent-success" : "text-ascent-danger"}`}>{recoveryCopy.eyebrow}</p>
+            <h2 id="recovery-readiness-title" className="mt-2 text-xl font-semibold tracking-tight text-ascent-ink">{recoveryCopy.title}</h2>
+            <p className="mt-2 text-sm leading-6 text-ascent-muted">{recoveryCopy.detail}</p>
+          </div>
+          <dl className="grid shrink-0 grid-cols-3 gap-px border border-ascent-border bg-ascent-border text-center">
+            {[
+              ["Enabled", recovery.enabledOwners],
+              ["Verified", recovery.verifiedOwners],
+              ["Sign-in tested", recovery.testedOwners],
+            ].map(([label, value]) => (
+              <div key={label} className="min-w-20 bg-ascent-surface p-3">
+                <dt className="font-mono text-[0.55rem] uppercase tracking-[0.06em] text-ascent-muted">{label}</dt>
+                <dd className="mt-1 text-lg font-semibold tabular-nums text-ascent-ink">{value}/2</dd>
+              </div>
+            ))}
+          </dl>
+        </div>
+        <ol className="mt-5 grid gap-px border border-ascent-border bg-ascent-border md:grid-cols-3">
+          {[
+            ["01", "Create + verify", "Use a separate Firebase email/password account owned by the recovery administrator."],
+            ["02", "Grant owner", "Add the verified email below and confirm the grant with a recorded reason."],
+            ["03", "Test separately", "Sign in from another browser and confirm Team and Settings access."],
+          ].map(([number, title, detail]) => (
+            <li key={number} className="bg-ascent-surface p-4">
+              <p className="font-mono text-[0.6rem] font-semibold text-ascent-brand">{number}</p>
+              <p className="mt-2 text-sm font-semibold text-ascent-ink">{title}</p>
+              <p className="mt-1 text-xs leading-5 text-ascent-muted">{detail}</p>
+            </li>
+          ))}
+        </ol>
+      </section>
 
       <section className="mt-6 grid gap-px border border-ascent-border bg-ascent-border lg:grid-cols-2" aria-label="Role capabilities">
         <div className="bg-ascent-surface p-5 sm:p-6">

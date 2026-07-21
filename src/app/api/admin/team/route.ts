@@ -133,6 +133,15 @@ export async function POST(request: NextRequest) {
           409,
         );
       }
+      if (!target.emailVerified) {
+        return noStoreJson(
+          {
+            success: false,
+            error: "Verify that Firebase account's email before granting admin access.",
+          },
+          409,
+        );
+      }
       if (adminRoleFromClaims(previousClaims)) {
         return noStoreJson(
           { success: false, error: "That account already has administrator access." },
@@ -178,6 +187,19 @@ export async function POST(request: NextRequest) {
     if (currentRole !== parsed.value.expectedRole) {
       return noStoreJson(
         { success: false, error: "Administrator role changed. Refresh this page." },
+        409,
+      );
+    }
+    if (
+      parsed.value.action === "CHANGE_ROLE" &&
+      parsed.value.role === "OWNER" &&
+      !target.emailVerified
+    ) {
+      return noStoreJson(
+        {
+          success: false,
+          error: "Verify this administrator's email before granting owner access.",
+        },
         409,
       );
     }

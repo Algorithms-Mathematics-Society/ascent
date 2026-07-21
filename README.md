@@ -15,8 +15,8 @@ revoke the target's active sessions when permissions change, and enter the
 audit ledger.
 
 The CLI is the break-glass path when no owner can use the web console. The
-target account must already exist in Firebase Authentication, and the reason
-must be 10–500 characters:
+target account must already exist in Firebase Authentication with a verified
+email, and the reason must be 10–500 characters:
 
 ```bash
 npm run admin:role -- grant administrator@example.com owner "Emergency owner recovery"

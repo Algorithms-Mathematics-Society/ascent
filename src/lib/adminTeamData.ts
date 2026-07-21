@@ -18,6 +18,7 @@ export async function getAdminTeamMembers(): Promise<AdminTeamMember[]> {
         email: user.email?.toLocaleLowerCase() ?? "Email unavailable",
         role,
         disabled: user.disabled,
+        emailVerified: user.emailVerified,
         createdAt: user.metadata.creationTime || null,
         lastSignInAt: user.metadata.lastSignInTime || null,
         tokensValidAfter: user.tokensValidAfterTime || null,

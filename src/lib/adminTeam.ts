@@ -11,10 +11,24 @@ export interface AdminTeamMember {
   email: string;
   role: AdminRole;
   disabled: boolean;
+  emailVerified: boolean;
   createdAt: string | null;
   lastSignInAt: string | null;
   tokensValidAfter: string | null;
   factorCount: number;
+}
+
+export type OwnerRecoveryState =
+  | "SECOND_OWNER_REQUIRED"
+  | "EMAIL_VERIFICATION_REQUIRED"
+  | "SIGN_IN_DRILL_REQUIRED"
+  | "READY";
+
+export interface OwnerRecoveryReadiness {
+  state: OwnerRecoveryState;
+  enabledOwners: number;
+  verifiedOwners: number;
+  testedOwners: number;
 }
 
 export type AdminTeamMutation =
@@ -144,4 +158,28 @@ export function parseAdminTeamMutation(input: unknown): ParseResult {
 export function activeOwnerCount(members: AdminTeamMember[]) {
   return members.filter((member) => member.role === "OWNER" && !member.disabled)
     .length;
+}
+
+export function ownerRecoveryReadiness(
+  members: AdminTeamMember[],
+): OwnerRecoveryReadiness {
+  const enabledOwners = members.filter(
+    (member) => member.role === "OWNER" && !member.disabled,
+  );
+  const verifiedOwners = enabledOwners.filter((member) => member.emailVerified);
+  const testedOwners = verifiedOwners.filter((member) => member.lastSignInAt);
+  const state: OwnerRecoveryState =
+    enabledOwners.length < 2
+      ? "SECOND_OWNER_REQUIRED"
+      : verifiedOwners.length < 2
+        ? "EMAIL_VERIFICATION_REQUIRED"
+        : testedOwners.length < 2
+          ? "SIGN_IN_DRILL_REQUIRED"
+          : "READY";
+  return {
+    state,
+    enabledOwners: enabledOwners.length,
+    verifiedOwners: verifiedOwners.length,
+    testedOwners: testedOwners.length,
+  };
 }

@@ -30,6 +30,11 @@ async function main() {
   }
 
   const user = await adminAuth.getUserByEmail(email);
+  if (action === "grant" && !user.emailVerified) {
+    throw new Error(
+      `Verify the Firebase Authentication email for ${email} before granting admin access.`,
+    );
+  }
   const claims: Record<string, unknown> = { ...(user.customClaims ?? {}) };
   const previousClaims = { ...claims };
   const previousRole = adminRoleFromClaims(claims);

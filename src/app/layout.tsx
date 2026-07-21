@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
+import type { CSSProperties, ReactNode } from "react";
 import { site } from "@/content/site";
 
 // Self-hosted fonts (no external CDN, no layout shift).
+import "@fontsource/eb-garamond/600.css";
 import "@fontsource/geist-sans/400.css";
 import "@fontsource/geist-sans/500.css";
 import "@fontsource/geist-sans/600.css";
@@ -21,7 +23,7 @@ export const metadata: Metadata = {
 export default function RootLayout({
   children,
 }: {
-  children: React.ReactNode;
+  children: ReactNode;
 }) {
   return (
     <html
@@ -30,7 +32,8 @@ export default function RootLayout({
         {
           "--font-geist": "'Geist Sans'",
           "--font-jetbrains": "'JetBrains Mono'",
-        } as React.CSSProperties
+          "--font-eb-garamond": "'EB Garamond'",
+        } as CSSProperties
       }
     >
       <body className="bg-ascent-canvas font-sans text-ascent-ink antialiased">

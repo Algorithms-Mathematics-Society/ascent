@@ -1,10 +1,11 @@
 import Image from "next/image";
 
 const FOOTER_LINKS = [
-  { label: "About", href: "#about" },
-  { label: "Format", href: "#tracks" },
-  { label: "Timeline", href: "#timeline" },
-  { label: "FAQ", href: "#faq" },
+  { label: "About", href: "/#about" },
+  { label: "Format", href: "/#tracks" },
+  { label: "Timeline", href: "/#timeline" },
+  { label: "FAQ", href: "/#faq" },
+  { label: "Syllabus", href: "/syllabus" },
   { label: "Register", href: "/register" },
 ] as const;
 

@@ -2,19 +2,25 @@ import Image from "next/image";
 import { Button } from "@/components/ui";
 
 interface NavbarProps {
-  page?: "home" | "registration";
+  page?: "home" | "registration" | "syllabus";
 }
 
-const HOME_LINKS = [
+const PUBLIC_LINKS = [
   { label: "About", href: "#about" },
   { label: "Format", href: "#tracks" },
   { label: "Timeline", href: "#timeline" },
   { label: "FAQ", href: "#faq" },
+  { label: "Syllabus", href: "/syllabus" },
 ] as const;
 
 /** Shared, solid site chrome for marketing and registration routes. */
 export default function Navbar({ page = "home" }: NavbarProps) {
   const isRegistration = page === "registration";
+  const isHome = page === "home";
+
+  function resolveHref(href: string) {
+    return !isHome && href.startsWith("#") ? `/${href}` : href;
+  }
 
   return (
     <header className="fixed inset-x-0 top-0 z-50 h-16 border-b border-ascent-border bg-ascent-surface">
@@ -31,7 +37,7 @@ export default function Navbar({ page = "home" }: NavbarProps) {
       >
         <div className="flex shrink-0 items-center gap-8 lg:gap-10">
           <a
-            href={isRegistration ? "/#top" : "#top"}
+            href={isHome ? "#top" : "/#top"}
             aria-label="Ascent home"
             className="group flex min-h-11 shrink-0 items-center gap-2 font-mono text-sm font-bold tracking-tight text-ascent-ink hover:text-ascent-brand"
           >
@@ -49,11 +55,20 @@ export default function Navbar({ page = "home" }: NavbarProps) {
 
           {!isRegistration ? (
             <div className="hidden items-center gap-6 md:flex">
-              {HOME_LINKS.map((link) => (
+              {PUBLIC_LINKS.map((link) => (
                 <a
                   key={link.href}
-                  href={link.href}
-                  className="-mx-2.5 inline-flex min-h-11 items-center px-2.5 text-sm font-medium text-ascent-muted hover:text-ascent-brand"
+                  href={resolveHref(link.href)}
+                  aria-current={
+                    page === "syllabus" && link.href === "/syllabus"
+                      ? "page"
+                      : undefined
+                  }
+                  className={`-mx-2.5 inline-flex min-h-11 items-center border-b-2 px-2.5 text-sm font-medium hover:text-ascent-brand ${
+                    page === "syllabus" && link.href === "/syllabus"
+                      ? "border-ascent-brand text-ascent-ink"
+                      : "border-transparent text-ascent-muted"
+                  }`}
                 >
                   {link.label}
                 </a>
@@ -72,9 +87,20 @@ export default function Navbar({ page = "home" }: NavbarProps) {
             </Button>
           </div>
         ) : (
-          <Button href="/register" size="sm">
-            Register
-          </Button>
+          <div className="flex items-center gap-3">
+            <a
+              href="/syllabus"
+              aria-current={page === "syllabus" ? "page" : undefined}
+              className={`inline-flex min-h-11 items-center text-sm font-medium md:hidden ${
+                page === "syllabus" ? "text-ascent-ink" : "text-ascent-muted"
+              }`}
+            >
+              Syllabus
+            </a>
+            <Button href="/register" size="sm">
+              Register
+            </Button>
+          </div>
         )}
       </nav>
     </header>

@@ -8,14 +8,13 @@
 
    Identity: the supplied Ascent palette. Ice carries the canvas,
    white carries working surfaces, Midnight carries text, and Glacier
-   carries brand/action emphasis. Gold is retained as an available
-   identity token but is not used as interface decoration. Feedback
-   colors communicate state only.
+   carries brand/action emphasis. Gold is reserved for restrained
+   editorial markers, while feedback colors communicate state only.
    ============================================================ */
 :root {
   /* Brand primitives — supplied Ascent identity */
   --ascent-glacier: 20 40 58; /* #14283A */
-  --ascent-gold: 169 130 47; /* #A9822F — intentionally unused in UI */
+  --ascent-gold: 169 130 47; /* #A9822F — editorial labels and markers */
   --ascent-ice: 237 241 242; /* #EDF1F2 */
   --ascent-midnight: 13 24 34; /* #0D1822 */
 

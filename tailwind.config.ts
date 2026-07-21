@@ -19,6 +19,7 @@ const config: Config = {
             "rgb(var(--ascent-border-strong) / <alpha-value>)",
           ink: "rgb(var(--ascent-ink) / <alpha-value>)",
           muted: "rgb(var(--ascent-muted) / <alpha-value>)",
+          gold: "rgb(var(--ascent-gold) / <alpha-value>)",
           brand: "rgb(var(--ascent-brand) / <alpha-value>)",
           "brand-hover":
             "rgb(var(--ascent-brand-hover) / <alpha-value>)",
@@ -88,6 +89,7 @@ const config: Config = {
         },
       },
       fontFamily: {
+        display: ["var(--font-eb-garamond)", "Georgia", "serif"],
         sans: ["var(--font-geist)", "ui-sans-serif", "system-ui", "sans-serif"],
         mono: [
           "var(--font-jetbrains)",

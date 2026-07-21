@@ -20,6 +20,43 @@ interface CollegeTypeaheadProps {
 
 const MIN_QUERY_LENGTH = 2;
 const MAX_VISIBLE_RESULTS = 8;
+const SEARCH_CACHE_TTL_MS = 5 * 60 * 1000;
+const SEARCH_CACHE_MAX_ENTRIES = 32;
+
+type CachedCollegeSearch = {
+  results: CollegeResult[];
+  expiresAt: number;
+};
+
+const searchCache = new Map<string, CachedCollegeSearch>();
+
+function readCachedSearch(query: string) {
+  const cached = searchCache.get(query);
+  if (!cached) return null;
+  if (cached.expiresAt <= Date.now()) {
+    searchCache.delete(query);
+    return null;
+  }
+
+  // Refresh insertion order so the bounded map behaves as a small LRU.
+  searchCache.delete(query);
+  searchCache.set(query, cached);
+  return cached.results;
+}
+
+function writeCachedSearch(query: string, results: CollegeResult[]) {
+  searchCache.delete(query);
+  searchCache.set(query, {
+    results,
+    expiresAt: Date.now() + SEARCH_CACHE_TTL_MS,
+  });
+
+  while (searchCache.size > SEARCH_CACHE_MAX_ENTRIES) {
+    const oldestKey = searchCache.keys().next().value;
+    if (typeof oldestKey !== "string") break;
+    searchCache.delete(oldestKey);
+  }
+}
 
 /**
  * Searchable college combobox with an explicit fallback for unlisted colleges.
@@ -80,6 +117,17 @@ export default function CollegeTypeahead({
       return () => controller.abort();
     }
 
+    const cacheKey = normalizedQuery.toLocaleLowerCase("en");
+    const cachedResults = readCachedSearch(cacheKey);
+    if (cachedResults) {
+      setResults(cachedResults);
+      setActiveIndex(-1);
+      setIsLoading(false);
+      setHasSearched(true);
+      setSearchError("");
+      return () => controller.abort();
+    }
+
     setIsLoading(true);
     setHasSearched(false);
     setSearchError("");
@@ -106,8 +154,13 @@ export default function CollegeTypeahead({
         const data = (await response.json()) as {
           results?: CollegeResult[];
         };
+        const nextResults = (data.results ?? []).slice(
+          0,
+          MAX_VISIBLE_RESULTS,
+        );
+        writeCachedSearch(cacheKey, nextResults);
         setActiveIndex(-1);
-        setResults((data.results ?? []).slice(0, MAX_VISIBLE_RESULTS));
+        setResults(nextResults);
       } catch (fetchError) {
         if (
           requestIdRef.current === currentRequestId &&

@@ -1,11 +1,11 @@
 import RegistrationForm from "@/components/register/RegistrationForm";
 import { Button } from "@/components/ui";
-import { getRegistrationAvailability } from "@/lib/registrationSettingsData";
+import { getCachedRegistrationAvailability } from "@/lib/registrationSettingsData";
 
 export const dynamic = "force-dynamic";
 
 export default async function RegisterPage() {
-  const { settings, availability } = await getRegistrationAvailability();
+  const { settings, availability } = await getCachedRegistrationAvailability();
   if (!availability.acceptsRegistrations) {
     return (
       <section className="mx-auto max-w-3xl overflow-hidden rounded-panel border border-ascent-border bg-ascent-surface" aria-labelledby="registration-unavailable-title">

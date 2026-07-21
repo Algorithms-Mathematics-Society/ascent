@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { type NextRequest, NextResponse } from "next/server";
 import { verifyAdminSessionValue } from "@/lib/adminAuth";
 import {
@@ -13,6 +13,7 @@ import {
   parseRegistrationSettingsInput,
   registrationSettingsFromData,
 } from "@/lib/registrationSettings";
+import { PUBLIC_REGISTRATION_AVAILABILITY_CACHE_TAG } from "@/lib/registrationSettingsData";
 
 const MAX_REQUEST_BYTES = 16 * 1024;
 
@@ -143,6 +144,7 @@ export async function PATCH(request: NextRequest) {
         409,
       );
     }
+    revalidateTag(PUBLIC_REGISTRATION_AVAILABILITY_CACHE_TAG);
     revalidatePath("/admin/settings");
     revalidatePath("/admin/activity");
     revalidatePath("/register");

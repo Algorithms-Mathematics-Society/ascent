@@ -33,7 +33,16 @@ export async function GET(req: NextRequest) {
       // Every request to this public endpoint counts toward the window.
       await ipLimit.recordFailure();
       if (ipLimit.overLimit) {
-        return NextResponse.json({ results: [] }, { status: 429 });
+        return NextResponse.json(
+          { results: [] },
+          {
+            status: 429,
+            headers: {
+              "Cache-Control": "private, no-store",
+              "Retry-After": "60",
+            },
+          },
+        );
       }
     } catch (error) {
       // Institution reference data is local and safe to serve if the
@@ -49,7 +58,10 @@ export async function GET(req: NextRequest) {
 
   const rawQuery = (req.nextUrl.searchParams.get("q") || "").trim();
   if (rawQuery.length < 2) {
-    return NextResponse.json({ results: [] });
+    return NextResponse.json(
+      { results: [] },
+      { headers: { "Cache-Control": "private, max-age=300" } },
+    );
   }
 
   const results = searchEligibleInstitutions(rawQuery, 10).map(
@@ -61,5 +73,8 @@ export async function GET(req: NextRequest) {
     }),
   );
 
-  return NextResponse.json({ results });
+  return NextResponse.json(
+    { results },
+    { headers: { "Cache-Control": "private, max-age=300" } },
+  );
 }

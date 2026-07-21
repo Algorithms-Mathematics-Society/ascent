@@ -7,10 +7,15 @@ import {
   type FormEvent,
   type ReactNode,
 } from "react";
+import dynamic from "next/dynamic";
 import { CheckCircle2 } from "lucide-react";
-import CollegeTypeahead, {
-  type CollegeResult,
-} from "@/components/register/CollegeTypeahead";
+import type { CollegeResult } from "@/components/register/CollegeTypeahead";
+import {
+  APAC_PHONE_COUNTRIES,
+  normalizeApacPhone,
+  normalizeCodeforcesHandle,
+  normalizeGoogleDriveUrl,
+} from "@/lib/validators";
 import {
   Button,
   FormField,
@@ -19,12 +24,23 @@ import {
   Select,
   Spinner,
 } from "@/components/ui";
-import {
-  APAC_PHONE_COUNTRIES,
-  normalizeApacPhone,
-  normalizeCodeforcesHandle,
-  normalizeGoogleDriveUrl,
-} from "@/lib/validators";
+
+const loadCollegeTypeahead = () =>
+  import("@/components/register/CollegeTypeahead");
+
+const CollegeTypeahead = dynamic(loadCollegeTypeahead, {
+  ssr: false,
+  loading: () => (
+    <div className="flex flex-col gap-2" role="status" aria-live="polite">
+      <span className="text-sm font-medium leading-5 text-ascent-ink">
+        Institution
+      </span>
+      <div className="flex min-h-12 items-center rounded-control border border-ascent-field-border bg-ascent-field-bg px-3 text-sm text-ascent-muted">
+        Loading institution search…
+      </div>
+    </div>
+  ),
+});
 
 const SUBMIT_TIMEOUT_MS = 20_000;
 const CURRENT_YEAR = new Date().getFullYear();
@@ -484,6 +500,7 @@ export default function RegistrationForm() {
   );
   const [unlistedName, setUnlistedName] = useState("");
   const [optionalProfilesOpen, setOptionalProfilesOpen] = useState(false);
+  const [educationSearchReady, setEducationSearchReady] = useState(false);
   const [website, setWebsite] = useState("");
   const [fieldErrors, setFieldErrors] = useState<
     Partial<Record<FieldName, string>>
@@ -617,7 +634,13 @@ export default function RegistrationForm() {
     if (first) window.requestAnimationFrame(() => focusTarget(first));
   }
 
+  function prepareEducationSearch() {
+    setEducationSearchReady(true);
+    void loadCollegeTypeahead();
+  }
+
   function goToStep(nextStep: RegistrationStep) {
+    if (nextStep >= 2) prepareEducationSearch();
     setStep(nextStep);
     setGlobalError("");
     window.requestAnimationFrame(() => {
@@ -939,6 +962,9 @@ export default function RegistrationForm() {
             </p>
             <Button
               type="button"
+              onPointerEnter={prepareEducationSearch}
+              onFocus={prepareEducationSearch}
+              onTouchStart={prepareEducationSearch}
               onClick={() => continueFrom(1)}
               className="w-full sm:w-auto"
             >
@@ -963,20 +989,22 @@ export default function RegistrationForm() {
                 Institution and current situation determine your competition route.
               </p>
             </div>
-            <CollegeTypeahead
-              disabled={submitting}
-              error={fieldErrors.college}
-              onSelect={(college) => {
-                setSelectedCollege(college);
-                if (college) setUnlistedName("");
-                clearFieldError("college");
-              }}
-              onUnlisted={(name) => {
-                setUnlistedName(name);
-                if (name) setSelectedCollege(null);
-                clearFieldError("college");
-              }}
-            />
+            {educationSearchReady ? (
+              <CollegeTypeahead
+                disabled={submitting}
+                error={fieldErrors.college}
+                onSelect={(college) => {
+                  setSelectedCollege(college);
+                  if (college) setUnlistedName("");
+                  clearFieldError("college");
+                }}
+                onUnlisted={(name) => {
+                  setUnlistedName(name);
+                  if (name) setSelectedCollege(null);
+                  clearFieldError("college");
+                }}
+              />
+            ) : null}
 
             <FormField
               label="Which best describes you?"

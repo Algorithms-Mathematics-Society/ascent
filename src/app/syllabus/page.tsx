@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Footer from "@/components/layout/Footer";
 import Navbar from "@/components/layout/Navbar";
 import {
@@ -17,21 +18,16 @@ export const metadata: Metadata = {
 
 function StepMark() {
   return (
-    <svg
+    <Image
+      src="/ascent-logo.svg"
+      alt=""
       aria-hidden="true"
-      viewBox="0 0 48 48"
-      className="h-10 w-10 text-ascent-brand"
-      fill="none"
-    >
-      <path
-        d="M4 40h13V29h11V18h10V8"
-        stroke="currentColor"
-        strokeWidth="2.5"
-        strokeLinecap="square"
-        strokeLinejoin="miter"
-      />
-      <circle cx="40" cy="5" r="2" className="fill-ascent-gold" />
-    </svg>
+      width={49}
+      height={48}
+      loading="lazy"
+      unoptimized
+      className="h-12 w-auto shrink-0"
+    />
   );
 }
 

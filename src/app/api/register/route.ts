@@ -1,4 +1,5 @@
 import { randomUUID } from "node:crypto";
+import { revalidateTag } from "next/cache";
 import { type NextRequest, NextResponse } from "next/server";
 import { getEligibleInstitutionById } from "@/content/institutions";
 import {
@@ -15,7 +16,10 @@ import {
   registrationAvailability,
   registrationSettingsFromData,
 } from "@/lib/registrationSettings";
-import { getRegistrationAvailability } from "@/lib/registrationSettingsData";
+import {
+  getRegistrationAvailability,
+  PUBLIC_REGISTRATION_AVAILABILITY_CACHE_TAG,
+} from "@/lib/registrationSettingsData";
 import type {
   ApplicantStatus,
   CollegeTier,
@@ -66,7 +70,13 @@ type TransactionResult =
   | { kind: "unavailable"; message: string };
 
 function fieldError(field: string, error: string, status = 400) {
-  return NextResponse.json({ success: false, error, field }, { status });
+  return NextResponse.json(
+    { success: false, error, field },
+    {
+      status,
+      headers: { "Cache-Control": "private, no-store" },
+    },
+  );
 }
 
 function textField(formData: FormData, name: string): string | null {
@@ -155,7 +165,10 @@ function receiptFromData(
 }
 
 function successResponse(receipt: RegistrationReceipt) {
-  return NextResponse.json({ success: true, ...receipt });
+  return NextResponse.json(
+    { success: true, ...receipt },
+    { headers: { "Cache-Control": "private, no-store" } },
+  );
 }
 
 export async function POST(req: NextRequest) {
@@ -704,6 +717,7 @@ export async function POST(req: NextRequest) {
             status: "degraded",
           },
         );
+        revalidateTag(PUBLIC_REGISTRATION_AVAILABILITY_CACHE_TAG);
         return successResponse(recoveredReceipt);
       }
     } catch (recoveryError) {
@@ -762,6 +776,7 @@ export async function POST(req: NextRequest) {
     return fieldError("registration", transactionResult.message, 423);
   }
 
+  revalidateTag(PUBLIC_REGISTRATION_AVAILABILITY_CACHE_TAG);
   logger.info("direct_registration", "registration_completed", {
     reqId,
     entityId: subjectId,

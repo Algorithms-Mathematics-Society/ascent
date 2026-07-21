@@ -1,7 +1,7 @@
 // src/components/sections/RegistrationCta.tsx
 import { ArrowRight } from "lucide-react";
 import { Button, Container } from "@/components/ui";
-import CtaOptimizationCurrent from "./CtaOptimizationCurrent";
+import DeferredCtaOptimizationCurrent from "./DeferredCtaOptimizationCurrent";
 
 const REGISTRATION_FACTS = [
   "No account or sign-in",
@@ -15,7 +15,7 @@ export default function RegistrationCta() {
       id="prizes"
       className="relative isolate scroll-mt-16 overflow-hidden bg-ascent-brand py-16 text-ascent-on-brand sm:py-20"
     >
-      <CtaOptimizationCurrent />
+      <DeferredCtaOptimizationCurrent />
       <Container className="relative z-10">
         <div
           id="register"

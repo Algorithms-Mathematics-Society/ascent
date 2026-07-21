@@ -1,5 +1,6 @@
 import "server-only";
 
+import { unstable_cache } from "next/cache";
 import { adminDb } from "@/lib/firebaseAdmin";
 import {
   registrationAvailability,
@@ -31,18 +32,29 @@ function timestampIso(value: unknown): string | null {
   return null;
 }
 
-export async function getRegistrationSettings(): Promise<RegistrationSettings> {
-  const [settingsDocument, applicationCount] = await Promise.all([
-    adminDb.collection("admin_config").doc("registration").get(),
-    adminDb.collection("applications").count().get(),
-  ]);
-  const settings = registrationSettingsFromData(
-    settingsDocument.data(),
-    applicationCount.data().count,
+function hasAcceptedCount(data: Record<string, unknown> | undefined) {
+  return (
+    typeof data?.accepted_count === "number" &&
+    Number.isSafeInteger(data.accepted_count) &&
+    data.accepted_count >= 0
   );
+}
+
+export async function getRegistrationSettings(): Promise<RegistrationSettings> {
+  const settingsDocument = await adminDb
+    .collection("admin_config")
+    .doc("registration")
+    .get();
+  const data = settingsDocument.data();
+  const acceptedCountFallback = hasAcceptedCount(data)
+    ? 0
+    : (
+        await adminDb.collection("applications").count().get()
+      ).data().count;
+  const settings = registrationSettingsFromData(data, acceptedCountFallback);
   return {
     ...settings,
-    updatedAt: timestampIso(settingsDocument.data()?.updated_at),
+    updatedAt: timestampIso(data?.updated_at),
   };
 }
 
@@ -51,6 +63,26 @@ export async function getRegistrationAvailability(): Promise<{
   availability: RegistrationAvailability;
 }> {
   const settings = await getRegistrationSettings();
+  return { settings, availability: registrationAvailability(settings) };
+}
+
+export const PUBLIC_REGISTRATION_AVAILABILITY_CACHE_TAG =
+  "registration-availability";
+
+const getCachedPublicRegistrationSettings = unstable_cache(
+  getRegistrationSettings,
+  ["public-registration-settings-v1"],
+  {
+    revalidate: 15,
+    tags: [PUBLIC_REGISTRATION_AVAILABILITY_CACHE_TAG],
+  },
+);
+
+export async function getCachedRegistrationAvailability(): Promise<{
+  settings: RegistrationSettings;
+  availability: RegistrationAvailability;
+}> {
+  const settings = await getCachedPublicRegistrationSettings();
   return { settings, availability: registrationAvailability(settings) };
 }
 

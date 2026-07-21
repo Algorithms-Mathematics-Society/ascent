@@ -185,6 +185,7 @@ export default function HeroCacheField() {
     let cells: CacheCell[] = [];
     let frame = 0;
     let visible = true;
+    let disposed = false;
     let lastFrame = performance.now();
 
     const pointer = {
@@ -403,11 +404,14 @@ export default function HeroCacheField() {
     reducedMotion.addEventListener("change", handlePreferenceChange);
     coarsePointer.addEventListener("change", handlePreferenceChange);
 
-    document.fonts.ready.then(resize);
+    document.fonts.ready.then(() => {
+      if (!disposed) resize();
+    });
     resize();
     start();
 
     return () => {
+      disposed = true;
       if (frame) window.cancelAnimationFrame(frame);
       resizeObserver.disconnect();
       intersectionObserver.disconnect();

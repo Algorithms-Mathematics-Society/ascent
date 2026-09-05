@@ -75,5 +75,13 @@ service cloud.firestore {
     match /audit_log/{id} {
       allow read, write: if false;
     }
+
+    // Written inside the decision transaction, drained server-side by the
+    // Admin SDK. Listed explicitly rather than left to the default deny: it
+    // names the registrants awaiting a push to AMS Access, and a collection
+    // nobody has written a rule for is a collection nobody has thought about.
+    match /ams_sync_outbox/{id} {
+      allow read, write: if false;
+    }
   }
 }

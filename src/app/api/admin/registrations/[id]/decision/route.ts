@@ -14,6 +14,7 @@ import {
   secureTokenEqual,
 } from "@/lib/adminSecurity";
 import { adminDb, adminServerTimestamp } from "@/lib/firebaseAdmin";
+import { OUTBOX_COLLECTION, outboxEntry, shouldSync } from "@/lib/amsSync";
 
 const MAX_REQUEST_BYTES = 8 * 1024;
 
@@ -100,6 +101,7 @@ export async function PATCH(
   const auditRef = adminDb
     .collection("audit_log")
     .doc(`admin_decision_${params.id}_${randomUUID()}`);
+  const outboxRef = adminDb.collection(OUTBOX_COLLECTION).doc(params.id);
 
   try {
     const result = await adminDb.runTransaction(async (transaction) => {
@@ -139,6 +141,20 @@ export async function PATCH(
         updated_at: adminServerTimestamp(),
       });
       transaction.set(decisionRef, decisionData);
+
+      // Queue the push to AMS Access *inside* this transaction. An HTTP call
+      // cannot join one — made inside, a retry re-sends it; made after, a
+      // crash between commit and call loses the registrant silently, approved
+      // here and absent there with nothing to say so. Writing an outbox row
+      // instead means either both land or neither does, and an unsent sync is
+      // visibly PENDING rather than forgotten.
+      //
+      // Only APPROVED and WAITLISTED queue: a waitlisted candidate promoted on
+      // contest morning must already exist, and there is no reason to copy the
+      // personal data of somebody who will not compete.
+      if (shouldSync(parsed.value.decision)) {
+        transaction.set(outboxRef, outboxEntry(params.id, parsed.value.decision, adminServerTimestamp()));
+      }
       transaction.create(auditRef, {
         subject_id: params.id,
         event: decisionEvent(parsed.value.decision),

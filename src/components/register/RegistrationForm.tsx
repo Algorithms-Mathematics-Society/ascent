@@ -20,6 +20,7 @@ import {
   millisecondsUntilRegistrationOpens,
   REGISTRATION_OPENING_MESSAGE,
   registrationHasOpened,
+  registrationOpensAtLabel,
 } from "@/lib/registrationLaunch";
 import {
   Button,
@@ -719,6 +720,11 @@ export default function RegistrationForm() {
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (submittingRef.current) return;
+    if (!registrationHasOpened()) {
+      setGlobalError(REGISTRATION_OPENING_MESSAGE);
+      focusErrorSummary();
+      return;
+    }
     if (step < 3) {
       continueFrom(step);
       return;
@@ -863,6 +869,17 @@ export default function RegistrationForm() {
 
   return (
     <main className="mx-auto max-w-5xl">
+      {!registrationOpen ? (
+        <Notice
+          tone="info"
+          className="mb-6"
+          heading={`Registration opens on ${registrationOpensAtLabel()}`}
+        >
+          The form below is locked until then. Nothing can be filled in or
+          submitted before registration opens.
+        </Notice>
+      ) : null}
+
       <StageProgress current={step} onNavigate={goToStep} />
 
       {globalError ? (
@@ -891,7 +908,7 @@ export default function RegistrationForm() {
           <p className="mb-5 font-mono text-xs uppercase tracking-[0.12em] text-ascent-muted">
             Required unless marked optional.
           </p>
-          <fieldset disabled={submitting} className="grid gap-5 sm:grid-cols-2">
+          <fieldset disabled={submitting || !registrationOpen} className="grid gap-5 sm:grid-cols-2">
             <legend className="sr-only">Contact details</legend>
             <FormField
               label="Full name"
@@ -1042,7 +1059,7 @@ export default function RegistrationForm() {
           description="Choose your current situation. The form will ask only for the education details that apply."
           hidden={step !== 2}
         >
-          <fieldset disabled={submitting} className="space-y-6">
+          <fieldset disabled={submitting || !registrationOpen} className="space-y-6">
             <legend className="sr-only">Education and profiles</legend>
             <div>
               <p className="font-mono text-xs font-semibold uppercase tracking-[0.14em] text-ascent-brand">
@@ -1312,7 +1329,7 @@ export default function RegistrationForm() {
             </dl>
           </div>
 
-          <fieldset disabled={submitting} className="mt-6 space-y-6">
+          <fieldset disabled={submitting || !registrationOpen} className="mt-6 space-y-6">
             <legend className="sr-only">Competition entry</legend>
             <div>
               <p className="font-mono text-xs font-semibold uppercase tracking-[0.14em] text-ascent-brand">
@@ -1489,7 +1506,7 @@ export default function RegistrationForm() {
             <Button
               type="submit"
               size="lg"
-              disabled={submitting}
+              disabled={submitting || !registrationOpen}
               className="w-full sm:w-auto"
             >
               {submitting ? (

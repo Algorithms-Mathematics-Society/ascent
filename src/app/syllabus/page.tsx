@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Image from "next/image";
+import localFont from "next/font/local";
 import Footer from "@/components/layout/Footer";
 import Navbar from "@/components/layout/Navbar";
 import {
@@ -9,6 +10,14 @@ import {
   ROUND_ONE_GROUPS,
   type SyllabusGroup,
 } from "@/content/syllabus";
+
+const garamond = localFont({
+  src: "../../../node_modules/@fontsource/eb-garamond/files/eb-garamond-latin-600-normal.woff2",
+  weight: "600",
+  display: "swap",
+  variable: "--font-eb-garamond",
+  adjustFontFallback: "Times New Roman",
+});
 
 export const metadata: Metadata = {
   title: "Syllabus · Ascent",
@@ -42,7 +51,7 @@ function SectionHeader({
 }) {
   return (
     <header className="border-b border-ascent-border pb-6 sm:pb-7">
-      <p className="font-mono text-[0.68rem] font-semibold uppercase tracking-[0.28em] text-ascent-gold">
+      <p className="font-mono text-[0.68rem] font-semibold uppercase tracking-[0.28em] text-ascent-gold-ink">
         {eyebrow}
       </p>
       <div className="mt-4 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
@@ -64,7 +73,7 @@ function TopicGroup({ group }: { group: SyllabusGroup }) {
     <section aria-labelledby={`topic-${group.title.replaceAll(" ", "-").toLowerCase()}`}>
       <h3
         id={`topic-${group.title.replaceAll(" ", "-").toLowerCase()}`}
-        className="font-mono text-[0.7rem] font-semibold uppercase tracking-[0.24em] text-ascent-gold"
+        className="font-mono text-[0.7rem] font-semibold uppercase tracking-[0.24em] text-ascent-gold-ink"
       >
         {group.title}
       </h3>
@@ -101,7 +110,7 @@ export default function SyllabusPage() {
   return (
     <>
       <Navbar page="syllabus" />
-      <main id="top" tabIndex={-1}>
+      <main id="top" tabIndex={-1} className={garamond.variable}>
         <section className="border-b border-ascent-border bg-ascent-brand px-4 pb-12 pt-28 text-ascent-on-brand sm:px-6 sm:pb-16 sm:pt-32 lg:px-8">
           <div className="mx-auto max-w-7xl">
             <p className="font-mono text-[0.68rem] font-semibold uppercase tracking-[0.28em] text-ascent-on-brand/70">
@@ -129,7 +138,7 @@ export default function SyllabusPage() {
                         href={href}
                         className="group grid min-h-12 grid-cols-[2rem_1fr_auto] items-center gap-3 bg-ascent-brand px-3 font-mono text-xs text-ascent-on-brand/75 hover:bg-ascent-ink hover:text-ascent-on-brand"
                       >
-                        <span className="text-ascent-on-brand/45">{number}</span>
+                        <span className="text-ascent-on-brand/65">{number}</span>
                         <span>{label}</span>
                         <span aria-hidden="true" className="transition-transform group-hover:translate-x-1">→</span>
                       </a>
@@ -171,7 +180,7 @@ export default function SyllabusPage() {
                 <TopicGroup key={group.title} group={group} />
               ))}
               <aside className="rounded-panel border border-ascent-border bg-ascent-surface-strong p-5 sm:p-6" aria-labelledby="how-to-read-title">
-                <p id="how-to-read-title" className="font-mono text-xs font-semibold text-ascent-gold">
+                <p id="how-to-read-title" className="font-mono text-xs font-semibold text-ascent-gold-ink">
                   {"// how to read this"}
                 </p>
                 <p className="mt-4 font-mono text-[0.78rem] leading-[1.55] text-ascent-muted">
@@ -186,13 +195,13 @@ export default function SyllabusPage() {
             </div>
 
             <section id="question-formats" className="scroll-mt-20 mt-14 border-t border-ascent-border pt-7 sm:mt-16" aria-labelledby="question-formats-title">
-              <h3 id="question-formats-title" className="font-mono text-[0.7rem] font-semibold uppercase tracking-[0.24em] text-ascent-gold">
+              <h3 id="question-formats-title" className="font-mono text-[0.7rem] font-semibold uppercase tracking-[0.24em] text-ascent-gold-ink">
                 Question formats · Round 1
               </h3>
               <div className="mt-5 grid gap-px overflow-hidden rounded-panel border border-ascent-border bg-ascent-border md:grid-cols-2">
                 {ROUND_ONE_FORMATS.map((format) => (
                   <article key={format.number} className="bg-ascent-surface-subtle p-5 sm:p-6">
-                    <p className="font-mono text-[0.68rem] font-semibold text-ascent-gold">{format.number}</p>
+                    <p className="font-mono text-[0.68rem] font-semibold text-ascent-gold-ink">{format.number}</p>
                     <h4 className="mt-3 font-display text-2xl font-semibold leading-none text-ascent-ink">{format.title}</h4>
                     <p className="mt-4 font-mono text-[0.78rem] leading-[1.55] text-ascent-muted">{format.description}</p>
                     <p className="mt-5 border-t border-ascent-border pt-4 font-mono text-[0.7rem] leading-5 text-ascent-muted">
@@ -217,7 +226,7 @@ export default function SyllabusPage() {
             <div className="mt-9 grid gap-px overflow-hidden rounded-panel border border-ascent-border bg-ascent-border md:grid-cols-2">
               {LATER_ROUNDS.map((round) => (
                 <article key={round.round} className="bg-ascent-surface-strong p-6 sm:p-8">
-                  <p className="font-mono text-[0.68rem] font-semibold uppercase tracking-[0.22em] text-ascent-gold">
+                  <p className="font-mono text-[0.68rem] font-semibold uppercase tracking-[0.22em] text-ascent-gold-ink">
                     {round.round} · {round.mode}
                   </p>
                   <h3 className="mt-4 font-display text-3xl font-semibold leading-none text-ascent-ink">{round.title}</h3>
@@ -235,7 +244,7 @@ export default function SyllabusPage() {
             </div>
 
             <aside className="mt-14 border-t border-ascent-border pt-7" aria-labelledby="moves-between-title">
-              <h3 id="moves-between-title" className="font-mono text-[0.7rem] font-semibold uppercase tracking-[0.24em] text-ascent-gold">
+              <h3 id="moves-between-title" className="font-mono text-[0.7rem] font-semibold uppercase tracking-[0.24em] text-ascent-gold-ink">
                 What moves between rounds
               </h3>
               <p className="mt-4 max-w-5xl font-mono text-[0.78rem] leading-[1.55] text-ascent-muted">

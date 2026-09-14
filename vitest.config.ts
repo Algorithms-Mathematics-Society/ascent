@@ -11,6 +11,10 @@ import { defineConfig } from "vitest/config";
 const isRulesRun = process.env.VITEST_RULES === "true";
 
 export default defineConfig({
+  resolve: {
+    alias: { "@": new URL("./src", import.meta.url).pathname },
+  },
+  oxc: { jsx: { runtime: "automatic" } },
   test: {
     environment: "node",
     globals: true,
@@ -20,6 +24,7 @@ export default defineConfig({
       "**/dist/**",
       "**/.{idea,git,cache,output,temp}/**",
       "**/{karma,rollup,webpack,vite,vitest,jest,ava,babel,nyc,cypress,tsup,build}.config.*",
+      ...(process.env.VITEST_CONCURRENCY === "true" ? [] : ["test/concurrency.test.ts", "test/emailDelivery.emulated.test.ts"]),
       ...(isRulesRun ? [] : ["test/rules/**", "test/rateLimit.test.ts"]),
     ],
   },

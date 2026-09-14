@@ -25,7 +25,7 @@ export default function AdminMetric({
       >
         {value}
       </dd>
-      <p className="mt-1 text-xs leading-5 text-ascent-muted">{detail}</p>
+      <dd className="mt-1 text-xs leading-5 text-ascent-muted">{detail}</dd>
     </div>
   );
 }

@@ -1,3 +1,6 @@
+import { EMAIL_OUTBOX, decisionEmailId, emailJob } from "@/lib/email/messages";
+import { tryDeliverEmail } from "@/lib/email/delivery";
+import { readBoundedJson } from "@/lib/requestBody";
 import { randomUUID } from "node:crypto";
 import { revalidatePath } from "next/cache";
 import { type NextRequest, NextResponse } from "next/server";
@@ -33,7 +36,7 @@ async function readJson(request: NextRequest) {
   }
 
   try {
-    const body = (await request.json()) as unknown;
+    const body = (await readBoundedJson(request, MAX_REQUEST_BYTES)) as unknown;
     return body && typeof body === "object"
       ? (body as Record<string, unknown>)
       : null;
@@ -141,6 +144,10 @@ export async function PATCH(
         updated_at: adminServerTimestamp(),
       });
       transaction.set(decisionRef, decisionData);
+      const mailId = decisionEmailId(params.id, decisionData.revision);
+      transaction.create(adminDb.collection(EMAIL_OUTBOX).doc(mailId), {
+        ...emailJob("DECISION", params.id), decision: parsed.value.decision, revision: decisionData.revision,
+      });
 
       // Queue the push to AMS Access *inside* this transaction. An HTTP call
       // cannot join one — made inside, a retry re-sends it; made after, a
@@ -154,6 +161,13 @@ export async function PATCH(
       // personal data of somebody who will not compete.
       if (shouldSync(parsed.value.decision)) {
         transaction.set(outboxRef, outboxEntry(params.id, parsed.value.decision, adminServerTimestamp()));
+      } else {
+        // Cancel any transfer queued by an earlier approval/waitlist decision.
+        // Preserve existing provider metadata for already completed transfers.
+        transaction.set(outboxRef, {
+          subject_id: params.id, decision: parsed.value.decision, status: "SKIPPED",
+          last_error: "No longer approved or waitlisted.", updated_at: adminServerTimestamp(),
+        }, { merge: true });
       }
       transaction.create(auditRef, {
         subject_id: params.id,
@@ -166,7 +180,7 @@ export async function PATCH(
         timestamp: adminServerTimestamp(),
       });
 
-      return { kind: "updated" as const };
+      return { kind: "updated" as const, mailId };
     });
 
     if (result.kind === "not_found") {
@@ -183,6 +197,7 @@ export async function PATCH(
       );
     }
 
+    await tryDeliverEmail(result.mailId);
     revalidatePath("/admin");
     revalidatePath(`/admin/registrations/${params.id}`);
     return noStoreJson({
@@ -205,3 +220,5 @@ export async function PATCH(
     );
   }
 }
+
+export const maxDuration = 30;

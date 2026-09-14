@@ -5,6 +5,8 @@ import type { AdminRole } from "@/lib/adminSecurity";
 
 const ITEMS = [
   { href: "/admin", label: "Registrations" },
+  { href: "/admin/reminders", label: "Reminders" },
+  { href: "/admin/email", label: "Email" },
   { href: "/admin/analytics", label: "Analytics" },
   { href: "/admin/activity", label: "Activity" },
   { href: "/admin/team", label: "Team", ownerOnly: true },

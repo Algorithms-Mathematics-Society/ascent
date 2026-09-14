@@ -1,3 +1,4 @@
+import { requireAdminSession } from "@/lib/adminAuth";
 import type { Metadata } from "next";
 import AdminMetric from "@/components/admin/AdminMetric";
 import { Button } from "@/components/ui";
@@ -172,6 +173,7 @@ export default async function AdminAnalyticsPage({
 }: {
   searchParams: SearchParams;
 }) {
+  await requireAdminSession();
   const range = parseAdminAnalyticsRange(firstParam(searchParams.range));
   const dataset = await getAdminAnalyticsDataset();
   const snapshot = buildAdminAnalytics(dataset.rows, range);

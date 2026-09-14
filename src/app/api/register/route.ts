@@ -1,3 +1,6 @@
+import { EMAIL_OUTBOX, confirmationEmailId, emailJob } from "@/lib/email/messages";
+import { tryDeliverEmail } from "@/lib/email/delivery";
+import { readBoundedBody, RequestBodyTooLarge } from "@/lib/requestBody";
 import { randomUUID } from "node:crypto";
 import { revalidateTag } from "next/cache";
 import { type NextRequest, NextResponse } from "next/server";
@@ -68,7 +71,7 @@ interface RegistrationReceipt {
 type DuplicateField = "email" | "phone";
 
 type TransactionResult =
-  | { kind: "written" }
+  | { kind: "written"; availabilityChanged: boolean }
   | { kind: "duplicate"; field: DuplicateField }
   | { kind: "idempotent"; receipt: RegistrationReceipt }
   | { kind: "unavailable"; message: string };
@@ -210,8 +213,10 @@ export async function POST(req: NextRequest) {
 
   let formData: FormData;
   try {
-    formData = await req.formData();
-  } catch {
+    const bytes = await readBoundedBody(req, MAX_FORM_BYTES);
+    formData = await new Response(bytes, { headers: { "Content-Type": contentType } }).formData();
+  } catch (error) {
+    if (error instanceof RequestBodyTooLarge) return fieldError("registration", "Registration request is too large.", 413);
     return NextResponse.json(
       { success: false, error: "Invalid registration request." },
       { status: 400 },
@@ -554,32 +559,6 @@ export async function POST(req: NextRequest) {
     .doc(`${EDITION}_${normalizedPhone}`);
   const settingsRef = adminDb.collection("admin_config").doc("registration");
 
-  try {
-    const [emailSnap, phoneSnap] = await Promise.all([
-      emailRef.get(),
-      phoneRef.get(),
-    ]);
-    if (emailSnap.exists) {
-      await recordFailedAttempt();
-      return fieldError("email", "This email is already registered.", 409);
-    }
-    if (phoneSnap.exists) {
-      await recordFailedAttempt();
-      return fieldError("phone", "This phone number is already registered.", 409);
-    }
-  } catch (error) {
-    logger.error(
-      "direct_registration",
-      "duplicate_preflight_failed",
-      { reqId, status: "failed" },
-      error,
-    );
-    return NextResponse.json(
-      { success: false, error: "Registration could not be checked. Try again." },
-      { status: 500 },
-    );
-  }
-
   const subjectId = randomUUID();
   const reference = `ASC-${sha256(subjectId).slice(0, 10).toUpperCase()}`;
   const receipt: RegistrationReceipt = {
@@ -612,6 +591,10 @@ export async function POST(req: NextRequest) {
       const operationalSettings = registrationSettingsFromData(
         settingsSnap.data(),
       );
+      if (operationalSettings.capacity !== null &&
+          (!Number.isSafeInteger(settingsSnap.data()?.accepted_count) || settingsSnap.data()!.accepted_count < 0)) {
+        return { kind: "unavailable", message: "Registration controls need review. Please try again later." };
+      }
       const availability = registrationAvailability(operationalSettings);
       if (!availability.acceptsRegistrations) {
         return { kind: "unavailable", message: availability.message };
@@ -690,18 +673,19 @@ export async function POST(req: NextRequest) {
           },
         );
       }
+      tx.create(adminDb.collection(EMAIL_OUTBOX).doc(confirmationEmailId(subjectId)), emailJob("REGISTRATION_CONFIRMATION", subjectId));
       tx.set(receiptRef, {
         subject_id: subjectId,
         state: "COMMITTED",
         ...receipt,
         created_at: adminServerTimestamp(),
       });
-      if (settingsSnap.exists) {
+      if (settingsSnap.exists && operationalSettings.capacity !== null) {
         tx.update(settingsRef, {
           accepted_count: operationalSettings.acceptedCount + 1,
         });
       }
-      return { kind: "written" };
+      return { kind: "written", availabilityChanged: operationalSettings.capacity !== null };
     });
   } catch (error) {
     let outcomeChecked = false;
@@ -784,12 +768,17 @@ export async function POST(req: NextRequest) {
     return fieldError("registration", transactionResult.message, 423);
   }
 
-  revalidateTag(PUBLIC_REGISTRATION_AVAILABILITY_CACHE_TAG);
+  if (transactionResult.availabilityChanged) {
+    revalidateTag(PUBLIC_REGISTRATION_AVAILABILITY_CACHE_TAG);
+  }
   logger.info("direct_registration", "registration_completed", {
     reqId,
     entityId: subjectId,
     status: "ok",
     durationMs: Date.now() - startedAt,
   });
+  await tryDeliverEmail(confirmationEmailId(subjectId));
   return successResponse(receipt);
 }
+
+export const maxDuration = 30;

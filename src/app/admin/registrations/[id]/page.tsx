@@ -1,3 +1,4 @@
+import { requireAdminSession } from "@/lib/adminAuth";
 import type { ReactNode } from "react";
 import { notFound } from "next/navigation";
 import AdminDecisionWorkspace from "@/components/admin/AdminDecisionWorkspace";
@@ -108,6 +109,7 @@ export default async function AdminRegistrationDetailPage({
 }: {
   params: { id: string };
 }) {
+  await requireAdminSession();
   if (!isSafeApplicationId(params.id)) notFound();
   const registration = await getAdminRegistrationDetail(params.id);
   if (!registration) notFound();

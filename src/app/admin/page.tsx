@@ -1,3 +1,4 @@
+import { requireAdminSession } from "@/lib/adminAuth";
 import type { Metadata } from "next";
 import AdminDecisionControl from "@/components/admin/AdminDecisionControl";
 import AdminBulkReview from "@/components/admin/AdminBulkReview";
@@ -299,6 +300,7 @@ export default async function AdminHomePage({
 }: {
   searchParams: SearchParams;
 }) {
+  await requireAdminSession();
   const filters: AdminRegistrationFilters = {
     query: firstParam(searchParams.q),
     decision: parseDecision(firstParam(searchParams.decision)),

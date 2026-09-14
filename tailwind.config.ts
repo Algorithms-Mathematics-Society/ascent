@@ -20,6 +20,7 @@ const config: Config = {
           ink: "rgb(var(--ascent-ink) / <alpha-value>)",
           muted: "rgb(var(--ascent-muted) / <alpha-value>)",
           gold: "rgb(var(--ascent-gold) / <alpha-value>)",
+          "gold-ink": "rgb(var(--ascent-gold-ink) / <alpha-value>)",
           brand: "rgb(var(--ascent-brand) / <alpha-value>)",
           "brand-hover":
             "rgb(var(--ascent-brand-hover) / <alpha-value>)",

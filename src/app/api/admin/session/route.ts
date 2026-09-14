@@ -1,3 +1,4 @@
+import { readBoundedJson } from "@/lib/requestBody";
 import { randomBytes, randomUUID } from "node:crypto";
 import { type NextRequest, NextResponse } from "next/server";
 import { adminAuth, adminDb, adminServerTimestamp } from "@/lib/firebaseAdmin";
@@ -13,7 +14,7 @@ import {
   requestHasSameOrigin,
   secureTokenEqual,
 } from "@/lib/adminSecurity";
-import { checkSlidingWindow, sha256 } from "@/lib/rateLimit";
+import { consumeSlidingWindow, sha256 } from "@/lib/rateLimit";
 
 const MAX_REQUEST_BYTES = 16 * 1024;
 const ADMIN_AUTH_LIMIT = 10;
@@ -58,7 +59,7 @@ async function readJson(request: NextRequest): Promise<Record<string, unknown> |
   }
 
   try {
-    const body = (await request.json()) as unknown;
+    const body = (await readBoundedJson(request, MAX_REQUEST_BYTES)) as unknown;
     return body && typeof body === "object"
       ? (body as Record<string, unknown>)
       : null;
@@ -113,9 +114,9 @@ export async function POST(request: NextRequest) {
     return noStoreJson({ success: false, error: "Sign-in failed." }, 401);
   }
 
-  let attemptLimit: Awaited<ReturnType<typeof checkSlidingWindow>>;
+  let attemptLimit: Awaited<ReturnType<typeof consumeSlidingWindow>>;
   try {
-    attemptLimit = await checkSlidingWindow(
+    attemptLimit = await consumeSlidingWindow(
       adminDb,
       "_rate_limits_admin_auth",
       sha256(clientIp(request)),
@@ -145,12 +146,10 @@ export async function POST(request: NextRequest) {
         Math.floor(Date.now() / 1000),
       )
     ) {
-      await attemptLimit.recordFailure().catch(() => undefined);
       return noStoreJson({ success: false, error: "Sign-in failed." }, 401);
     }
 
     if (!adminSessionMeetsMfaPolicy(decoded)) {
-      await attemptLimit.recordFailure().catch(() => undefined);
       return noStoreJson({ success: false, error: "Authenticator verification is required." }, 403);
     }
 
@@ -186,7 +185,6 @@ export async function POST(request: NextRequest) {
     clearCookie(response, ADMIN_CSRF_COOKIE);
     return response;
   } catch {
-    await attemptLimit.recordFailure().catch(() => undefined);
     return noStoreJson({ success: false, error: "Sign-in failed." }, 401);
   }
 }

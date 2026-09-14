@@ -1,3 +1,4 @@
+import { readBoundedJson } from "@/lib/requestBody";
 import { randomUUID } from "node:crypto";
 import { revalidatePath } from "next/cache";
 import { type NextRequest, NextResponse } from "next/server";
@@ -30,7 +31,7 @@ async function readJson(request: NextRequest) {
     return null;
   }
   try {
-    const body = (await request.json()) as unknown;
+    const body = (await readBoundedJson(request, MAX_REQUEST_BYTES)) as unknown;
     return body && typeof body === "object"
       ? (body as Record<string, unknown>)
       : null;

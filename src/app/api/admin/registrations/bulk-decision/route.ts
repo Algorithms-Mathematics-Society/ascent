@@ -1,3 +1,7 @@
+import { EMAIL_OUTBOX, decisionEmailId, emailJob } from "@/lib/email/messages";
+import { tryDeliverEmail } from "@/lib/email/delivery";
+import { OUTBOX_COLLECTION, outboxEntry } from "@/lib/amsSync";
+import { readBoundedJson } from "@/lib/requestBody";
 import { randomUUID } from "node:crypto";
 import { revalidatePath } from "next/cache";
 import { type NextRequest, NextResponse } from "next/server";
@@ -28,7 +32,7 @@ async function readJson(request: NextRequest) {
     return null;
   }
   try {
-    const body = (await request.json()) as unknown;
+    const body = (await readBoundedJson(request, MAX_REQUEST_BYTES)) as unknown;
     return body && typeof body === "object"
       ? (body as Record<string, unknown>)
       : null;
@@ -106,6 +110,7 @@ export async function PATCH(request: NextRequest) {
       if (changed.length) return { kind: "conflict" as const, ids: changed };
 
       const timestamp = adminServerTimestamp();
+      const mailIds: string[] = [];
       applications.forEach((application, index) => {
         const decisionRef = decisionRefs[index];
         const previousDecision = decisions[index];
@@ -126,6 +131,13 @@ export async function PATCH(request: NextRequest) {
           bulk_operation_id: batchId,
           decided_at: timestamp,
         });
+        const revision = revisionValue(previousDecision.data()?.revision) + 1;
+        const mailId = decisionEmailId(application.id, revision);
+        mailIds.push(mailId);
+        transaction.create(adminDb.collection(EMAIL_OUTBOX).doc(mailId), {
+          ...emailJob("DECISION", application.id), decision: parsed.value.decision, revision,
+        });
+        transaction.set(adminDb.collection(OUTBOX_COLLECTION).doc(application.id), outboxEntry(application.id, parsed.value.decision, timestamp));
         transaction.create(auditRef, {
           subject_id: application.id,
           event:
@@ -151,7 +163,7 @@ export async function PATCH(request: NextRequest) {
         actor_email: session.email,
         created_at: timestamp,
       });
-      return { kind: "updated" as const };
+      return { kind: "updated" as const, mailIds };
     });
 
     if (result.kind === "not_found") {
@@ -174,6 +186,13 @@ export async function PATCH(request: NextRequest) {
       );
     }
 
+    const deliveryDeadline = Date.now() + 8000;
+    for (const id of result.mailIds) {
+      if (Date.now() >= deliveryDeadline) break;
+      const outcome = await tryDeliverEmail(id);
+      if (outcome === "DISABLED" || outcome === "RETRY") break;
+      await new Promise((resolve) => setTimeout(resolve, 600));
+    }
     revalidatePath("/admin");
     for (const applicationId of parsed.value.applicationIds) {
       revalidatePath(`/admin/registrations/${applicationId}`);
@@ -198,3 +217,5 @@ export async function PATCH(request: NextRequest) {
     );
   }
 }
+
+export const maxDuration = 30;

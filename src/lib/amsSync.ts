@@ -28,7 +28,7 @@
  * data of somebody who will not compete. */
 export const SYNCABLE_DECISIONS = ["APPROVED", "WAITLISTED"] as const;
 
-export type SyncStatus = "PENDING" | "SYNCED" | "FAILED";
+export type SyncStatus = "PENDING" | "SYNCED" | "FAILED" | "SKIPPED";
 
 export const OUTBOX_COLLECTION = "ams_sync_outbox";
 
@@ -173,6 +173,7 @@ export async function postToAms(
       "X-API-Key": apiKey,
     },
     body: JSON.stringify(payload),
+    signal: AbortSignal.timeout(8000),
     cache: "no-store",
   });
 

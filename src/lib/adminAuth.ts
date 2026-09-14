@@ -1,5 +1,6 @@
 import "server-only";
 
+import { cache } from "react";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { adminAuth } from "@/lib/firebaseAdmin";
@@ -37,10 +38,10 @@ export async function verifyAdminSessionValue(
   }
 }
 
-export async function getAdminSession(): Promise<AdminSession | null> {
+export const getAdminSession = cache(async (): Promise<AdminSession | null> => {
   const value = cookies().get(ADMIN_SESSION_COOKIE)?.value;
   return value ? verifyAdminSessionValue(value) : null;
-}
+});
 
 export async function requireAdminSession(): Promise<AdminSession> {
   const session = await getAdminSession();

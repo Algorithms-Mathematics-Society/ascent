@@ -17,12 +17,13 @@
     "emulators": "firebase emulators:start",
     "seed:colleges": "tsx scripts/seed-colleges.ts",
     "admin:role": "node --env-file=.env.local --import tsx scripts/manage-admin.ts",
-    "admin:mfa-readiness": "node --env-file=.env.local --import tsx scripts/check-mfa-readiness.ts"
+    "admin:mfa-readiness": "node --env-file=.env.local --import tsx scripts/check-mfa-readiness.ts",
+    "test:concurrency": "firebase emulators:exec --project=demo-ascent-concurrency --only firestore \"VITEST_CONCURRENCY=true vitest run test/concurrency.test.ts test/emailDelivery.emulated.test.ts --no-file-parallelism\""
   },
   "dependencies": {
+    "@fontsource-variable/geist": "^5.3.0",
+    "@fontsource-variable/jetbrains-mono": "^5.3.0",
     "@fontsource/eb-garamond": "^5.3.0",
-    "@fontsource/geist-sans": "^5.0.0",
-    "@fontsource/jetbrains-mono": "^5.0.0",
     "@google-cloud/firestore": "^8.6.0",
     "@vercel/oidc": "^3.8.0",
     "clsx": "^2.1.1",
@@ -34,6 +35,7 @@
     "qrcode": "^1.5.4",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "resend": "^6.28.0",
     "tailwind-merge": "^2.4.0"
   },
   "devDependencies": {

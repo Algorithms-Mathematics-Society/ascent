@@ -20,12 +20,14 @@ export default function Faq() {
             {FAQ.map(({ q, a }, index) => (
               <div
                 key={q}
-                className="grid gap-3 border-b border-ascent-border py-6 sm:grid-cols-[2.5rem_0.82fr_1.18fr] sm:gap-5"
+                className="grid gap-3 border-b border-ascent-border py-6 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] sm:gap-5"
               >
-                <span className="font-mono text-xs font-semibold text-ascent-brand">
+                <dt className="grid gap-3 font-semibold leading-6 text-ascent-ink sm:grid-cols-[2.5rem_1fr] sm:gap-5">
+                <span aria-hidden="true" className="font-mono text-xs font-semibold text-ascent-brand">
                   {String(index + 1).padStart(2, "0")}
                 </span>
-                <dt className="font-semibold leading-6 text-ascent-ink">{q}</dt>
+                <span>{q}</span>
+                </dt>
                 <dd className="text-sm leading-6 text-ascent-muted">{a}</dd>
               </div>
             ))}

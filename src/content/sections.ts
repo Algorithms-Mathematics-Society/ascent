@@ -66,26 +66,28 @@ export const COMPETITION_ROUNDS: CompetitionRound[] = [
   },
 ];
 
+// Master fact sheet, compiled 11 September 2026: selected calendar Version A.
+// Registration closing is unset; Round 3 remains tentative.
 export const TIMELINE: TimelinePhase[] = [
   {
-    phase: "Registration",
-    timing: "Schedule pending",
-    body: "Submit your contact, education, and competition details in one three-stage form.",
+    phase: "Registration opens",
+    timing: "24 September 2026",
+    body: "Submit your contact, education, and competition details. The registration closing date is yet to be announced.",
   },
   {
-    phase: "C++ qualifier",
-    timing: "Date to be announced",
-    body: "The first scored round runs on AMS Access. Qualification details will be published with the rules.",
+    phase: "Round 1 — Proficiency",
+    timing: "24 October 2026",
+    body: "Online on AMS Access with remote proctoring. C++ proficiency, puzzles, and live debugging.",
   },
   {
-    phase: "Hub optimization",
-    timing: "Date to be announced",
-    body: "Selected competitors move into team-based optimization at participating IIT hubs.",
+    phase: "Round 2 — Implementation",
+    timing: "6 December 2026",
+    body: "Group-based implementation on AMS Access at partner campuses, moderated by campus club members.",
   },
   {
-    phase: "Codebase finale",
-    timing: "Date to be announced",
-    body: "Finalists meet at IIT Bombay for the real-codebase performance round.",
+    phase: "Round 3 — Mastery",
+    timing: "20 December 2026 · Tentative",
+    body: "30 finalists meet on site in Mumbai for live judging of language, build system, profiling, and debugging skills. AMS covers travel and stay.",
   },
 ];
 
@@ -107,8 +109,8 @@ export const FAQ: FaqItem[] = [
     a: "The competition uses C++20. The exact compiler, flags, target hardware, allowed libraries, and measurement method will be published with the official rules before the qualifier.",
   },
   {
-    q: "When will the competition dates be confirmed?",
-    a: "The schedule is still being finalized. Confirmed dates will replace the clearly marked pending states on this page; placeholder dates are not presented as facts.",
+    q: "When are registration and the competition rounds?",
+    a: "Registration opens on 24 September 2026. Round 1 is on 24 October and Round 2 on 6 December. Round 3 is planned for 20 December 2026 in Mumbai, with that date still tentative. The registration closing date is yet to be announced.",
   },
   {
     q: "What happens after I submit the form?",

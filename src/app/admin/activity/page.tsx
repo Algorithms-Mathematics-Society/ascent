@@ -1,3 +1,4 @@
+import { requireAdminSession } from "@/lib/adminAuth";
 import type { Metadata } from "next";
 import AdminMetric from "@/components/admin/AdminMetric";
 import { Button } from "@/components/ui";
@@ -196,6 +197,7 @@ export default async function AdminActivityPage({
 }: {
   searchParams: SearchParams;
 }) {
+  await requireAdminSession();
   const filters: AdminActivityFilters = {
     query: firstParam(searchParams.q),
     category: parseCategory(firstParam(searchParams.category)),

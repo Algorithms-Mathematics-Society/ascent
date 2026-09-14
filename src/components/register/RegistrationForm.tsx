@@ -8,6 +8,7 @@ import {
   type ReactNode,
 } from "react";
 import dynamic from "next/dynamic";
+import RegistrationReminder from "@/components/register/RegistrationReminder";
 import { CheckCircle2 } from "lucide-react";
 import type { CollegeResult } from "@/components/register/CollegeTypeahead";
 import {
@@ -875,8 +876,9 @@ export default function RegistrationForm() {
           className="mb-6"
           heading={`Registration opens on ${registrationOpensAtLabel()}`}
         >
-          The form below is locked until then. Nothing can be filled in or
-          submitted before registration opens.
+          The competition entry form below is locked until then. Leave your
+          email for a registration reminder.
+          <RegistrationReminder />
         </Notice>
       ) : null}
 

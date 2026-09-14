@@ -40,29 +40,32 @@ function hasAcceptedCount(data: Record<string, unknown> | undefined) {
   );
 }
 
+// Public availability needs only controls, not a collection-wide count.
+async function getRegistrationControls(): Promise<RegistrationSettings> {
+  const document = await adminDb.collection("admin_config").doc("registration").get();
+  const data = document.data();
+  const settings = registrationSettingsFromData(data);
+  if (settings.capacity !== null && !hasAcceptedCount(data)) {
+    settings.acceptedCount = (await adminDb.collection("applications").count().get()).data().count;
+  }
+  return { ...settings, updatedAt: timestampIso(data?.updated_at) };
+}
+
 export async function getRegistrationSettings(): Promise<RegistrationSettings> {
-  const settingsDocument = await adminDb
-    .collection("admin_config")
-    .doc("registration")
-    .get();
-  const data = settingsDocument.data();
-  const acceptedCountFallback = hasAcceptedCount(data)
-    ? 0
-    : (
-        await adminDb.collection("applications").count().get()
-      ).data().count;
-  const settings = registrationSettingsFromData(data, acceptedCountFallback);
-  return {
-    ...settings,
-    updatedAt: timestampIso(data?.updated_at),
-  };
+  const settings = await getRegistrationControls();
+  // Unlimited registrations do not write a shared counter on every submission.
+  // Admin views obtain the authoritative count with an aggregation query.
+  if (settings.capacity === null) {
+    settings.acceptedCount = (await adminDb.collection("applications").count().get()).data().count;
+  }
+  return settings;
 }
 
 export async function getRegistrationAvailability(): Promise<{
   settings: RegistrationSettings;
   availability: RegistrationAvailability;
 }> {
-  const settings = await getRegistrationSettings();
+  const settings = await getRegistrationControls();
   return { settings, availability: registrationAvailability(settings) };
 }
 
@@ -70,8 +73,8 @@ export const PUBLIC_REGISTRATION_AVAILABILITY_CACHE_TAG =
   "registration-availability";
 
 const getCachedPublicRegistrationSettings = unstable_cache(
-  getRegistrationSettings,
-  ["public-registration-settings-v1"],
+  getRegistrationControls,
+  ["public-registration-settings-v2"],
   {
     revalidate: 15,
     tags: [PUBLIC_REGISTRATION_AVAILABILITY_CACHE_TAG],

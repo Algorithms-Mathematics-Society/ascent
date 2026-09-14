@@ -22,17 +22,42 @@ export async function checkSlidingWindow(
   const overLimit = recent.length >= maxCount;
 
   const recordFailure = async () => {
-    // A plain JS Date is used here (rather than firebase-admin's Timestamp
-    // class) because it auto-converts to a native Firestore Timestamp on
-    // write under both the Admin SDK (production) and the client-compat SDK
-    // that @firebase/rules-unit-testing's context.firestore() returns in
-    // tests. An admin-SDK Timestamp instance is rejected by the client SDK
-    // as an unrecognized "custom Timestamp object" despite identical field
-    // shape, so Date is the cross-SDK-safe choice for the `expiresAt` TTL
-    // field.
-    const expiresAt = new Date(Date.now() + windowMs + 60 * 60 * 1000);
-    await ref.set({ timestamps: [...recent, Date.now()], expiresAt });
+    // Read again inside the transaction: callers may have checked the same
+    // snapshot concurrently. Never overwrite another request's recorded failure.
+    await db.runTransaction(async (transaction) => {
+      const latest = await transaction.get(ref);
+      const now = Date.now();
+      const timestamps: number[] = latest.data()?.timestamps ?? [];
+      const recent = timestamps.filter((timestamp) => timestamp > now - windowMs);
+      transaction.set(ref, {
+        timestamps: [...recent, now].slice(-maxCount),
+        expiresAt: new Date(now + windowMs + 60 * 60 * 1000),
+      });
+    });
   };
 
   return { overLimit, recordFailure };
+}
+
+/** Atomically reserves a request slot; use when every attempt must count. */
+export async function consumeSlidingWindow(
+  db: Firestore,
+  collection: string,
+  key: string,
+  maxCount: number,
+  windowMs: number,
+): Promise<{ overLimit: boolean }> {
+  const ref = db.collection(collection).doc(key);
+  return db.runTransaction(async (transaction) => {
+    const snapshot = await transaction.get(ref);
+    const now = Date.now();
+    const timestamps: number[] = snapshot.data()?.timestamps ?? [];
+    const recent = timestamps.filter((timestamp) => timestamp > now - windowMs);
+    if (recent.length >= maxCount) return { overLimit: true };
+    transaction.set(ref, {
+      timestamps: [...recent, now],
+      expiresAt: new Date(now + windowMs + 60 * 60 * 1000),
+    });
+    return { overLimit: false };
+  });
 }

@@ -22,14 +22,14 @@ afterAll(async () => {
 });
 
 describe("applications/{uid}", () => {
-  it("lets the owner read their own application", async () => {
+  it("denies candidate reads because applications are server-managed", async () => {
     await testEnv.withSecurityRulesDisabled(async (ctx) => {
       await setDoc(doc(ctx.firestore(), "applications/uid-1"), {
         handle: "abc",
       });
     });
     const ownerDb = testEnv.authenticatedContext("uid-1").firestore();
-    await assertSucceeds(getDoc(doc(ownerDb, "applications/uid-1")));
+    await assertFails(getDoc(doc(ownerDb, "applications/uid-1")));
   });
 
   it("denies reading someone else's application", async () => {
@@ -197,5 +197,31 @@ describe("handles/{id} and phones/{id}: deny-all", () => {
     });
     const ownerDb = testEnv.authenticatedContext("uid-1").firestore();
     await assertFails(getDoc(doc(ownerDb, "phones/ascent-2026_+919999999999")));
+  });
+});
+
+describe("registration_reminders: private server-managed email list", () => {
+  it("denies direct reads and writes to anonymous users, applicants and admin clients", async () => {
+    await testEnv.withSecurityRulesDisabled(async (ctx) => {
+      await setDoc(doc(ctx.firestore(), "registration_reminders/test-email"), { email: "private@example.test" });
+    });
+    for (const context of [testEnv.unauthenticatedContext(), testEnv.authenticatedContext("applicant"), testEnv.authenticatedContext("admin", { ascent_admin: true })]) {
+      await assertFails(getDoc(doc(context.firestore(), "registration_reminders/test-email")));
+      await assertFails(setDoc(doc(context.firestore(), "registration_reminders/test-email"), { email: "changed@example.test" }));
+      await assertFails(setDoc(doc(context.firestore(), "_rate_limits_reminders/test-ip"), { timestamps: [] }));
+    }
+  });
+});
+
+
+describe("email_outbox: private server-managed messages", () => {
+  it("denies anonymous, candidate and admin browser access", async () => {
+    await testEnv.withSecurityRulesDisabled(async (ctx) => {
+      await setDoc(doc(ctx.firestore(), "email_outbox/message"), { payload: { to: "private@example.test" } });
+    });
+    for (const context of [testEnv.unauthenticatedContext(), testEnv.authenticatedContext("applicant"), testEnv.authenticatedContext("admin", { ascent_admin: true })]) {
+      await assertFails(getDoc(doc(context.firestore(), "email_outbox/message")));
+      await assertFails(setDoc(doc(context.firestore(), "email_outbox/message"), { status: "SENT" }));
+    }
   });
 });

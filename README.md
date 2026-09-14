@@ -61,3 +61,40 @@ break-glass procedure is therefore:
 The reset command refuses to remove the last protected owner, records an audit
 intent before touching Firebase Authentication, removes all factors, and
 revokes every target session.
+
+## Registration reminders
+
+Visitors can leave an email using “Remind me” beside the homepage registration
+opening date or the locked registration form. `POST /api/reminders` validates and
+normalizes the address, deduplicates it in `registration_reminders`, and records
+the first request time. Submissions are limited to 120 per IP per hour.
+
+Owners and reviewers can view emails and request times at `/admin/reminders`,
+linked from the admin navigation. The list is paginated, newest first. Browser
+clients cannot read or write the collection directly. Reminder requests create
+durable email jobs and can be scheduled with Resend once sending is configured.
+
+## Transactional email
+
+Resend sends registration confirmations with the entry reference, decision
+notifications, and opening reminders. No candidate login is required. The admin
+Email page (`/admin/email`) shows queue status and provides an owner-only worker
+button. Sending is disabled while environment placeholders are blank.
+
+See [Resend setup and the Vercel Hobby runbook](docs/email-setup.md) for sender
+verification, environment variables, the daily retry cron, existing reminders,
+and handling ambiguous provider failures.
+
+## Reliability and performance checks
+
+Run `npm test` for unit and route checks. Run `npm run test:concurrency` for
+concurrent submissions against an isolated Firestore emulator (Java 21+).
+`npm run test:rules` checks database and storage access rules.
+
+Unlimited registration no longer updates a shared accepted-count document on
+every submission. Admin counts use Firestore aggregation. If a capacity is needed,
+close and save registration first, then set the capacity and reopen it. This lets
+the server initialize the counter without racing incoming submissions.
+
+See [the reliability and performance audit](docs/audits/2026-09-14.md) for measured
+Lighthouse results, concurrency coverage, and the limits of the local checks.

@@ -1,3 +1,4 @@
+import { readBoundedJson } from "@/lib/requestBody";
 import { randomUUID } from "node:crypto";
 import { revalidatePath, revalidateTag } from "next/cache";
 import { type NextRequest, NextResponse } from "next/server";
@@ -31,7 +32,7 @@ async function readJson(request: NextRequest) {
     return null;
   }
   try {
-    const body = (await request.json()) as unknown;
+    const body = (await readBoundedJson(request, MAX_REQUEST_BYTES)) as unknown;
     return body && typeof body === "object"
       ? (body as Record<string, unknown>)
       : null;
@@ -100,6 +101,14 @@ export async function PATCH(request: NextRequest) {
       if (previous.revision !== parsed.value.expectedRevision) {
         return { kind: "conflict" as const };
       }
+      // Pause first so the count used to initialize a new capacity cannot race
+      // with unlimited submissions. In-flight submissions also read this document.
+      if (previous.isOpen && previous.capacity === null && parsed.value.capacity !== null) {
+        return { kind: "pause_required" as const };
+      }
+      if (parsed.value.capacity !== null && parsed.value.capacity < Math.max(previous.acceptedCount, applicationCount)) {
+        return { kind: "count_changed" as const };
+      }
       const revision = previous.revision + 1;
       const timestamp = adminServerTimestamp();
       transaction.set(settingsRef, {
@@ -135,6 +144,12 @@ export async function PATCH(request: NextRequest) {
       return { kind: "updated" as const, revision };
     });
 
+    if (result.kind === "pause_required") {
+      return noStoreJson({ success: false, error: "Close registration and save before adding a capacity. Then set the capacity and reopen registration." }, 409);
+    }
+    if (result.kind === "count_changed") {
+      return noStoreJson({ success: false, error: "New registrations arrived while saving. Refresh before reducing capacity." }, 409);
+    }
     if (result.kind === "conflict") {
       return noStoreJson(
         {

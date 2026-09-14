@@ -26,6 +26,7 @@ import {
   buildPayload,
   OUTBOX_COLLECTION,
   postToAms,
+  shouldSync,
 } from "@/lib/amsSync";
 import { loadRegistrant } from "@/lib/amsSyncData";
 import { adminDb, adminServerTimestamp } from "@/lib/firebaseAdmin";
@@ -35,6 +36,7 @@ import { adminDb, adminServerTimestamp } from "@/lib/firebaseAdmin";
  * it up, whereas a request killed at the platform timeout leaves rows in an
  * unknown state. */
 const BATCH_LIMIT = 50;
+export const maxDuration = 60;
 
 function noStoreJson(body: Record<string, unknown>, status = 200) {
   return NextResponse.json(body, {
@@ -55,21 +57,14 @@ export async function GET(request: NextRequest) {
     return noStoreJson({ success: false, error: "Your admin session has expired." }, 401);
   }
 
-  const snapshot = await adminDb.collection(OUTBOX_COLLECTION).get();
-  const counts: Record<string, number> = { PENDING: 0, SYNCED: 0, FAILED: 0 };
-  const failures: Array<{ subject_id: string; error: string }> = [];
-
-  for (const doc of snapshot.docs) {
-    const data = doc.data();
-    const status = typeof data.status === "string" ? data.status : "PENDING";
-    counts[status] = (counts[status] ?? 0) + 1;
-    if (status === "FAILED") {
-      failures.push({
-        subject_id: doc.id,
-        error: typeof data.last_error === "string" ? data.last_error : "unknown",
-      });
-    }
-  }
+  const collection = adminDb.collection(OUTBOX_COLLECTION);
+  const statuses = ["PENDING", "SYNCED", "FAILED", "SKIPPED"];
+  const [failedRows, counts] = await Promise.all([
+    collection.where("status", "==", "FAILED").limit(50).get(),
+    Promise.all(statuses.map(async status => [status, (await collection.where("status", "==", status).count().get()).data().count] as const))
+      .then(entries => Object.fromEntries(entries)),
+  ]);
+  const failures = failedRows.docs.map(doc => ({ subject_id: doc.id, error: doc.data().last_error || "unknown" }));
 
   return noStoreJson({ success: true, counts, failures: failures.slice(0, 50) });
 }
@@ -104,6 +99,7 @@ export async function POST(request: NextRequest) {
   // PENDING and FAILED both: a failure is a thing to retry, not a terminal
   // state. Whatever caused it — AMS down, a bad payload since corrected — is
   // usually fixed by the time somebody presses this again.
+  const deadline = Date.now() + 40000;
   const pending = await adminDb
     .collection(OUTBOX_COLLECTION)
     .where("status", "in", ["PENDING", "FAILED"])
@@ -112,15 +108,35 @@ export async function POST(request: NextRequest) {
 
   let synced = 0;
   let failed = 0;
+  let skipped = 0;
+  let processed = 0;
   const errors: Array<{ subject_id: string; error: string }> = [];
 
   for (const doc of pending.docs) {
+    if (Date.now() >= deadline) break;
+    processed++;
     const subjectId = doc.id;
+    async function updateCurrent(fields: Record<string, unknown>) {
+      // A correction can replace this job while the external request is in
+      // flight. Its completion must not overwrite the newer decision's job.
+      return adminDb.runTransaction(async transaction => {
+        const current = await transaction.get(doc.ref);
+        if (!current.exists || !current.updateTime?.isEqual(doc.updateTime!)) return false;
+        transaction.update(doc.ref, fields);
+        return true;
+      });
+    }
     try {
       // Assembled now, not when it was queued: a correction made between
       // approval and sync should be picked up rather than frozen into a
       // stale copy.
       const { application, pii, consent } = await loadRegistrant(subjectId);
+      if (!application || !shouldSync(application.admin_decision) ||
+          ["DELETED", "WITHDRAWN"].includes(String(application.state))) {
+        await updateCurrent({ status: "SKIPPED", last_error: "Application is no longer eligible for transfer." });
+        skipped++;
+        continue;
+      }
       const payload = buildPayload(subjectId, application, pii, consent);
 
       if ("error" in payload) {
@@ -129,7 +145,7 @@ export async function POST(request: NextRequest) {
 
       const result = await postToAms(payload, { apiUrl, apiKey });
 
-      await doc.ref.update({
+      const recorded = await updateCurrent({
         status: "SYNCED",
         student_uid: result.student_uid,
         handle: result.handle,
@@ -137,29 +153,33 @@ export async function POST(request: NextRequest) {
         last_error: null,
         synced_at: adminServerTimestamp(),
       });
-      synced += 1;
+      if (recorded) synced += 1;
+      else skipped += 1;
     } catch (caught) {
       const message = caught instanceof Error ? caught.message : "unknown error";
-      failed += 1;
-      errors.push({ subject_id: subjectId, error: message.slice(0, 300) });
       // Recorded, never thrown away. A row that failed silently is a
       // registrant who does not exist on the other side and nobody knows.
-      await doc.ref.update({
+      const recorded = await updateCurrent({
         status: "FAILED",
         last_error: message.slice(0, 1000),
         attempts:
           (typeof doc.data().attempts === "number" ? doc.data().attempts : 0) + 1,
         last_attempted_at: adminServerTimestamp(),
       });
+      if (recorded) {
+        failed += 1;
+        errors.push({ subject_id: subjectId, error: message.slice(0, 300) });
+      } else skipped += 1;
     }
   }
 
   return noStoreJson({
     success: true,
-    processed: pending.size,
+    processed,
     synced,
     failed,
-    remaining: pending.size === BATCH_LIMIT ? "more" : "none",
+    skipped,
+    remaining: processed < pending.size || pending.size === BATCH_LIMIT ? "more" : "none",
     errors: errors.slice(0, 20),
   });
 }

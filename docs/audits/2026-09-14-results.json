@@ -1,0 +1,374 @@
+{
+  "environment": "Local production Next.js build; Firestore/Auth emulators; 1000 synthetic registrations; Lighthouse 13.4.0 simulated mobile",
+  "lighthouse": [
+    {
+      "page": "/",
+      "baselinePerformance": 96,
+      "performance": 100,
+      "accessibility": 100,
+      "bestPractices": 100,
+      "seo": 100,
+      "lcpMs": 1806.6943999999999,
+      "tbtMs": 0.5,
+      "cls": 0
+    },
+    {
+      "page": "/syllabus",
+      "baselinePerformance": 92,
+      "performance": 98,
+      "accessibility": 100,
+      "bestPractices": 100,
+      "seo": 100,
+      "lcpMs": 2304.5676000000003,
+      "tbtMs": 0,
+      "cls": 0
+    },
+    {
+      "page": "/register",
+      "baselinePerformance": 96,
+      "performance": 100,
+      "accessibility": 100,
+      "bestPractices": 100,
+      "seo": 60,
+      "lcpMs": 1805.8510999999999,
+      "tbtMs": 6,
+      "cls": 0
+    },
+    {
+      "page": "/admin-page-login",
+      "baselinePerformance": 100,
+      "performance": 98,
+      "accessibility": 100,
+      "bestPractices": 100,
+      "seo": 60,
+      "lcpMs": 2454.1828,
+      "tbtMs": 0,
+      "cls": 0
+    },
+    {
+      "page": "/admin",
+      "baselinePerformance": null,
+      "performance": 100,
+      "accessibility": 100,
+      "bestPractices": 100,
+      "seo": 60,
+      "lcpMs": 1806.915,
+      "tbtMs": 0,
+      "cls": 0
+    },
+    {
+      "page": "/admin/analytics",
+      "baselinePerformance": null,
+      "performance": 100,
+      "accessibility": 100,
+      "bestPractices": 100,
+      "seo": 60,
+      "lcpMs": 1729.8309,
+      "tbtMs": 0.5,
+      "cls": 0
+    },
+    {
+      "page": "/admin/activity",
+      "baselinePerformance": null,
+      "performance": 100,
+      "accessibility": 100,
+      "bestPractices": 100,
+      "seo": 60,
+      "lcpMs": 1731.4738000000002,
+      "tbtMs": 0,
+      "cls": 0
+    },
+    {
+      "page": "/admin/reminders",
+      "baselinePerformance": null,
+      "performance": 100,
+      "accessibility": 100,
+      "bestPractices": 100,
+      "seo": 60,
+      "lcpMs": 1731.3301999999999,
+      "tbtMs": 3.5,
+      "cls": 0
+    },
+    {
+      "page": "/admin/settings",
+      "baselinePerformance": null,
+      "performance": 100,
+      "accessibility": 100,
+      "bestPractices": 100,
+      "seo": 60,
+      "lcpMs": 1804.1035000000002,
+      "tbtMs": 2.5,
+      "cls": 0
+    },
+    {
+      "page": "/admin/team",
+      "baselinePerformance": null,
+      "performance": 100,
+      "accessibility": 100,
+      "bestPractices": 100,
+      "seo": 60,
+      "lcpMs": 1804.8528000000001,
+      "tbtMs": 10,
+      "cls": 0
+    },
+    {
+      "page": "/admin/security",
+      "baselinePerformance": null,
+      "performance": 99,
+      "accessibility": 100,
+      "bestPractices": 100,
+      "seo": 60,
+      "lcpMs": 2106.9458,
+      "tbtMs": 33,
+      "cls": 0
+    },
+    {
+      "page": "/admin/registrations/audit-application-000000",
+      "baselinePerformance": null,
+      "performance": 100,
+      "accessibility": 100,
+      "bestPractices": 100,
+      "seo": 60,
+      "lcpMs": 1805.2233,
+      "tbtMs": 8.5,
+      "cls": 0
+    }
+  ],
+  "httpLoad": {
+    "requests": 200,
+    "concurrency": 40,
+    "statuses": {
+      "200": 200
+    },
+    "durationMs": 6283,
+    "p50Ms": 72,
+    "p95Ms": 3458,
+    "maxMs": 6094
+  },
+  "browserChecks": [
+    {
+      "path": "/",
+      "width": 1440,
+      "status": 200
+    },
+    {
+      "path": "/syllabus",
+      "width": 1440,
+      "status": 200
+    },
+    {
+      "path": "/register",
+      "width": 1440,
+      "status": 200
+    },
+    {
+      "path": "/register/handle",
+      "width": 1440,
+      "status": 307
+    },
+    {
+      "path": "/register/path",
+      "width": 1440,
+      "status": 307
+    },
+    {
+      "path": "/register/profile",
+      "width": 1440,
+      "status": 307
+    },
+    {
+      "path": "/admin-page-login",
+      "width": 1440,
+      "status": 200
+    },
+    {
+      "path": "/",
+      "width": 390,
+      "status": 200
+    },
+    {
+      "path": "/syllabus",
+      "width": 390,
+      "status": 200
+    },
+    {
+      "path": "/register",
+      "width": 390,
+      "status": 200
+    },
+    {
+      "path": "/register/handle",
+      "width": 390,
+      "status": 307
+    },
+    {
+      "path": "/register/path",
+      "width": 390,
+      "status": 307
+    },
+    {
+      "path": "/register/profile",
+      "width": 390,
+      "status": 307
+    },
+    {
+      "path": "/admin-page-login",
+      "width": 390,
+      "status": 200
+    },
+    {
+      "path": "/admin",
+      "width": 1440,
+      "status": 200,
+      "ms": 1079
+    },
+    {
+      "path": "/admin/analytics",
+      "width": 1440,
+      "status": 200,
+      "ms": 834
+    },
+    {
+      "path": "/admin/activity",
+      "width": 1440,
+      "status": 200,
+      "ms": 593
+    },
+    {
+      "path": "/admin/reminders",
+      "width": 1440,
+      "status": 200,
+      "ms": 584
+    },
+    {
+      "path": "/admin/settings",
+      "width": 1440,
+      "status": 200,
+      "ms": 603
+    },
+    {
+      "path": "/admin/team",
+      "width": 1440,
+      "status": 200,
+      "ms": 596
+    },
+    {
+      "path": "/admin/security",
+      "width": 1440,
+      "status": 200,
+      "ms": 591
+    },
+    {
+      "path": "/admin/registrations/audit-application-000000",
+      "width": 1440,
+      "status": 200,
+      "ms": 621
+    },
+    {
+      "path": "/admin",
+      "width": 390,
+      "status": 200,
+      "ms": 920
+    },
+    {
+      "path": "/admin/analytics",
+      "width": 390,
+      "status": 200,
+      "ms": 791
+    },
+    {
+      "path": "/admin/activity",
+      "width": 390,
+      "status": 200,
+      "ms": 578
+    },
+    {
+      "path": "/admin/reminders",
+      "width": 390,
+      "status": 200,
+      "ms": 587
+    },
+    {
+      "path": "/admin/settings",
+      "width": 390,
+      "status": 200,
+      "ms": 598
+    },
+    {
+      "path": "/admin/team",
+      "width": 390,
+      "status": 200,
+      "ms": 579
+    },
+    {
+      "path": "/admin/security",
+      "width": 390,
+      "status": 200,
+      "ms": 589
+    },
+    {
+      "path": "/admin/registrations/audit-application-000000",
+      "width": 390,
+      "status": 200,
+      "ms": 589
+    }
+  ],
+  "concurrencyTests": {
+    "passed": 10,
+    "failed": 0,
+    "cases": [
+      {
+        "name": "saves 40 distinct reminders concurrently, including one shared campus IP",
+        "status": "passed",
+        "durationMs": 19110.779458
+      },
+      {
+        "name": "deduplicates 20 concurrent reminder requests for one email",
+        "status": "passed",
+        "durationMs": 3581.7870630000034
+      },
+      {
+        "name": "does not overrun the reminder limit during a burst",
+        "status": "passed",
+        "durationMs": 7272.921337
+      },
+      {
+        "name": "preserves every concurrent rate-limit failure and bounds request admission",
+        "status": "passed",
+        "durationMs": 6974.582193999999
+      },
+      {
+        "name": "commits 40 registrations without a shared unlimited counter write",
+        "status": "passed",
+        "durationMs": 371.98609600000054
+      },
+      {
+        "name": "returns one receipt for 20 concurrent retries of a registration",
+        "status": "passed",
+        "durationMs": 3676.974237000002
+      },
+      {
+        "name": "admits one registration when different requests compete for the same email",
+        "status": "passed",
+        "durationMs": 3639.3362380000035
+      },
+      {
+        "name": "never exceeds configured capacity during concurrent registration",
+        "status": "passed",
+        "durationMs": 3630.552649999998
+      },
+      {
+        "name": "requires a pause before enabling capacity and initializes the existing count",
+        "status": "passed",
+        "durationMs": 104.67760200000339
+      },
+      {
+        "name": "rejects a capacity reduction below the transaction's newer accepted count",
+        "status": "passed",
+        "durationMs": 24.129582000001392
+      }
+    ]
+  },
+  "unitTestsPassed": 134,
+  "firestoreTestsPassed": 18
+}

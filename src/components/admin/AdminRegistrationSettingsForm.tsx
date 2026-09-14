@@ -179,7 +179,7 @@ export default function AdminRegistrationSettingsForm({
               placeholder="No capacity limit"
               className="ascent-field-control ascent-input"
             />
-            <span className="font-normal leading-5 text-ascent-muted">Optional · {settings.acceptedCount} already received.</span>
+            <span className="font-normal leading-5 text-ascent-muted">Optional · {settings.acceptedCount} already received. Close and save registration before adding a capacity to an unlimited window.</span>
           </label>
         </div>
 

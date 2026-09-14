@@ -6,7 +6,7 @@ import {
 } from "@/lib/constants";
 import { adminDb } from "@/lib/firebaseAdmin";
 import logger, { genReqId } from "@/lib/logger";
-import { checkSlidingWindow, sha256 } from "@/lib/rateLimit";
+import { consumeSlidingWindow, sha256 } from "@/lib/rateLimit";
 
 export async function GET(req: NextRequest) {
   const reqId = genReqId();
@@ -23,15 +23,13 @@ export async function GET(req: NextRequest) {
 
   if (hasRateLimitStore) {
     try {
-      const ipLimit = await checkSlidingWindow(
+      const ipLimit = await consumeSlidingWindow(
         adminDb,
         "_rate_limits_search",
         ipHash,
         SEARCH_RATE_LIMIT_MAX_PER_MINUTE,
         SEARCH_RATE_LIMIT_WINDOW_MS,
       );
-      // Every request to this public endpoint counts toward the window.
-      await ipLimit.recordFailure();
       if (ipLimit.overLimit) {
         return NextResponse.json(
           { results: [] },

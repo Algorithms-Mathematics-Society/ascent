@@ -1,5 +1,6 @@
 // src/components/sections/Timeline.tsx
 import { Container, Section, SectionHeading } from "@/components/ui";
+import RegistrationReminder from "@/components/register/RegistrationReminder";
 import { TIMELINE } from "@/content/sections";
 
 export default function Timeline() {
@@ -14,11 +15,11 @@ export default function Timeline() {
             <SectionHeading
               eyebrow="Event sequence"
               title="Know what happens next."
-              lede="The round structure is fixed. Dates remain visibly pending until the event team confirms them—no countdown or placeholder deadline is presented as fact."
+              lede="Registration opens in September, followed by three rounds from October to December 2026."
             />
             <div className="mt-7 rounded-r-control border-l-2 border-ascent-brand bg-ascent-brand-tint px-4 py-3 text-sm leading-6 text-ascent-brand">
-              Confirmed dates will be published here and shared through the
-              contact details submitted during registration.
+              The Round 3 date is tentative. The registration closing date is
+              yet to be announced.
             </div>
           </div>
 
@@ -43,6 +44,7 @@ export default function Timeline() {
                   <p className="mt-3 max-w-2xl text-sm leading-6 text-ascent-muted">
                     {item.body}
                   </p>
+                  {index === 0 ? <RegistrationReminder /> : null}
                 </div>
               </li>
             ))}

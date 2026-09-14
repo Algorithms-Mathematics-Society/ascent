@@ -184,12 +184,12 @@ export default function SyllabusPage() {
                   {"// how to read this"}
                 </p>
                 <p className="mt-4 font-mono text-[0.78rem] leading-[1.55] text-ascent-muted">
-                  Round 1 tests proficiency, puzzle-solving and debugging — internals over
-                  incantations. If a bullet says “internals,” expect to explain the memory, not
-                  recite the API.
+                  Round 1 tests C++ proficiency, puzzle-solving and debugging. Topics
+                  marked “internals” cover memory layout and how the feature is
+                  implemented.
                 </p>
                 <p className="mt-6 border-t border-ascent-border pt-4 font-mono text-[0.72rem] leading-5 text-ascent-muted">
-                  * candidates to shift to Round 2
+                  * These topics may move to Round 2.
                 </p>
               </aside>
             </div>
@@ -219,8 +219,8 @@ export default function SyllabusPage() {
           <div className="mx-auto max-w-7xl">
             <SectionHeader
               eyebrow="Syllabus · Rounds 2 & 3 · Outline"
-              title="Beyond the language."
-              description="The later-round scope is intentionally directional. Detailed topic lists will be published only when the competition design is locked."
+              title="Rounds 2 and 3"
+              description="The outlines below cover Rounds 2 and 3. Detailed topic lists will be published when confirmed."
             />
 
             <div className="mt-9 grid gap-px overflow-hidden rounded-panel border border-ascent-border bg-ascent-border md:grid-cols-2">
@@ -237,7 +237,7 @@ export default function SyllabusPage() {
                     ))}
                   </ul>
                   <p className="mt-7 border-t border-ascent-border pt-4 font-mono text-[0.68rem] tracking-[0.05em] text-ascent-muted">
-                    topic list pending — not for publication
+                    Detailed topics will be announced.
                   </p>
                 </article>
               ))}
@@ -248,9 +248,8 @@ export default function SyllabusPage() {
                 What moves between rounds
               </h3>
               <p className="mt-4 max-w-5xl font-mono text-[0.78rem] leading-[1.55] text-ascent-muted">
-                Cache lines, false sharing and atomics are flagged on the Round 1 sheet as
-                candidates to move here. They are machine topics, and Round 2 is where
-                implementation meets the machine.
+                Cache lines, false sharing and atomics may move from Round 1 to Round 2.
+                Their final placement will be confirmed in the detailed syllabus.
               </p>
             </aside>
             <SectionFooter>ascent · rounds 2–3 · outline</SectionFooter>

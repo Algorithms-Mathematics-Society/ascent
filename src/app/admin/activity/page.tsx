@@ -109,7 +109,7 @@ function ApplicantLink({ entry }: { entry: AdminActivityEntry }) {
 
 function EventContext({ entry }: { entry: AdminActivityEntry }) {
   const transition = entry.decision
-    ? `${entry.previousDecision ?? "—"} → ${entry.decision}`
+    ? `${entry.previousDecision ?? "Not recorded"} → ${entry.decision}`
     : null;
   return (
     <div>

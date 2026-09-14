@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 /* ============================================================
-   Ascent — semantic token system (LIGHT, institutional)
+   Ascent: semantic token system (LIGHT, institutional)
    Values are space-separated RGB triples (Tailwind <alpha-value>).
 
    Identity: the supplied Ascent palette. Ice carries the canvas,
@@ -12,14 +12,14 @@
    editorial markers, while feedback colors communicate state only.
    ============================================================ */
 :root {
-  /* Brand primitives — supplied Ascent identity */
+  /* Brand primitives: supplied Ascent identity */
   --ascent-glacier: 20 40 58; /* #14283A */
-  --ascent-gold: 169 130 47; /* #A9822F — editorial labels and markers */
+  --ascent-gold: 169 130 47; /* #A9822F: editorial labels and markers */
   --ascent-gold-ink: 120 87 20; /* Accessible gold for text on light surfaces. */
   --ascent-ice: 237 241 242; /* #EDF1F2 */
   --ascent-midnight: 13 24 34; /* #0D1822 */
 
-  /* Shape — restrained access-portal geometry */
+  /* Shape: restrained access-portal geometry */
   --ascent-radius-control: 0.5rem;
   --ascent-radius-panel: 0.875rem;
 
@@ -53,7 +53,7 @@
   --ascent-field-disabled: 228 234 236;
   --ascent-field-placeholder: 99 118 130;
 
-  /* Feedback — reserved for status and validation */
+  /* Feedback: reserved for status and validation */
   --ascent-danger: 180 35 24; /* #B42318 */
   --ascent-danger-tint: 254 243 242; /* #FEF3F2 */
   --ascent-success: 22 101 52; /* #166534 */
@@ -150,7 +150,7 @@
     font-size: 0.9375rem;
   }
 
-  /* Primary — institutional navy, white foreground, no elevation effects. */
+  /* Primary: institutional navy, white foreground, no elevation effects. */
   .ascent-btn-primary {
     color: rgb(var(--ascent-on-brand));
     background-color: rgb(var(--ascent-brand));
@@ -167,7 +167,7 @@
     border-color: rgb(var(--ascent-brand-pressed));
   }
 
-  /* Secondary — white utility action with a neutral rule. */
+  /* Secondary: white utility action with a neutral rule. */
   .ascent-btn-secondary {
     color: rgb(var(--ascent-ink));
     background-color: rgb(var(--ascent-surface));
@@ -310,7 +310,7 @@
 }
 
 /* ------------------------------------------------------------
-   Reduced motion — off-switch for non-essential animation.
+   Reduced motion: off-switch for non-essential animation.
    ------------------------------------------------------------ */
 @media (prefers-reduced-motion: reduce) {
   *,

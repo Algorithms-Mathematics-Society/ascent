@@ -1,3 +1,5 @@
+import { verifyBot } from "@/lib/botProtection";
+import { PRIVACY_VERSION, TERMS_VERSION, PRIVACY_URL, TERMS_URL, PARTICIPATION_NOTICE } from "@/content/legal";
 import { EMAIL_OUTBOX, confirmationEmailId, emailJob } from "@/lib/email/messages";
 import { tryDeliverEmail } from "@/lib/email/delivery";
 import { readBoundedBody, RequestBodyTooLarge } from "@/lib/requestBody";
@@ -233,6 +235,9 @@ export async function POST(req: NextRequest) {
       { status: 400 },
     );
   }
+
+  const bot = await verifyBot(req, formData.get("bot_token"), "registration");
+  if (!bot.ok) return fieldError("registration", bot.error, bot.status);
 
   const submissionToken = textField(formData, "submission_token")?.trim() ?? "";
   if (!validateSubmissionToken(submissionToken)) {
@@ -490,6 +495,13 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  if (textField(formData, "terms_accepted") !== "true") {
+    return fieldError("terms_accepted", "Accept the competition terms before submitting.");
+  }
+  if (textField(formData, "policy_version") !== PRIVACY_VERSION || textField(formData, "terms_version") !== TERMS_VERSION) {
+    return fieldError("registration", "The privacy notice or terms have changed. Reload the page and review them before submitting.");
+  }
+
   const collegeId = (textField(formData, "college_id") ?? "").trim();
   const unlistedName = (textField(formData, "unlisted_name") ?? "")
     .trim()
@@ -649,9 +661,12 @@ export async function POST(req: NextRequest) {
         github_url: githubResult.normalized,
       });
       tx.set(consentRef, {
+        TERMS_ACCEPTANCE: { accepted: true, version: TERMS_VERSION, url: TERMS_URL, accepted_at: adminServerTimestamp() },
         CONTEST_PARTICIPATION: {
           granted: true,
-          policy_version: "v1",
+          policy_version: PRIVACY_VERSION,
+          policy_url: PRIVACY_URL,
+          notice: PARTICIPATION_NOTICE,
           granted_at: adminServerTimestamp(),
         },
       });
@@ -741,7 +756,7 @@ export async function POST(req: NextRequest) {
         success: false,
         error: outcomeChecked
           ? "Registration failed. Try again."
-          : "Registration status could not be confirmed. Try again—the same entry reference will be checked safely.",
+          : "Registration status could not be confirmed. Try again. We will check the same entry reference.",
       },
       { status: 500 },
     );

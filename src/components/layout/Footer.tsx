@@ -1,5 +1,13 @@
 import Image from "next/image";
 
+const LEGAL_LINKS = [
+  { label: "Privacy", href: "/privacy" },
+  { label: "Terms", href: "/terms" },
+  { label: "Entry status", href: "/register/status" },
+] as const;
+function LegalLinks() {
+  return <nav aria-label="Privacy, terms and entry status" className="flex flex-wrap gap-x-5 gap-y-2 text-sm">{LEGAL_LINKS.map(link => <a key={link.href} href={link.href} className="inline-flex min-h-11 items-center underline underline-offset-4">{link.label}</a>)}</nav>;
+}
 const FOOTER_LINKS = [
   { label: "About", href: "/#about" },
   { label: "Format", href: "/#tracks" },
@@ -45,6 +53,7 @@ export default function Footer({
         <div className="mx-auto flex max-w-7xl flex-col gap-2 px-4 py-5 text-sm text-ascent-muted sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
           <Brand href={homeHref} />
           <p>Competition registration · Ascent by AMS</p>
+          <LegalLinks />
         </div>
       </footer>
     );
@@ -57,8 +66,8 @@ export default function Footer({
           <div>
             <Brand href={homeHref} />
             <p className="mt-2 max-w-lg text-sm leading-6 text-ascent-muted">
-              A C++ optimization competition where correctness is the gate and
-              measured performance drives the ranklist.
+              A C++ optimization competition ranked by the measured speedup of
+              correct code.
             </p>
           </div>
 
@@ -80,7 +89,8 @@ export default function Footer({
 
         <div className="mt-8 flex flex-col gap-2 border-t border-ascent-border pt-5 text-xs text-ascent-muted sm:flex-row sm:items-center sm:justify-between">
           <p>&copy; 2026 Ascent. All rights reserved.</p>
-          <p>Built for the C++ community · Ascent by AMS</p>
+          <LegalLinks />
+          <p><a href="mailto:team@amshq.in" className="inline-flex min-h-11 items-center underline">Help: team@amshq.in</a><br /><a href="mailto:partners@amshq.in" className="inline-flex min-h-11 items-center underline">Sponsors: partners@amshq.in</a></p>
         </div>
       </div>
     </footer>

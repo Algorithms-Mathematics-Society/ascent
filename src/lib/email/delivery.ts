@@ -1,3 +1,6 @@
+import { signStatusToken, statusSecret, verifyStatusToken } from "../candidate/tokens";
+import { sha256 } from "../rateLimit";
+import { EDITION } from "../constants";
 import { REGISTRATION_OPENS_AT } from "../registrationLaunch";
 import "server-only";
 import { randomUUID } from "node:crypto";
@@ -26,7 +29,7 @@ export async function deliverEmail(id: string): Promise<string> {
     const now = Date.now();
     if (!["PENDING", "RETRY", "SENDING"].includes(job.status) || job.due_at > now) return null;
     function stop(status: "SKIPPED" | "REVIEW", reason: string) {
-      tx.update(ref, { status, due_at: NEVER, payload: null, lease: null, last_error: reason });
+      tx.update(ref, { status, due_at: NEVER, payload: null, request_email: null, lease: null, last_error: reason });
       return { outcome: status };
     }
     function suppress(reason: string) {
@@ -34,6 +37,15 @@ export async function deliverEmail(id: string): Promise<string> {
       // attempts but keep that uncertainty visible for operator reconciliation.
       return stop(job.uncertain ? "REVIEW" : "SKIPPED", reason +
         (job.uncertain ? " An earlier attempt may have been accepted; check Resend." : ""));
+    }
+    let subjectId = job.source_id;
+    if (job.kind === "STATUS_ACCESS") {
+      if (!statusSecret()) return stop("REVIEW", "Status access configuration is missing.");
+      if (job.request_expires_at === undefined || job.request_expires_at <= now) return suppress("Status-link request expired. The candidate can request another link.");
+      const index = await tx.get(adminDb.collection("emails").doc(`${EDITION}_${job.source_id}`));
+      const subject = index.data()?.subject_id;
+      if (typeof subject !== "string" || !/^[A-Za-z0-9_-]{1,128}$/.test(subject)) return suppress("No available entry for this request.");
+      subjectId = subject;
     }
     let email: unknown;
     let reference: string | undefined;
@@ -46,10 +58,10 @@ export async function deliverEmail(id: string): Promise<string> {
       email = reminder.data()?.email;
     } else {
       const [application, pii] = await tx.getAll(
-        adminDb.collection("applications").doc(job.source_id),
-        adminDb.collection("pii").doc(job.source_id),
+        adminDb.collection("applications").doc(subjectId),
+        adminDb.collection("pii").doc(subjectId),
       );
-      if (!application.exists || !pii.exists || ["DELETED", "WITHDRAWN"].includes(application.data()?.state)) {
+      if (!application.exists || !pii.exists || (application.data()?.state === "DELETED" || (job.kind !== "STATUS_ACCESS" && application.data()?.state === "WITHDRAWN"))) {
         return suppress("Application or recipient unavailable.");
       }
       if (job.kind === "DECISION") {
@@ -66,6 +78,9 @@ export async function deliverEmail(id: string): Promise<string> {
     if (!normalized.valid || !normalized.normalized) {
       return stop("REVIEW", "Recipient is missing or invalid. Check any earlier attempt in Resend.");
     }
+    if (job.kind === "STATUS_ACCESS" && (sha256(normalized.normalized) !== job.source_id || normalized.normalized !== job.request_email)) {
+      return suppress("Recipient no longer matches the status request.");
+    }
     if (job.payload && job.payload.to !== normalized.normalized) {
       return stop("REVIEW", "Recipient changed after an attempt. Check Resend before sending to the corrected address.");
     }
@@ -79,9 +94,22 @@ export async function deliverEmail(id: string): Promise<string> {
       return null;
     }
     let payload = job.payload;
+    let statusUrl: string | undefined;
+    if (payload && job.kind === "STATUS_ACCESS") {
+      const token = payload.text.match(/#token=([A-Za-z0-9_.-]+)/)?.[1];
+      if (!verifyStatusToken(token, "link")) return stop("REVIEW", "Status link expired. The candidate can request a fresh link.");
+    }
     if (!payload) {
+      if (job.kind === "STATUS_ACCESS") {
+        const access = signStatusToken("link", subjectId, job.source_id, now);
+        statusUrl = `${config.siteUrl}/register/status#token=${access.token}`;
+        tx.create(adminDb.collection("candidate_access_tokens").doc(sha256(access.token)), {
+          subject_id: subjectId, expires_at: access.claims.expires, used_at: null,
+          expiresAt: new Date(access.claims.expires + 86400000),
+        });
+      }
       payload = { from: config.from, replyTo: config.replyTo, to: normalized.normalized,
-        ...buildEmailMessage(job, { reference, qualificationPath }, config.siteUrl),
+        ...buildEmailMessage(job, { reference, qualificationPath, statusUrl }, config.siteUrl),
         ...(job.kind === "REGISTRATION_REMINDER" && opensAt > now ? { scheduledAt: new Date(opensAt).toISOString() } : {}) };
     }
     tx.update(ref, { status: "SENDING", lease, due_at: now + LEASE_MS,
@@ -100,7 +128,7 @@ export async function deliverEmail(id: string): Promise<string> {
   try {
     const providerId = await sendResendEmail(config.apiKey, claimed.payload, `ascent-2026/${id}/${claimed.generation}`);
     const status = claimed.payload.scheduledAt ? "SCHEDULED" : "SENT";
-    await finish({ status, due_at: NEVER, provider_id: providerId, accepted_at: Date.now(), uncertain: false, last_error: null });
+    await finish({ status, due_at: NEVER, provider_id: providerId, accepted_at: Date.now(), request_email: null, uncertain: false, last_error: null });
     return status;
   } catch (error) {
     const code = error instanceof Error ? error.message : "provider_error";

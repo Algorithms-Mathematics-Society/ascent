@@ -4,8 +4,12 @@ import Navbar from "@/components/layout/Navbar";
 
 export default function RegistrationShell({
   children,
+  title = "Register for Ascent",
+  description,
 }: {
   children: ReactNode;
+  title?: string;
+  description?: string;
 }) {
   return (
     <div className="min-h-screen bg-ascent-canvas">
@@ -19,12 +23,12 @@ export default function RegistrationShell({
                 Ascent / Competition entry
               </p>
               <h1 className="mt-3 max-w-3xl text-3xl font-semibold tracking-tight text-ascent-ink sm:text-5xl">
-                Register for Ascent
+                {title}
               </h1>
               <p className="mt-3 max-w-2xl text-base leading-7 text-ascent-muted sm:mt-4 sm:text-lg">
-                Complete your entry on this page—no account or email handoff.
-                Have a shareable Google Drive resume link ready before you begin.
+                {description || "Complete the form below. You do not need an account. Have a shareable Google Drive resume link ready before you begin."}
               </p>
+              {!description ? <p className="mt-3 text-sm"><a className="underline underline-offset-4" href="/register/status">Already registered? Check your entry status.</a></p> : null}
             </div>
           </div>
         </header>

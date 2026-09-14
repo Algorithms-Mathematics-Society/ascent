@@ -8,7 +8,7 @@ export function getEmailConfig() {
   if (!apiKey || !from) return null;
   const address = from.match(/<([^>]+)>$/)?.[1] || from;
   if (!normalizeEmail(address).valid) return null;
-  const replyTo = process.env.RESEND_REPLY_TO?.trim() || "partners@amshq.in";
+  const replyTo = process.env.RESEND_REPLY_TO?.trim() || "team@amshq.in";
   if (!normalizeEmail(replyTo).valid) return null;
   const siteUrl = (process.env.SITE_URL?.trim() || "https://ascent.amshq.in").replace(/\/$/, "");
   try {

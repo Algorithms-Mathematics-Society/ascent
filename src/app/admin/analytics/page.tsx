@@ -26,7 +26,7 @@ function percentageLabel(value: number) {
 }
 
 function durationLabel(hours: number | null) {
-  if (hours === null) return "—";
+  if (hours === null) return "Not available";
   if (hours < 1) return `${Math.max(1, Math.round(hours * 60))}m`;
   if (hours < 48) return `${hours.toLocaleString("en-IN", { maximumFractionDigits: 1 })}h`;
   return `${(hours / 24).toLocaleString("en-IN", { maximumFractionDigits: 1 })}d`;
@@ -234,7 +234,7 @@ export default async function AdminAnalyticsPage({
           <div className="grid gap-px bg-ascent-border sm:grid-cols-2 xl:grid-cols-1 2xl:grid-cols-2">
             <div className="bg-ascent-surface p-5">
               <p className="font-mono text-[0.62rem] uppercase tracking-[0.1em] text-ascent-muted">Oldest pending</p>
-              <p className="mt-2 text-2xl font-semibold tabular-nums">{snapshot.oldestPendingDays === null ? "—" : `${snapshot.oldestPendingDays}d`}</p>
+              <p className="mt-2 text-2xl font-semibold tabular-nums">{snapshot.oldestPendingDays === null ? "No pending entries" : `${snapshot.oldestPendingDays}d`}</p>
             </div>
             <div className="bg-ascent-surface p-5">
               <p className="font-mono text-[0.62rem] uppercase tracking-[0.1em] text-ascent-muted">Pending 7+ days</p>

@@ -1,4 +1,6 @@
 "use client";
+import BotCheck from "@/components/security/BotCheck";
+import { PRIVACY_VERSION, TERMS_VERSION, PRIVACY_URL, TERMS_URL, PARTICIPATION_NOTICE } from "@/content/legal";
 
 import {
   useEffect,
@@ -85,7 +87,8 @@ type FieldName =
   | "codeforces_handle"
   | "resume_url"
   | "transcript_url"
-  | "contest_consent";
+  | "contest_consent"
+  | "terms_accepted";
 
 interface FormValues {
   legalName: string;
@@ -101,6 +104,7 @@ interface FormValues {
   resumeUrl: string;
   transcriptUrl: string;
   contestConsent: boolean;
+  termsAccepted: boolean;
 }
 
 interface RegistrationReceipt {
@@ -136,6 +140,7 @@ const INITIAL_VALUES: FormValues = {
   resumeUrl: "",
   transcriptUrl: "",
   contestConsent: false,
+  termsAccepted: false,
 };
 
 const STEP_FIELDS: Record<RegistrationStep, FieldName[]> = {
@@ -153,6 +158,7 @@ const STEP_FIELDS: Record<RegistrationStep, FieldName[]> = {
     "resume_url",
     "transcript_url",
     "contest_consent",
+    "terms_accepted",
   ],
 };
 
@@ -172,6 +178,7 @@ const SERVER_FIELD_MAP: Record<string, FieldName> = {
   resume_url: "resume_url",
   transcript_url: "transcript_url",
   contest_consent: "contest_consent",
+  terms_accepted: "terms_accepted",
 };
 
 const STAGE_LABELS: Record<EducationStage, string> = {
@@ -443,6 +450,7 @@ function SuccessReceipt({ receipt }: { receipt: RegistrationReceipt }) {
         </div>
 
         <div className="p-6 sm:p-8">
+          <p className="mb-5 text-sm"><a href="/register/status" className="underline underline-offset-4">Check your entry status</a> using a secure link sent to your email.</p>
           <h3 className="text-lg font-semibold text-ascent-ink">
             Entry receipt
           </h3>
@@ -519,6 +527,8 @@ export default function RegistrationForm() {
   const [receipt, setReceipt] = useState<RegistrationReceipt | null>(null);
   const submissionTokenRef = useRef<string | null>(null);
   const submittingRef = useRef(false);
+  const [botToken, setBotToken] = useState("");
+  const [botReset, setBotReset] = useState(0);
   const errorSummaryRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -651,6 +661,7 @@ export default function RegistrationForm() {
           "Paste a valid Google Drive transcript link.";
       }
 
+      if (!values.termsAccepted) errors.terms_accepted = "Accept the competition terms before submitting.";
       if (!values.contestConsent) {
         errors.contest_consent = "Consent is required to submit your entry.";
       }
@@ -748,6 +759,7 @@ export default function RegistrationForm() {
       return;
     }
     if (!values.educationStage) return;
+    if (!botToken) { setGlobalError("Complete the verification check before submitting."); focusErrorSummary(); return; }
 
     submittingRef.current = true;
     setSubmitting(true);
@@ -779,6 +791,10 @@ export default function RegistrationForm() {
     if (values.transcriptUrl.trim())
       formData.set("transcript_url", values.transcriptUrl.trim());
     formData.set("contest_consent", String(values.contestConsent));
+    formData.set("terms_accepted", String(values.termsAccepted));
+    formData.set("policy_version", PRIVACY_VERSION);
+    formData.set("terms_version", TERMS_VERSION);
+    formData.set("bot_token", botToken);
     formData.set("submission_token", submissionTokenRef.current);
     formData.set("website", website);
 
@@ -846,13 +862,14 @@ export default function RegistrationForm() {
     } catch (error) {
       setGlobalError(
         error instanceof DOMException && error.name === "AbortError"
-          ? "Submission is taking longer than expected. Try again—the same entry reference will be used safely."
+          ? "Submission is taking longer than expected. Try again. Your retry will use the same entry reference."
           : "A network error interrupted submission. Check your connection and try again.",
       );
       focusErrorSummary();
     } finally {
       window.clearTimeout(timeoutId);
       submittingRef.current = false;
+      setBotToken(""); setBotReset(value => value + 1);
       setSubmitting(false);
     }
   }
@@ -1472,8 +1489,7 @@ export default function RegistrationForm() {
                   className="mt-1 size-4 shrink-0 accent-ascent-brand"
                 />
                 <span>
-                  I consent to the use of these details to administer my Ascent
-                  competition registration.
+                  {PARTICIPATION_NOTICE} Read the <a href={PRIVACY_URL} target="_blank" rel="noreferrer" className="underline">privacy policy</a>.
                 </span>
               </label>
               <p className="mt-2 pl-7 text-xs leading-5 text-ascent-muted">
@@ -1492,6 +1508,14 @@ export default function RegistrationForm() {
             </div>
           </fieldset>
 
+          <label className="mt-5 flex items-start gap-3 text-sm leading-6">
+            <input id="terms_accepted" type="checkbox" required checked={values.termsAccepted} disabled={submitting || !registrationOpen}
+              onChange={event => updateValue("termsAccepted", event.target.checked, "terms_accepted")} className="mt-1 size-4 shrink-0 accent-ascent-brand" />
+            <span>I agree to the <a href={TERMS_URL} target="_blank" rel="noreferrer" className="underline">competition terms</a>.</span>
+          </label>
+          {fieldErrors.terms_accepted ? <p id="terms_accepted-error" role="alert" className="mt-2 text-sm text-ascent-danger">{fieldErrors.terms_accepted}</p> : null}
+          <p className="mt-3 text-xs leading-5 text-ascent-muted">Under 18? Ask a parent or guardian to contact <a href="mailto:team@amshq.in" className="underline">team@amshq.in</a> before submitting so AMS can arrange permission.</p>
+          {step === 3 && registrationOpen ? <BotCheck action="registration" onToken={setBotToken} resetKey={botReset} /> : null}
           <div className="mt-7 flex flex-col gap-3 border-t border-ascent-border pt-5 sm:flex-row sm:items-center sm:justify-between">
             <Button
               type="button"
@@ -1508,7 +1532,7 @@ export default function RegistrationForm() {
             <Button
               type="submit"
               size="lg"
-              disabled={submitting || !registrationOpen}
+              disabled={submitting || !registrationOpen || !botToken}
               className="w-full sm:w-auto"
             >
               {submitting ? (

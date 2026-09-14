@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { NextRequest } from "next/server";
+import { PRIVACY_VERSION, PRIVACY_URL, REMINDER_NOTICE } from "../src/content/legal";
 import { sha256 } from "../src/lib/rateLimit";
 
 const store = vi.hoisted(() => ({
@@ -26,6 +27,8 @@ vi.mock("@/lib/firebaseAdmin", () => ({
     },
   },
 }));
+vi.mock("@/lib/botProtection", () => ({ verifyBot: vi.fn(async () => ({ ok: true })) }));
+import { verifyBot } from "../src/lib/botProtection";
 vi.mock("@/lib/email/delivery", () => ({ tryDeliverEmail: vi.fn(async () => "DISABLED") }));
 vi.mock("@/lib/logger", () => ({ default: { error: vi.fn() }, genReqId: () => "test-request" }));
 import { POST } from "../src/app/api/reminders/route";
@@ -34,11 +37,11 @@ function request(body: unknown, headers: Record<string, string> = {}) {
   return new NextRequest("https://ascent.example/api/reminders", {
     method: "POST",
     headers: { origin: "https://ascent.example", "content-type": "application/json", "x-forwarded-for": "192.0.2.1", ...headers },
-    body: JSON.stringify(body),
+    body: JSON.stringify(body && typeof body === "object" ? { consent: true, policyVersion: PRIVACY_VERSION, botToken: "test-token", ...body } : body),
   });
 }
 
-beforeEach(() => { store.records.clear(); store.unavailable = false; });
+beforeEach(() => { store.records.clear(); store.unavailable = false; vi.mocked(verifyBot).mockResolvedValue({ ok: true }); });
 
 describe("email reminder signup", () => {
   it("stores a normalized email and timestamp without creating a registration", async () => {
@@ -46,6 +49,7 @@ describe("email reminder signup", () => {
     expect(response.status).toBe(200);
     expect(store.records.get(`registration_reminders/${sha256("student@example.com")}`)).toEqual({
       email: "student@example.com", created_at: "server-timestamp", purpose: "ASCENT_2026_REGISTRATION_REMINDER",
+      consent: { granted: true, policy_version: PRIVACY_VERSION, policy_url: PRIVACY_URL, notice: REMINDER_NOTICE, granted_at: "server-timestamp" },
     });
     expect([...store.records.keys()].every((key) => !key.startsWith("applications/"))).toBe(true);
     expect(response.headers.get("cache-control")).toContain("no-store");
@@ -76,7 +80,7 @@ describe("email reminder signup", () => {
       method: "POST", headers: { origin: "https://ascent.example", "content-type": "application/json" }, body: "{",
     });
     expect((await POST(malformed)).status).toBe(400);
-    expect((await POST(request({ email: "x".repeat(2100) }))).status).toBe(413);
+    expect((await POST(request({ email: "x".repeat(5000) }))).status).toBe(413);
   });
 
   it("limits repeated requests even when the address is already saved", async () => {
@@ -85,6 +89,16 @@ describe("email reminder signup", () => {
     expect(blocked.status).toBe(429);
     expect(blocked.headers.get("retry-after")).toBe("3600");
     expect(store.records.has(`registration_reminders/${sha256("another@example.com")}`)).toBe(false);
+  });
+
+  it.each([{ consent: false }, { policyVersion: "v1" }])("rejects missing current consent %j", async fields => {
+    expect((await POST(request({ email: "student@example.com", ...fields }))).status).toBe(400);
+    expect(store.records.size).toBe(0);
+  });
+  it("does not store or queue a reminder when bot verification fails", async () => {
+    vi.mocked(verifyBot).mockResolvedValue({ ok: false, status: 400, error: "Verification failed" });
+    expect((await POST(request({ email: "student@example.com" }))).status).toBe(400);
+    expect(store.records.size).toBe(0);
   });
 
   it("does not show success if storage fails", async () => {

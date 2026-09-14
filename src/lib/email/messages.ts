@@ -1,7 +1,7 @@
 import { REGISTRATION_OPENS_AT, registrationOpensAtLabel } from "../registrationLaunch";
 
 export const EMAIL_OUTBOX = "email_outbox";
-export type EmailKind = "REGISTRATION_CONFIRMATION" | "DECISION" | "REGISTRATION_REMINDER";
+export type EmailKind = "REGISTRATION_CONFIRMATION" | "DECISION" | "REGISTRATION_REMINDER" | "STATUS_ACCESS";
 export type EmailDecision = "APPROVED" | "WAITLISTED" | "REJECTED";
 export type EmailJob = {
   kind: EmailKind;
@@ -12,6 +12,8 @@ export type EmailJob = {
   queued_at: number;
   due_at: number;
   attempts: number;
+  request_email?: string;
+  request_expires_at?: number;
 };
 
 export function confirmationEmailId(id: string) { return `confirmation_${id}`; }
@@ -27,8 +29,13 @@ export function emailJob(kind: EmailKind, sourceId: string, now = Date.now()): E
 export function buildEmailMessage(job: EmailJob, data: {
   reference?: string;
   qualificationPath?: string;
+  statusUrl?: string;
 }, siteUrl: string): { subject: string; text: string } {
   const footer = "Algorithms & Mathematics Society (AMS)\nQuestions? Reply to this email.";
+  if (job.kind === "STATUS_ACCESS") {
+    if (!data.statusUrl) throw new Error("Status link missing.");
+    return { subject: "Your Ascent ’26 entry status link", text: `Use this private link to view your entry status:\n${data.statusUrl}\n\nIt expires in 20 minutes and can be used once. Open it only on a device you trust. If you did not request this email, you can ignore it.\n\n${footer}` };
+  }
   if (job.kind === "REGISTRATION_REMINDER") {
     return {
       subject: "Ascent ’26 registration is open",
@@ -39,8 +46,8 @@ export function buildEmailMessage(job: EmailJob, data: {
   if (job.kind === "REGISTRATION_CONFIRMATION") {
     const path = data.qualificationPath === "AUTO" ? "Direct path" : "Qualifier path";
     return {
-      subject: `Ascent ’26 registration received — ${reference}`,
-      text: `We received your Ascent ’26 registration.\n\nYour reference: ${reference}\nStatus at submission: Received\nQualification path: ${path}\n\nKeep this email so you can find your reference later. Registration receipt does not confirm selection. Decision updates are sent separately. This receipt records your submission and does not replace a later decision.\n\nEvent details: ${siteUrl}\n\n${footer}`,
+      subject: `Ascent ’26 registration received: ${reference}`,
+      text: `We received your Ascent ’26 registration.\n\nYour reference: ${reference}\nStatus at submission: Received\nQualification path: ${path}\n\nKeep this email so you can find your reference later. Registration receipt does not confirm selection. Decision updates are sent separately. This receipt records your submission and does not replace a later decision.\n\nCheck your current entry status: ${siteUrl}/register/status\nEvent details: ${siteUrl}\n\n${footer}`,
     };
   }
   const decision = job.decision;
@@ -50,6 +57,6 @@ export function buildEmailMessage(job: EmailJob, data: {
       ? "Your registration is on the waitlist. A place is not confirmed. We will email you if the decision changes."
       : "Your registration has not been approved. Reply with your reference if you have a question about this decision.";
   const label = decision === "APPROVED" ? "Approved" : decision === "WAITLISTED" ? "Waitlisted" : "Not approved";
-  return { subject: `Ascent ’26 registration update — ${reference}`,
-    text: `Your reference: ${reference}\nStatus: ${label}\n\n${detail}\n\n${footer}` };
+  return { subject: `Ascent ’26 registration update: ${reference}`,
+    text: `Your reference: ${reference}\nStatus: ${label}\n\n${detail}\n\nCheck your current entry status: ${siteUrl}/register/status\n\n${footer}` };
 }

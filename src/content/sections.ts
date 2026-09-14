@@ -37,8 +37,8 @@ export const SCORING_STEPS: ScoringStep[] = [
   },
   {
     label: "03 / Rank",
-    title: "Climb through speedup",
-    body: "Measured performance—not submission decoration or pedigree—separates the ranklist.",
+    title: "Rank by speedup",
+    body: "Your measured speedup determines your place in the rankings.",
   },
 ];
 
@@ -75,17 +75,17 @@ export const TIMELINE: TimelinePhase[] = [
     body: "Submit your contact, education, and competition details. The registration closing date is yet to be announced.",
   },
   {
-    phase: "Round 1 — Proficiency",
+    phase: "Round 1: Proficiency",
     timing: "24 October 2026",
     body: "Online on AMS Access with remote proctoring. C++ proficiency, puzzles, and live debugging.",
   },
   {
-    phase: "Round 2 — Implementation",
+    phase: "Round 2: Implementation",
     timing: "6 December 2026",
     body: "Group-based implementation on AMS Access at partner campuses, moderated by campus club members.",
   },
   {
-    phase: "Round 3 — Mastery",
+    phase: "Round 3: Mastery",
     timing: "20 December 2026 · Tentative",
     body: "30 finalists meet on site in Mumbai for live judging of language, build system, profiling, and debugging skills. AMS covers travel and stay.",
   },
@@ -94,7 +94,7 @@ export const TIMELINE: TimelinePhase[] = [
 export const FAQ: FaqItem[] = [
   {
     q: "Who can register?",
-    a: "Anyone can register. Ascent uses contest performance and the qualification process—not a pedigree screen—as the merit gate.",
+    a: "Anyone can register. Advancement depends on the qualification process and your contest results.",
   },
   {
     q: "What determines my score?",
@@ -114,7 +114,7 @@ export const FAQ: FaqItem[] = [
   },
   {
     q: "What happens after I submit the form?",
-    a: "The final stage records your competition entry and shows an on-site confirmation. Keep your email and mobile number accurate so the event team can share administrative next steps.",
+    a: "After you submit, the page confirms your registration and shows your entry reference. Save that reference and check that your email and mobile number are correct so the Ascent team can contact you.",
   },
   {
     q: "Is there an entry fee?",

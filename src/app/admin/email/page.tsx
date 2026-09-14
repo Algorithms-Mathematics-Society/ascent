@@ -36,7 +36,7 @@ export default async function AdminEmailPage({ searchParams }: { searchParams: {
       <table className="w-full text-left text-sm"><caption className="sr-only">Queued emails and provider status</caption>
         <thead><tr className="border-b border-ascent-border"><th className="p-4">Message</th><th className="p-4">Status</th><th className="p-4">Queued · IST</th><th className="p-4">Details</th></tr></thead>
         <tbody>{rows.map(row => { const job = row.data(); return <tr key={row.id} className="border-b border-ascent-border align-top">
-          <td className="p-4">{job.kind === "REGISTRATION_CONFIRMATION" ? "Registration confirmation" : job.kind === "DECISION" ? "Decision update" : "Registration reminder"}<span className="mt-1 block max-w-xs break-all font-mono text-xs text-ascent-muted">{job.source_id}</span></td>
+          <td className="p-4">{job.kind === "REGISTRATION_CONFIRMATION" ? "Registration confirmation" : job.kind === "DECISION" ? "Decision update" : job.kind === "STATUS_ACCESS" ? "Status access link" : "Registration reminder"}<span className="mt-1 block max-w-xs break-all font-mono text-xs text-ascent-muted">{job.source_id}</span></td>
           <td className="p-4">{LABELS[job.status] || job.status}</td><td className="whitespace-nowrap p-4">{format.format(job.queued_at)}</td>
           <td className="max-w-sm break-words p-4 text-xs leading-5 text-ascent-muted">Attempts: {job.attempts}{job.last_error ? <p className="mt-1">{job.last_error}</p> : null}{job.provider_id ? <p className="mt-1 break-all">Resend ID: {job.provider_id}</p> : null}</td>
         </tr>; })}{!rows.length ? <tr><td colSpan={4} className="p-8 text-center text-ascent-muted">No email jobs yet.</td></tr> : null}</tbody>

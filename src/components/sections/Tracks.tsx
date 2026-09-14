@@ -11,8 +11,8 @@ export default function Tracks() {
       <Container>
         <SectionHeading
           eyebrow="Competition format"
-          title="Three rounds. Increasingly real systems work."
-          lede="The contest moves from individual C++ performance problems to collaborative optimization and, finally, a real codebase. Each round asks for more than the one before it."
+          title="From the qualifier to the final round."
+          lede="Start with individual C++ problems, then work in a team at an IIT hub. Finalists compete at IIT Bombay by optimizing a real codebase."
           className="max-w-3xl"
         />
 
@@ -22,7 +22,7 @@ export default function Tracks() {
             <span>Stage</span>
             <span>Entry</span>
             <span>Setting</span>
-            <span>What changes</span>
+            <span>What you will do</span>
           </div>
 
           <ol className="divide-y divide-ascent-border">
@@ -60,7 +60,7 @@ export default function Tracks() {
                 </div>
                 <div className="col-start-2 lg:col-auto">
                   <span className="mb-1 block font-mono text-[0.625rem] uppercase tracking-[0.12em] text-ascent-muted lg:hidden">
-                    What changes
+                    What you will do
                   </span>
                   <p className="text-sm leading-6 text-ascent-muted">
                     {round.focus}

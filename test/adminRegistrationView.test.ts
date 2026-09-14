@@ -38,7 +38,7 @@ const ROWS: AdminRegistrationRow[] = [
     phone: "+6581234567",
     institution: "National University of Singapore",
     educationStage: "GRADUATED",
-    studyLevel: "—",
+    studyLevel: "Not provided",
     graduationYear: 2024,
     codeforcesHandle: null,
     qualificationPath: "QUALIFIER",

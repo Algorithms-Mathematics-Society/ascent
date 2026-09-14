@@ -10,8 +10,8 @@
  * **Why an outbox rather than an HTTP call in the decision handler.** The
  * decision is a Firestore transaction. An HTTP call cannot join one: if it is
  * made inside, a retry re-sends it, and if it is made after, a crash or a
- * network blip between the commit and the call loses the registrant silently —
- * approved here, absent there, and nothing anywhere says so. So the decision
+ * network blip between the commit and the call can leave an approved
+ * registrant absent from AMS Access without a pending transfer record. So the decision
  * writes an outbox document *in the same transaction* as the decision itself.
  * Either both land or neither does, and a sync that has not happened yet is
  * visibly PENDING rather than forgotten.
@@ -24,8 +24,7 @@
  *
  * WAITLISTED is included deliberately: someone promoted on contest morning
  * must already exist, and provisioning under time pressure is how mistakes
- * happen. REJECTED never crosses — there is no reason to copy the personal
- * data of somebody who will not compete. */
+ * happen. Rejected registrants are excluded from the transfer. */
 export const SYNCABLE_DECISIONS = ["APPROVED", "WAITLISTED"] as const;
 
 export type SyncStatus = "PENDING" | "SYNCED" | "FAILED" | "SKIPPED";
@@ -105,9 +104,8 @@ function toIso(value: unknown): string | null {
  * Assemble one payload from the three collections the registrant is split
  * across.
  *
- * The split is deliberate here — `applications` holds non-PII, `pii` holds the
- * person, `consent` holds the grant — so this is the one place that has to
- * know all three. What crosses is facts about a *person*. Facts about their
+ * `applications` holds non-PII, `pii` holds personal details, and `consent`
+ * holds the grant. Payload assembly reads all three. What crosses is facts about a *person*. Facts about their
  * application to one edition (qualification path, reference, the admin's
  * decision) stay where they were decided; AMS keys back to them by subject id.
  */
@@ -123,9 +121,7 @@ export function buildPayload(
   const email = firstString(person.email, person.college_email).toLowerCase();
   const displayName = firstString(person.legal_name);
 
-  // Both are required by the far side, and neither is recoverable here. Fail
-  // loudly rather than posting a payload that will 422 — a validation error
-  // from a remote service is a much worse way to learn a record is incomplete.
+  // Validate required fields locally before calling the remote service.
   if (!email) return { error: "no email on the pii record" };
   if (!displayName) return { error: "no legal_name on the pii record" };
 

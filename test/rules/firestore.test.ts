@@ -225,3 +225,13 @@ describe("email_outbox: private server-managed messages", () => {
     }
   });
 });
+
+describe("status capabilities and abuse counters are server-only", () => {
+  it.each(["candidate_access_tokens", "_rate_limits_bot", "_rate_limits_status_email", "_rate_limits_status_daily", "_rate_limits_status_exchange"])("denies all browser access to %s", async collection => {
+    await testEnv.withSecurityRulesDisabled(async ctx => { await setDoc(doc(ctx.firestore(), `${collection}/private`), { subject_id: "student" }); });
+    for (const context of [testEnv.unauthenticatedContext(), testEnv.authenticatedContext("student"), testEnv.authenticatedContext("admin", { ascent_admin: true })]) {
+      await assertFails(getDoc(doc(context.firestore(), `${collection}/private`)));
+      await assertFails(setDoc(doc(context.firestore(), `${collection}/private`), { used_at: null }));
+    }
+  });
+});

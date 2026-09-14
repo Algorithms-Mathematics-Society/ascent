@@ -42,7 +42,7 @@ export const ROUND_ONE_GROUPS: SyllabusGroup[] = [
     items: [
       "UB · unspecified · implementation-defined · erroneous behavior",
       "error handling: std::exception · std::optional · std::expected",
-      "floating-point pitfalls — why never ==",
+      "floating-point precision and equality comparisons",
       "debugging fundamentals",
     ],
   },
@@ -99,21 +99,21 @@ export const LATER_ROUNDS = [
   {
     round: "Round 2",
     mode: "Group",
-    title: "The build.",
+    title: "Team implementation",
     description:
-      "Implementation-heavy and group-based. Core CS fundamentals, executed as a team under a clock rather than recalled.",
+      "Work as a team to implement solutions using core computer science concepts within a time limit.",
     facts: [
       "format: teams",
-      "axis: implementation depth",
+      "focus: implementation",
       "scope: core CS fundamentals",
     ],
   },
   {
     round: "Round 3",
     mode: "Onsite",
-    title: "The toolchain.",
+    title: "Language and tools",
     description:
-      "Mastery of the language and everything around it. Judged on how you work, not only on what you submit.",
+      "Demonstrate your C++ skills through live work with build systems, profilers and debuggers.",
     facts: ["language mastery", "build systems", "profiling", "debugging"],
   },
 ] as const;

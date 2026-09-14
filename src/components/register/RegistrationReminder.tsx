@@ -1,12 +1,16 @@
 "use client";
 
 import { useId, useRef, useState, type FormEvent } from "react";
+import BotCheck from "@/components/security/BotCheck";
+import { PRIVACY_URL, PRIVACY_VERSION, REMINDER_NOTICE } from "@/content/legal";
 import { Bell } from "lucide-react";
 import { Button, Input } from "@/components/ui";
 
 export default function RegistrationReminder() {
   const id = useId();
   const inFlight = useRef(false);
+  const [botToken, setBotToken] = useState("");
+  const [botReset, setBotReset] = useState(0);
   const [expanded, setExpanded] = useState(false);
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
@@ -14,7 +18,7 @@ export default function RegistrationReminder() {
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (inFlight.current) return;
+    if (inFlight.current || !botToken) return;
     inFlight.current = true;
     setStatus("saving");
     setError("");
@@ -22,7 +26,7 @@ export default function RegistrationReminder() {
       const response = await fetch("/api/reminders", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ email, botToken, consent: true, policyVersion: PRIVACY_VERSION }),
       });
       const result = await response.json();
       if (!response.ok) {
@@ -35,6 +39,7 @@ export default function RegistrationReminder() {
       setStatus("error");
     } finally {
       inFlight.current = false;
+      setBotToken(""); setBotReset(value => value + 1);
     }
   }
 
@@ -75,13 +80,14 @@ export default function RegistrationReminder() {
                 aria-describedby={`${id}-description${error ? ` ${id}-error` : ""}`}
                 className="min-w-0 flex-1"
               />
-              <Button type="submit" disabled={status === "saving"} className="shrink-0">
+              <Button type="submit" disabled={status === "saving" || !botToken} className="shrink-0">
                 {status === "saving" ? "Saving…" : "Notify me"}
               </Button>
             </div>
             <p id={`${id}-description`} className="mt-2 text-xs leading-5 text-ascent-muted">
-              Join the email reminder list for Ascent ’26 registration.
+              By choosing Notify me, you agree: {REMINDER_NOTICE} Read the <a href={PRIVACY_URL} target="_blank" rel="noreferrer" className="underline">privacy policy</a>.
             </p>
+            {expanded ? <BotCheck action="reminder" onToken={setBotToken} resetKey={botReset} /> : null}
             {error ? <p id={`${id}-error`} role="alert" className="mt-2 text-sm">{error}</p> : null}
           </form>
         )}

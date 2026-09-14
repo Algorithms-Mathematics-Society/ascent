@@ -11,9 +11,9 @@ export default function About() {
       <Container>
         <div className="grid gap-12 lg:grid-cols-[minmax(0,0.82fr)_minmax(0,1.18fr)] lg:gap-20">
           <SectionHeading
-            eyebrow="How scoring works"
-            title="Correctness is the gate. Performance is the score."
-            lede="Ascent begins where a normal accepted verdict ends. Once the program is correct, the question becomes how much faster, leaner, and more deliberate you can make it."
+            eyebrow="Scoring"
+            title="Make correct code run faster."
+            lede="Your code must produce the correct result. We then compare its performance with the baseline under the same test conditions."
           />
 
           <ol className="border-y border-ascent-border">

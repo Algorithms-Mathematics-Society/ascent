@@ -83,7 +83,7 @@ function formatSubmittedAt(value: string | null) {
 
 function educationSummary(row: AdminRegistrationRow) {
   const parts = [row.educationStage.replaceAll("_", " ")];
-  if (row.studyLevel !== "—") parts.push(row.studyLevel);
+  if (row.studyLevel !== "Not provided") parts.push(row.studyLevel);
   if (row.graduationYear) parts.push(String(row.graduationYear));
   return parts.join(" · ");
 }

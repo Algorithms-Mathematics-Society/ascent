@@ -14,7 +14,7 @@ disabled until both the API key and sender address are present and valid.
    `RESEND_API_KEY` and `RESEND_FROM_EMAIL`, for example
    `Ascent <notifications@amshq.in>`, using your verified domain.
    [Resend sender requirements](https://resend.com/docs/knowledge-base/how-do-I-create-an-email-address-or-sender-in-resend).
-2. Check `RESEND_REPLY_TO` (default `partners@amshq.in`) and `SITE_URL`
+2. Check `RESEND_REPLY_TO` (default `team@amshq.in`) and `SITE_URL`
    (default `https://ascent.amshq.in`). Use a monitored reply mailbox and the
    canonical HTTPS site origin.
 3. Set `CRON_SECRET` to a randomly generated secret of at least 32 characters.
@@ -87,8 +87,9 @@ after the scheduled time; it is not refreshed by webhooks. Use the provider
 dashboard for delivery, bounce, complaint and cancellation details.
 
 Every email attempt rechecks the current application, recipient and decision.
-Deleted/withdrawn applications, removed reminder records and superseded decisions
-stop further attempts. Frozen recipient data is cleared when the source becomes
+Deleted applications, removed reminder records and superseded decisions
+stop further attempts. Withdrawn entries receive no new confirmation or decision
+emails; their registered mailbox can still request status access. Frozen recipient data is cleared when the source becomes
 unavailable. A prior ambiguous attempt stays visible as **Needs review**, since
 it may already have reached Resend. These checks cannot retract email already in flight or
 accepted by the provider; scheduled cancellations still require its dashboard.
@@ -96,6 +97,28 @@ Internal decision notes are never included. Existing reminders are backfilled;
 registrations and decisions made before this integration are not automatically
 backfilled. Queued payloads contain recipient data and must be included in future
 erasure/retention handling, together with any scheduled message in Resend.
+
+## Private status links
+
+`/register/status` accepts only an email address and a successful Turnstile check.
+It gives the same response for existing and unknown entries. The durable job is
+created before responding; Vercel `waitUntil` keeps the delivery attempt running
+in the background. Unknown recipients are skipped without sending mail. A
+five-minute job bucket prevents duplicate sends; limits also apply per IP,
+mailbox and across the service. Access requests expire after 15 minutes in the
+queue, so a daily retry cannot send an unexpected next-day login link.
+
+Delivered links expire after 20 minutes. The token is in the URL fragment, which
+is removed before loading Turnstile. A user must press **View my status** to
+consume it; merely fetching the link does not use it. Firestore atomically marks
+the token used and issues a separate 20-minute HTTP-only, Secure, SameSite cookie.
+Only hashed one-use tokens are stored in the access collection. Email payloads
+necessarily contain the emailed link and remain private to the server.
+
+`CANDIDATE_STATUS_SECRET` must contain at least 32 random characters, separate
+from the cron secret. Rotating it invalidates existing links and sessions. A
+changed registered email or deleted application also invalidates access. See
+[trust and access setup](trust-setup.md) for configuration and manual rights requests.
 
 ## Verification
 

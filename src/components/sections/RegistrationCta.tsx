@@ -26,12 +26,12 @@ export default function RegistrationCta() {
               Competition entry
             </p>
             <h2 className="mt-3 max-w-3xl text-3xl font-semibold tracking-tight sm:text-4xl">
-              Ready to put your C++ performance to the test?
+              Register for Ascent ’26
             </h2>
             <p className="mt-4 max-w-2xl text-base leading-7 text-ascent-on-brand/75 sm:text-lg">
               Bring your contact and education details and a shareable Google
               Drive resume link. A transcript and Codeforces handle are
-              optional. Registration stays here from start to submission.
+              optional.
             </p>
 
             <ul className="mt-7 flex flex-wrap gap-x-6 gap-y-3 text-sm text-ascent-on-brand/80">
@@ -59,7 +59,7 @@ export default function RegistrationCta() {
               href="#timeline"
               className="inline-flex min-h-11 items-center text-sm font-semibold text-ascent-on-brand underline decoration-ascent-on-brand/40 underline-offset-4 hover:decoration-ascent-on-brand"
             >
-              Review the event sequence
+              See the competition dates
             </a>
           </div>
         </div>

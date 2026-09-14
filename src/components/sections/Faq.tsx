@@ -12,8 +12,8 @@ export default function Faq() {
         <div className="grid gap-12 lg:grid-cols-[minmax(0,0.62fr)_minmax(0,1.38fr)] lg:gap-20">
           <SectionHeading
             eyebrow="Before you register"
-            title="Answers to decisions that matter."
-            lede="The format is unusual, so the important rules should be explicit. Unconfirmed operational details stay marked as pending."
+            title="Common questions"
+            lede="Who can enter, how scoring works, and what to expect after registration."
           />
 
           <dl className="border-t border-ascent-border">

@@ -13,12 +13,15 @@ vi.hoisted(() => {
 });
 const ams = vi.hoisted(() => ({ post: vi.fn(async () => ({ student_uid: "mock-student", handle: "mock-handle", outcome: "created" })) }));
 vi.mock("@/lib/amsSync", async (importOriginal) => ({ ...(await importOriginal<typeof import("../src/lib/amsSync")>()), postToAms: ams.post }));
+vi.mock("@/lib/botProtection", () => ({ verifyBot: vi.fn(async () => ({ ok: true })) }));
 vi.mock("server-only", () => ({}));
 vi.mock("next/cache", () => ({ unstable_cache: (fn: unknown) => fn, revalidateTag: vi.fn(), revalidatePath: vi.fn() }));
 vi.mock("@/lib/registrationLaunch", async (importOriginal) => ({ ...(await importOriginal<typeof import("../src/lib/registrationLaunch")>()), registrationHasOpened: () => true }));
 vi.mock("@/lib/adminAuth", () => ({ verifyAdminSessionValue: async () => ({ uid: "test-owner", email: "owner@example.test", role: "OWNER" }) }));
 vi.mock("@/lib/logger", () => ({ default: { error: vi.fn(), warn: vi.fn(), info: vi.fn() }, genReqId: () => "test", maskEmail: () => "masked" }));
 
+import { verifyBot } from "../src/lib/botProtection";
+import { PRIVACY_VERSION, TERMS_VERSION, PARTICIPATION_NOTICE } from "../src/content/legal";
 import { adminDb } from "../src/lib/firebaseAdmin";
 import { POST as syncAms } from "../src/app/api/admin/ams-sync/route";
 import { POST as remind } from "../src/app/api/reminders/route";
@@ -31,6 +34,7 @@ import { getRegistrationSettings } from "../src/lib/registrationSettingsData";
 import { ADMIN_CSRF_COOKIE, ADMIN_SESSION_COOKIE } from "../src/lib/adminSecurity";
 
 beforeEach(async () => {
+  vi.mocked(verifyBot).mockResolvedValue({ ok: true });
   ams.post.mockReset().mockResolvedValue({ student_uid: "mock-student", handle: "mock-handle", outcome: "created" });
   process.env.AMS_API_URL = "https://mock.example.test";
   process.env.AMS_INGEST_API_KEY = "mock-only";
@@ -40,11 +44,11 @@ beforeEach(async () => {
 });
 const count = async (name: string) => (await adminDb.collection(name).count().get()).data().count;
 function reminder(email: string, ip: string) {
-  return new NextRequest("https://ascent.test/api/reminders", { method: "POST", headers: { origin: "https://ascent.test", "content-type": "application/json", "x-forwarded-for": ip }, body: JSON.stringify({ email }) });
+  return new NextRequest("https://ascent.test/api/reminders", { method: "POST", headers: { origin: "https://ascent.test", "content-type": "application/json", "x-forwarded-for": ip }, body: JSON.stringify({ email, consent: true, policyVersion: PRIVACY_VERSION, botToken: "test-token" }) });
 }
 function registration(index: number, token = randomUUID(), email = `student${index}@example.test`) {
   const form = new FormData();
-  Object.entries({ submission_token: token, legal_name: "Test Student", email, phone: `+9198${String(index).padStart(8, "0")}`, education_stage: "UNIVERSITY", graduation_year: "2027", unlisted_name: "Test University", resume_url: "https://drive.google.com/file/d/test-resume/view", contest_consent: "true" }).forEach(([key, value]) => form.set(key, value));
+  Object.entries({ submission_token: token, legal_name: "Test Student", email, phone: `+9198${String(index).padStart(8, "0")}`, education_stage: "UNIVERSITY", graduation_year: "2027", unlisted_name: "Test University", resume_url: "https://drive.google.com/file/d/test-resume/view", contest_consent: "true", terms_accepted: "true", policy_version: PRIVACY_VERSION, terms_version: TERMS_VERSION, bot_token: "test-token" }).forEach(([key, value]) => form.set(key, value));
   return new NextRequest("https://ascent.test/api/register", { method: "POST", headers: { origin: "https://ascent.test", host: "ascent.test", "x-forwarded-for": `192.0.2.${index}` }, body: form });
 }
 function settingsRequest(capacity: number | null, isOpen: boolean, revision: number) {
@@ -156,8 +160,28 @@ describe("concurrent submissions against real Firestore transactions", () => {
     for (const collection of ["applications", "pii", "consent", "emails", "phones", "registration_submissions", "email_outbox"]) expect(await count(collection)).toBe(40);
     expect((await adminDb.collection("admin_config").doc("registration").get()).data()!.accepted_count).toBe(0);
     expect((await getRegistrationSettings()).acceptedCount).toBe(40);
+    const consent = await adminDb.collection("consent").get();
+    for (const record of consent.docs) expect(record.data()).toMatchObject({
+      CONTEST_PARTICIPATION: { granted: true, policy_version: PRIVACY_VERSION, notice: PARTICIPATION_NOTICE },
+      TERMS_ACCEPTANCE: { accepted: true, version: TERMS_VERSION },
+    });
     console.log(`40 concurrent registrations: ${Math.round(performance.now() - started)} ms total`);
   }, 60000);
+
+  it.each(["terms_accepted", "policy_version", "terms_version"])("rejects outdated or missing %s before saving", async field => {
+    const original = registration(1);
+    const form = await original.formData(); form.set(field, "old");
+    const response = await register(new NextRequest(original.url, { method: "POST", headers: { origin: "https://ascent.test", host: "ascent.test" }, body: form }));
+    expect(response.status).toBe(400);
+    expect(await count("applications")).toBe(0);
+    expect(await count("email_outbox")).toBe(0);
+  });
+  it("rejects a failed bot check before registration or mail creation", async () => {
+    vi.mocked(verifyBot).mockResolvedValue({ ok: false, status: 400, error: "Invalid verification" });
+    expect((await register(registration(1))).status).toBe(400);
+    expect(await count("applications")).toBe(0);
+    expect(await count("email_outbox")).toBe(0);
+  });
 
   it("returns one receipt for 20 concurrent retries of a registration", async () => {
     const token = randomUUID();

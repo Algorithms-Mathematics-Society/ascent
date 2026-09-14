@@ -98,3 +98,22 @@ the server initialize the counter without racing incoming submissions.
 
 See [the reliability and performance audit](docs/audits/2026-09-14.md) for measured
 Lighthouse results, concurrency coverage, and the limits of the local checks.
+
+## Privacy, terms, bot protection and candidate status
+
+The footer links `/privacy`, `/terms` and `/register/status`. Current legal
+versions have permanent dated URLs. New registrations store participation
+consent and separate terms acceptance in the same transaction as the entry.
+Reminder submissions record their limited purpose and policy version. Existing
+`v1` records are preserved and explained at `/privacy/v1`; they are not relabelled
+as acceptance of a notice that was not available at submission time.
+
+All public email-triggering forms require server-verified Cloudflare Turnstile.
+Blank placeholders intentionally disable submission. Status uses an emailed,
+one-use link and temporary cookie; candidates do not create accounts. Private
+review notes and contact details never appear in the status response.
+
+See [trust and access setup](docs/trust-setup.md) for environment values,
+publication checks, security behavior and support procedures. Candidate help,
+privacy requests and general questions use **team@amshq.in**. Sponsorship and
+partnership enquiries use **partners@amshq.in**.

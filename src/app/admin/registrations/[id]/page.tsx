@@ -11,7 +11,7 @@ import {
 } from "@/lib/adminRegistrations";
 
 function humanize(value: string) {
-  if (!value || value === "—") return "—";
+  if (!value || value === "Not provided") return "Not provided";
   return value
     .toLocaleLowerCase()
     .replaceAll("_", " ")

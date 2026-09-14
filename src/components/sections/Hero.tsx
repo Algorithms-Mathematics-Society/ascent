@@ -30,9 +30,9 @@ export default function Hero() {
             </h1>
 
             <p className="mt-6 max-w-3xl text-base leading-7 text-ascent-muted sm:mt-7 sm:text-lg sm:leading-8">
-              Ascent is a C++ optimization competition. Correctness is the
-              gate; measured speedup drives the ranklist. Start with the
-              qualifier and advance toward a real-codebase finale.
+              Write correct C++, then make it faster. Ascent ranks valid
+              submissions by measured speedup. The contest runs from an
+              individual qualifier to a final round working on a real codebase.
             </p>
 
             <div className="mt-7 flex flex-wrap items-center gap-3 sm:mt-8">
@@ -45,7 +45,7 @@ export default function Hero() {
                 size="lg"
                 className="w-full sm:w-64"
               >
-                Explore competition tracks
+                See the three rounds
               </Button>
             </div>
 

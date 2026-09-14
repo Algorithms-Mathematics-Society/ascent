@@ -1,3 +1,5 @@
+import { verifyBot } from "@/lib/botProtection";
+import { PRIVACY_VERSION, PRIVACY_URL, REMINDER_NOTICE } from "@/content/legal";
 import { EMAIL_OUTBOX, reminderEmailId, emailJob } from "@/lib/email/messages";
 import { tryDeliverEmail } from "@/lib/email/delivery";
 import { readBoundedJson, RequestBodyTooLarge } from "@/lib/requestBody";
@@ -30,13 +32,13 @@ export async function POST(request: NextRequest) {
   if (!request.headers.get("content-type")?.toLowerCase().startsWith("application/json")) {
     return reply({ error: "Send your email as JSON." }, 415);
   }
-  if (Number(request.headers.get("content-length")) > 2048) {
+  if (Number(request.headers.get("content-length")) > 4096) {
     return reply({ error: "The request is too large." }, 413);
   }
 
   let body: unknown;
   try {
-    body = await readBoundedJson(request, 2048);
+    body = await readBoundedJson(request, 4096);
   } catch (error) {
     if (error instanceof RequestBodyTooLarge) return reply({ error: "The request is too large." }, 413);
     return reply({ error: "Enter a valid email address." }, 400);
@@ -50,6 +52,12 @@ export async function POST(request: NextRequest) {
     return reply({ error: "Enter a valid email address." }, 400);
   }
 
+  const input = body as Record<string, unknown>;
+  if (input.consent !== true || input.policyVersion !== PRIVACY_VERSION) {
+    return reply({ error: "Read the current privacy notice and submit the reminder form again." }, 400);
+  }
+  const bot = await verifyBot(request, input.botToken, "reminder");
+  if (!bot.ok) return reply({ error: bot.error }, bot.status);
   const normalizedEmail = email.normalized;
   const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
   const reminderRef = adminDb.collection("registration_reminders").doc(sha256(normalizedEmail));
@@ -66,6 +74,7 @@ export async function POST(request: NextRequest) {
           email: normalizedEmail,
           created_at: adminServerTimestamp(),
           purpose: "ASCENT_2026_REGISTRATION_REMINDER",
+          consent: { granted: true, policy_version: PRIVACY_VERSION, policy_url: PRIVACY_URL, notice: REMINDER_NOTICE, granted_at: adminServerTimestamp() },
         });
       }
     });

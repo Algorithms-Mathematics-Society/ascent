@@ -5,7 +5,7 @@ import { Button } from "@/components/ui";
 
 /**
  * Scarcity cue: a live countdown to the registration close. Driven by a real
- * ISO date from content/site.ts — the parent only renders this when a date is
+ * ISO date from content/site.ts. The parent only renders this when a date is
  * set, so a fake date can never ship. SSR renders a stable placeholder; the
  * client ticks each second. On expiry it collapses to a "closed" + Register
  * fallback rather than negative time.
@@ -47,7 +47,7 @@ export default function Countdown({ closeISO }: { closeISO: string }) {
   if (ready && left === null) {
     return (
       <Button href="/register" size="sm">
-        Registration closed — see next edition
+        Registration is closed.
       </Button>
     );
   }

@@ -2,7 +2,7 @@
  * Drain the AMS Access sync outbox.
  *
  * The decision handler queues a row inside its own transaction; this sends
- * it. Deliberately a separate step — see `lib/amsSync.ts` for why an HTTP call
+ * it. See `lib/amsSync.ts` for why this is separate and an HTTP call
  * cannot live inside a Firestore transaction without either being re-sent on
  * retry or lost on a crash.
  *
@@ -97,8 +97,7 @@ export async function POST(request: NextRequest) {
   }
 
   // PENDING and FAILED both: a failure is a thing to retry, not a terminal
-  // state. Whatever caused it — AMS down, a bad payload since corrected — is
-  // usually fixed by the time somebody presses this again.
+  // state. Service outages and corrected payloads can be retried on the next run.
   const deadline = Date.now() + 40000;
   const pending = await adminDb
     .collection(OUTBOX_COLLECTION)

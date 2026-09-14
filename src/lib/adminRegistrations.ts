@@ -191,11 +191,11 @@ export async function getAllAdminRegistrations(): Promise<AdminRegistrationDatas
       id: applicationDocument.id,
       reference: stringValue(application.reference, "Reference pending"),
       legalName: stringValue(pii.legal_name, "Name unavailable"),
-      email: stringValue(pii.email, stringValue(pii.email_masked, "—")),
-      phone: stringValue(pii.phone, "—"),
+      email: stringValue(pii.email, stringValue(pii.email_masked, "Not provided")),
+      phone: stringValue(pii.phone, "Not provided"),
       institution,
-      educationStage: stringValue(application.education_stage, "—"),
-      studyLevel: stringValue(application.current_study_level, "—"),
+      educationStage: stringValue(application.education_stage, "Not provided"),
+      studyLevel: stringValue(application.current_study_level, "Not provided"),
       graduationYear:
         typeof application.graduation_year === "number"
           ? application.graduation_year
@@ -319,11 +319,11 @@ export async function getAdminRegistrationDetail(
     id: applicationDocument.id,
     reference: stringValue(application.reference, "Reference pending"),
     legalName: stringValue(pii.legal_name, "Name unavailable"),
-    email: stringValue(pii.email, stringValue(pii.email_masked, "—")),
-    phone: stringValue(pii.phone, "—"),
+    email: stringValue(pii.email, stringValue(pii.email_masked, "Not provided")),
+    phone: stringValue(pii.phone, "Not provided"),
     institution,
-    educationStage: stringValue(application.education_stage, "—"),
-    studyLevel: stringValue(application.current_study_level, "—"),
+    educationStage: stringValue(application.education_stage, "Not provided"),
+    studyLevel: stringValue(application.current_study_level, "Not provided"),
     graduationYear:
       typeof application.graduation_year === "number"
         ? application.graduation_year
@@ -340,11 +340,11 @@ export async function getAdminRegistrationDetail(
     linkedInUrl: nullableString(pii.linkedin_url),
     githubUrl: nullableString(pii.github_url),
     tags: normalizeAdminTags(operations.tags) as AdminRegistrationTag[],
-    edition: stringValue(application.edition, "—"),
-    applicationState: stringValue(application.state, "—"),
-    applicantStatus: stringValue(application.status, "—"),
+    edition: stringValue(application.edition, "Not provided"),
+    applicationState: stringValue(application.state, "Not provided"),
+    applicantStatus: stringValue(application.status, "Not provided"),
     collegeId: nullableString(application.college_id),
-    collegeTier: stringValue(application.college_tier, "—"),
+    collegeTier: stringValue(application.college_tier, "Not provided"),
     collegeVerificationStatus: stringValue(
       application.college_verification_status,
       "UNVERIFIED",

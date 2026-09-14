@@ -1,10 +1,11 @@
+import RegistrationShell from "@/components/register/RegistrationShell";
 import RegistrationForm from "@/components/register/RegistrationForm";
 import { Button } from "@/components/ui";
 import { getCachedRegistrationAvailability } from "@/lib/registrationSettingsData";
 
 export const dynamic = "force-dynamic";
 
-export default async function RegisterPage() {
+async function RegistrationContent() {
   const { settings, availability } = await getCachedRegistrationAvailability();
   if (!availability.acceptsRegistrations) {
     return (
@@ -38,4 +39,8 @@ export default async function RegisterPage() {
     );
   }
   return <RegistrationForm />;
+}
+
+export default function RegisterPage() {
+  return <RegistrationShell><RegistrationContent /></RegistrationShell>;
 }

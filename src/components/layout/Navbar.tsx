@@ -2,7 +2,7 @@ import Image from "next/image";
 import { Button } from "@/components/ui";
 
 interface NavbarProps {
-  page?: "home" | "registration" | "syllabus";
+  page?: "home" | "registration" | "syllabus" | "legal";
 }
 
 const PUBLIC_LINKS = [

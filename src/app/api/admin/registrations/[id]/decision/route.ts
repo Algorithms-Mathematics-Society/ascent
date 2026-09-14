@@ -150,7 +150,7 @@ export async function PATCH(
       });
 
       // Queue the push to AMS Access *inside* this transaction. An HTTP call
-      // cannot join one — made inside, a retry re-sends it; made after, a
+      // cannot join one. Made inside, a retry re-sends it; made after, a
       // crash between commit and call loses the registrant silently, approved
       // here and absent there with nothing to say so. Writing an outbox row
       // instead means either both land or neither does, and an unsent sync is

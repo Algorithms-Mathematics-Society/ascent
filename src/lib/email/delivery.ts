@@ -7,7 +7,7 @@ import { randomUUID } from "node:crypto";
 import { adminDb } from "../firebaseAdmin";
 import { normalizeEmail } from "../validators";
 import { buildEmailMessage, EMAIL_OUTBOX, type EmailJob } from "./messages";
-import { getEmailConfig, sendResendEmail, ResendRejectedError, type EmailPayload } from "./resend";
+import { getEmailConfig, sendResendEmail, ResendRejectedError, safeEmailErrorCode, type EmailPayload } from "./resend";
 
 const LEASE_MS = 120_000;
 const NEVER = Number.MAX_SAFE_INTEGER;
@@ -131,7 +131,7 @@ export async function deliverEmail(id: string): Promise<string> {
     await finish({ status, due_at: NEVER, provider_id: providerId, accepted_at: Date.now(), request_email: null, uncertain: false, last_error: null });
     return status;
   } catch (error) {
-    const code = error instanceof Error ? error.message : "provider_error";
+    const code = safeEmailErrorCode(error);
     // A malformed message will not heal by retrying, and must not stop every
     // daily batch ahead of otherwise valid mail. Account/rate failures can heal.
     const permanent = error instanceof ResendRejectedError && [400, 404, 422].includes(error.statusCode);

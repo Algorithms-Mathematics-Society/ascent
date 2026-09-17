@@ -1,11 +1,11 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-const provider = vi.hoisted(() => ({ send: vi.fn() }));
+const provider = vi.hoisted(() => ({ send: vi.fn(), constructorError: null as Error | null }));
 vi.mock("server-only", () => ({}));
-vi.mock("resend", () => ({ Resend: class { emails = { send: provider.send }; } }));
+vi.mock("resend", () => ({ Resend: class { constructor() { if (provider.constructorError) throw provider.constructorError; } emails = { send: provider.send }; } }));
 import { buildEmailMessage, emailJob, confirmationEmailId, decisionEmailId } from "../src/lib/email/messages";
-import { getEmailConfig, sendResendEmail, ResendRejectedError } from "../src/lib/email/resend";
+import { getEmailConfig, sendResendEmail, ResendRejectedError, safeEmailErrorCode } from "../src/lib/email/resend";
 
-beforeEach(() => { vi.resetAllMocks(); vi.stubEnv("RESEND_API_KEY", ""); vi.stubEnv("RESEND_FROM_EMAIL", ""); vi.stubEnv("SITE_URL", "https://ascent.amshq.in"); });
+beforeEach(() => { vi.resetAllMocks(); provider.constructorError = null; vi.stubEnv("RESEND_API_KEY", ""); vi.stubEnv("RESEND_FROM_EMAIL", ""); vi.stubEnv("SITE_URL", "https://ascent.amshq.in"); });
 afterEach(() => vi.unstubAllEnvs());
 
 describe("email configuration and templates", () => {
@@ -19,6 +19,11 @@ describe("email configuration and templates", () => {
     vi.stubEnv("RESEND_API_KEY", "re_test"); vi.stubEnv("RESEND_FROM_EMAIL", "Ascent <notifications@amshq.in>");
     expect(getEmailConfig()?.from).toBe("Ascent <notifications@amshq.in>");
     vi.stubEnv("SITE_URL", "javascript:alert(1)"); expect(getEmailConfig()).toBeNull();
+  });
+  it.each(["re_first\nre_second", "re_first re_second", "Bearer re_test", "[SENSITIVE]", "re_test\r\nInjected: header"])("rejects malformed API-key configuration without calling the SDK", apiKey => {
+    vi.stubEnv("RESEND_API_KEY", apiKey); vi.stubEnv("RESEND_FROM_EMAIL", "Ascent <notifications@amshq.in>");
+    expect(getEmailConfig()).toBeNull();
+    expect(provider.send).not.toHaveBeenCalled();
   });
   it("sends the reference and path without inventing candidate sign-in", () => {
     const message = buildEmailMessage(emailJob("REGISTRATION_CONFIRMATION", "candidate"), { reference: "ASC-TEST", qualificationPath: "QUALIFIER" }, "https://ascent.amshq.in");
@@ -44,6 +49,29 @@ describe("Resend transport", () => {
     provider.send.mockResolvedValue({ data: { id: "resend-test" }, error: null });
     expect(await sendResendEmail("re_test", payload, "test-key")).toBe("resend-test");
     expect(provider.send).toHaveBeenCalledWith(payload, { idempotencyKey: "test-key" });
+  });
+  it("rejects malformed credentials before constructing provider headers", async () => {
+    await expect(sendResendEmail("re_first\nre_second", payload, "test-key")).rejects.toThrow("invalid_email_configuration");
+    expect(provider.send).not.toHaveBeenCalled();
+  });
+  it("redacts constructor errors before any send attempt", async () => {
+    provider.constructorError = new Error('Headers.append: "Bearer re_PRIVATE_TEST_SECRET"');
+    await expect(sendResendEmail("re_test", payload, "test-key")).rejects.toThrow(/^provider_transport_error$/);
+    expect(provider.send).not.toHaveBeenCalled();
+  });
+  it.each([false, true])("redacts SDK exceptions that echo credentials or recipient data (sync: %s)", async synchronous => {
+    const failure = new Error('Headers.append: "Bearer re_PRIVATE_TEST_SECRET\nRecipient test@example.test"');
+    if (synchronous) provider.send.mockImplementation(() => { throw failure; });
+    else provider.send.mockRejectedValue(failure);
+    await expect(sendResendEmail("re_test", payload, "test-key")).rejects.toThrow(/^provider_transport_error$/);
+  });
+  it("allowlists error codes at both provider and persistence boundaries", async () => {
+    const sensitive = "re_PRIVATE_TEST_SECRET recipient@example.test";
+    provider.send.mockResolvedValue({ error: { name: sensitive, statusCode: 429, message: sensitive } });
+    await expect(sendResendEmail("re_test", payload, "test-key")).rejects.toThrow(/^provider_error$/);
+    expect(safeEmailErrorCode(new Error(sensitive))).toBe("provider_transport_error");
+    expect(safeEmailErrorCode(new Error("provider_timeout"))).toBe("provider_timeout");
+    expect(new ResendRejectedError(sensitive, 429).message).toBe("provider_error");
   });
   it("distinguishes a definite provider rejection from an ambiguous timeout", async () => {
     provider.send.mockResolvedValue({ error: { name: "rate_limit_exceeded", statusCode: 429, message: "Recipient test@example.test" } });

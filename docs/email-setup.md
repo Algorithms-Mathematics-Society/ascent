@@ -28,6 +28,12 @@ disabled until both the API key and sender address are present and valid.
    Repeat until the backlog is processed. A failure can end a batch early.
    Check the Resend dashboard and a controlled test inbox before launch.
 
+Copy exactly one Resend API-key value into `RESEND_API_KEY`. Repeated keys,
+embedded whitespace and copied placeholder values disable sending before the
+SDK constructs request headers. Application diagnostics contain allowlisted
+error codes only, never raw SDK exception messages. `provider_transport_error`
+indicates an uncertain transport failure; check Resend before manually resending.
+
 Adding real configuration enables actual emails on new submissions and admin
 decisions. No real email was sent during implementation or automated testing.
 

@@ -69,6 +69,16 @@ describe("durable email delivery with real Firestore and mocked Resend", () => {
     expect((await jobRef(id).get()).data()?.attempts).toBe(1);
   }, 30000);
 
+  it("stores a safe code when the SDK throws an error containing private headers", async () => {
+    const id = await confirmation();
+    send.mockRejectedValueOnce(new Error('Headers.append: "Bearer re_PRIVATE_TEST_SECRET"'));
+    expect(await deliverEmail(id)).toBe("RETRY");
+    const stored = (await jobRef(id).get()).data();
+    expect(stored?.last_error).toBe("provider_transport_error");
+    expect(stored?.uncertain).toBe(true);
+    expect(JSON.stringify(stored)).not.toContain("re_PRIVATE_TEST_SECRET");
+  });
+
   it("retries an ambiguous response with the identical payload and idempotency key", async () => {
     const id = await confirmation();
     send.mockResolvedValueOnce({ data: null, error: { name: "application_error", statusCode: 500 } });

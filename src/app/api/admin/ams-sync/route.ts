@@ -136,7 +136,15 @@ export async function POST(request: NextRequest) {
         skipped++;
         continue;
       }
-      const payload = buildPayload(subjectId, application, pii, consent);
+      // The decision comes off the outbox row, which was written in the same
+      // transaction as the decision itself, rather than off the application
+      // document the guard above just re-read. AMS queues the approval email
+      // on APPROVED and nothing otherwise.
+      const row = doc.data();
+      const payload = buildPayload(subjectId, application, pii, consent, {
+        decision: typeof row.decision === "string" ? row.decision : "",
+        contestUid: process.env.AMS_CONTEST_UID || "",
+      });
 
       if ("error" in payload) {
         throw new Error(payload.error);

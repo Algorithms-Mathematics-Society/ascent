@@ -51,6 +51,13 @@ export type AmsIngestPayload = {
   college_verification_status?: string;
   consent_version?: string;
   consent_granted_at?: string | null;
+  // The admin's decision. AMS queues the approval email on "APPROVED" and
+  // nothing otherwise — a waitlisted person is provisioned silently and told
+  // when they are promoted.
+  decision?: string;
+  // Which contest the approval is for, so the email can name it. Optional;
+  // set `AMS_CONTEST_UID` once the edition's contest exists on the AMS side.
+  contest_uid?: string | null;
 };
 
 export type AmsIngestResult = {
@@ -114,6 +121,7 @@ export function buildPayload(
   application: Record<string, unknown> | undefined,
   pii: Record<string, unknown> | undefined,
   consent: Record<string, unknown> | undefined,
+  options: { decision?: string; contestUid?: string } = {},
 ): AmsIngestPayload | { error: string } {
   const app = application ?? {};
   const person = pii ?? {};
@@ -151,6 +159,10 @@ export function buildPayload(
     college_verification_status: firstString(app.college_verification_status),
     consent_version: firstString(grant.policy_version),
     consent_granted_at: toIso(grant.granted_at),
+    // From the outbox row, not the application: the row was written in the
+    // same transaction as the decision, so the two cannot disagree.
+    decision: firstString(options.decision, app.admin_decision),
+    contest_uid: firstString(options.contestUid) || null,
   };
 }
 

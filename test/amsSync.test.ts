@@ -153,6 +153,34 @@ describe("assembling a payload from three collections", () => {
   });
 });
 
+describe("carrying the decision across", () => {
+  it("takes the decision from the outbox row, which was written with it", () => {
+    // The outbox row and the decision landed in one transaction; the
+    // application document could in principle have been edited since.
+    const payload = buildPayload("s1", APPLICATION, PII, CONSENT, { decision: "APPROVED" });
+    if ("error" in payload) throw new Error(payload.error);
+    expect(payload.decision).toBe("APPROVED");
+  });
+
+  it("falls back to the application's recorded decision", () => {
+    const payload = buildPayload("s1", { ...APPLICATION, admin_decision: "WAITLISTED" }, PII, CONSENT);
+    if ("error" in payload) throw new Error(payload.error);
+    expect(payload.decision).toBe("WAITLISTED");
+  });
+
+  it("names the contest only when one is configured", () => {
+    const without = buildPayload("s1", APPLICATION, PII, CONSENT);
+    if ("error" in without) throw new Error(without.error);
+    expect(without.contest_uid).toBeNull();
+
+    const withContest = buildPayload("s1", APPLICATION, PII, CONSENT, {
+      contestUid: "6f0c3c2e-0000-4000-8000-000000000000",
+    });
+    if ("error" in withContest) throw new Error(withContest.error);
+    expect(withContest.contest_uid).toBe("6f0c3c2e-0000-4000-8000-000000000000");
+  });
+});
+
 describe("refusing to send something the far side will reject", () => {
   it("an email-less record is an error, not a request", () => {
     // Learning a record is incomplete from a remote 422 is a much worse way

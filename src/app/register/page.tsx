@@ -1,6 +1,7 @@
 import RegistrationShell from "@/components/register/RegistrationShell";
 import RegistrationForm from "@/components/register/RegistrationForm";
 import { Button } from "@/components/ui";
+import { registrationHasOpened } from "@/lib/registrationLaunch";
 import { getCachedRegistrationAvailability } from "@/lib/registrationSettingsData";
 
 export const dynamic = "force-dynamic";
@@ -38,7 +39,11 @@ async function RegistrationContent() {
       </section>
     );
   }
-  return <RegistrationForm />;
+  // This page is force-dynamic, so the gate is resolved per request and
+  // handed to the client component. Without it the server always renders
+  // the locked state and an open registration flashes "not open yet"
+  // until hydration.
+  return <RegistrationForm initiallyOpen={registrationHasOpened()} />;
 }
 
 export default function RegisterPage() {

@@ -2,6 +2,7 @@ import "server-only";
 import { randomUUID } from "node:crypto";
 import { adminDb } from "./firebaseAdmin";
 import { consumeSlidingWindow, sha256 } from "./rateLimit";
+import logger, { genReqId } from "./logger";
 
 export type BotAction = "registration" | "reminder" | "status_link";
 export type BotResult = { ok: true } | { ok: false; status: number; error: string };
@@ -28,7 +29,9 @@ export async function verifyBot(request: Request, token: unknown, action: BotAct
   }
   try {
     // Bound requests before calling the external verifier, including bad tokens.
-    const limit = await consumeSlidingWindow(adminDb, "_rate_limits_bot", `${action}_${sha256(clientIp(request))}`, action === "status_link" ? 20 : 180, 3600000);
+    // The non-status ceiling is high because a whole campus can share one NAT egress IP. This counter only guards
+    // calls to Cloudflare's free verifier: Turnstile plus the register route's per-email and per-phone limits are the real abuse control.
+    const limit = await consumeSlidingWindow(adminDb, "_rate_limits_bot", `${action}_${sha256(clientIp(request))}`, action === "status_link" ? 20 : 1000, 3600000);
     if (limit.overLimit) return { ok: false, status: 429, error: "Too many requests. Please try again later." };
     const response = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", {
       method: "POST", headers: { "Content-Type": "application/json" }, cache: "no-store",
@@ -42,5 +45,16 @@ export async function verifyBot(request: Request, token: unknown, action: BotAct
     }
     // Cloudflare tokens are single-use. No local cache can turn a replay into success.
     return { ok: true };
-  } catch { return unavailable(); }
+  } catch (error) {
+    // Returning 503 with no trace is undiagnosable during a launch burst. The
+    // likely cause is Firestore contention on the shared per-IP counter rather
+    // than abuse, and that is worth being able to tell apart at 6am.
+    logger.error(
+      "bot_protection",
+      "verification_unavailable",
+      { reqId: genReqId(), actorId: sha256(clientIp(request)), detail: { action }, status: "failed" },
+      error,
+    );
+    return unavailable();
+  }
 }

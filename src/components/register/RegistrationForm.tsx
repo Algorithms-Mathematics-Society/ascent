@@ -508,9 +508,20 @@ function SuccessReceipt({ receipt }: { receipt: RegistrationReceipt }) {
   );
 }
 
-export default function RegistrationForm() {
+type RegistrationFormProps = {
+  /**
+   * The gate value the server computed for this request. Seeding state with
+   * it keeps the server HTML and the browser's first render identical, so
+   * hydration stays quiet and an open gate never flashes the locked copy.
+   */
+  initiallyOpen: boolean;
+};
+
+export default function RegistrationForm({
+  initiallyOpen,
+}: RegistrationFormProps) {
   const [step, setStep] = useState<RegistrationStep>(1);
-  const [registrationOpen, setRegistrationOpen] = useState(false);
+  const [registrationOpen, setRegistrationOpen] = useState(initiallyOpen);
   const [values, setValues] = useState<FormValues>(INITIAL_VALUES);
   const [selectedCollege, setSelectedCollege] = useState<CollegeResult | null>(
     null,

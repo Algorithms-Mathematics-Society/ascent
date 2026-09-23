@@ -11,8 +11,6 @@ vi.hoisted(() => {
   process.env.RESEND_API_KEY = "";
   process.env.RESEND_FROM_EMAIL = "";
 });
-const ams = vi.hoisted(() => ({ post: vi.fn(async () => ({ student_uid: "mock-student", handle: "mock-handle", outcome: "created" })) }));
-vi.mock("@/lib/amsSync", async (importOriginal) => ({ ...(await importOriginal<typeof import("../src/lib/amsSync")>()), postToAms: ams.post }));
 vi.mock("@/lib/botProtection", () => ({ verifyBot: vi.fn(async () => ({ ok: true })) }));
 vi.mock("server-only", () => ({}));
 vi.mock("next/cache", () => ({ unstable_cache: (fn: unknown) => fn, revalidateTag: vi.fn(), revalidatePath: vi.fn() }));
@@ -23,7 +21,6 @@ vi.mock("@/lib/logger", () => ({ default: { error: vi.fn(), warn: vi.fn(), info:
 import { verifyBot } from "../src/lib/botProtection";
 import { PRIVACY_VERSION, TERMS_VERSION, PARTICIPATION_NOTICE } from "../src/content/legal";
 import { adminDb } from "../src/lib/firebaseAdmin";
-import { POST as syncAms } from "../src/app/api/admin/ams-sync/route";
 import { POST as remind } from "../src/app/api/reminders/route";
 import { POST as register } from "../src/app/api/register/route";
 import { PATCH as decision } from "../src/app/api/admin/registrations/[id]/decision/route";
@@ -35,9 +32,6 @@ import { ADMIN_CSRF_COOKIE, ADMIN_SESSION_COOKIE } from "../src/lib/adminSecurit
 
 beforeEach(async () => {
   vi.mocked(verifyBot).mockResolvedValue({ ok: true });
-  ams.post.mockReset().mockResolvedValue({ student_uid: "mock-student", handle: "mock-handle", outcome: "created" });
-  process.env.AMS_API_URL = "https://mock.example.test";
-  process.env.AMS_INGEST_API_KEY = "mock-only";
   const result = await fetch(`http://${process.env.FIRESTORE_EMULATOR_HOST}/emulator/v1/projects/demo-ascent-concurrency/databases/(default)/documents`, { method: "DELETE" });
   if (!result.ok) throw new Error("Could not clear isolated emulator project.");
   await adminDb.collection("admin_config").doc("registration").set({ is_open: true, capacity: null, accepted_count: 0, revision: 0 });
@@ -66,40 +60,13 @@ function decisionRequest(body: Record<string, unknown>) {
 }
 
 describe("concurrent submissions against real Firestore transactions", () => {
-  it("cancels the queued AMS transfer when an approval becomes a rejection", async () => {
+  it("records a corrected decision without leaving the first one behind", async () => {
     const id = randomUUID();
     await adminDb.collection("applications").doc(id).set({ admin_decision: "PENDING" });
     await adminDb.collection("pii").doc(id).set({ email: "test@example.test", legal_name: "Test Student" });
     expect((await decision(decisionRequest({ decision: "APPROVED", expectedDecision: "PENDING" }), { params: { id } })).status).toBe(200);
     expect((await decision(decisionRequest({ decision: "REJECTED", expectedDecision: "APPROVED", reason: "Corrected after review" }), { params: { id } })).status).toBe(200);
-    await syncAms(decisionRequest({}));
-    expect(ams.post).not.toHaveBeenCalled();
-    expect((await adminDb.collection("ams_sync_outbox").doc(id).get()).data()?.status).toBe("SKIPPED");
-  });
-
-  it.each(["REJECTED", "DELETED", "WITHDRAWN"])("skips legacy queued AMS transfers for %s applications", async state => {
-    const id = randomUUID();
-    await adminDb.collection("applications").doc(id).set({ admin_decision: state === "REJECTED" ? state : "APPROVED", state });
-    await adminDb.collection("pii").doc(id).set({ email: "test@example.test", legal_name: "Test Student" });
-    await adminDb.collection("ams_sync_outbox").doc(id).set({ status: "PENDING", decision: "APPROVED", attempts: 0 });
-    await syncAms(decisionRequest({}));
-    expect(ams.post).not.toHaveBeenCalled();
-    expect((await adminDb.collection("ams_sync_outbox").doc(id).get()).data()?.status).toBe("SKIPPED");
-  });
-
-  it.each([false, true])("does not overwrite a corrected AMS job when an older transfer finishes (failed: %s)", async failed => {
-    const id = randomUUID();
-    await adminDb.collection("applications").doc(id).set({ admin_decision: "APPROVED" });
-    await adminDb.collection("pii").doc(id).set({ email: "test@example.test", legal_name: "Test Student" });
-    const outbox = adminDb.collection("ams_sync_outbox").doc(id);
-    await outbox.set({ status: "PENDING", decision: "APPROVED", attempts: 0 });
-    ams.post.mockImplementationOnce(async () => {
-      await outbox.update({ status: "SKIPPED", decision: "REJECTED" });
-      if (failed) throw new Error("Mock transfer failed");
-      return { student_uid: "mock-student", handle: "mock-handle", outcome: "created" };
-    });
-    expect((await syncAms(decisionRequest({}))).status).toBe(200);
-    expect((await outbox.get()).data()?.status).toBe("SKIPPED");
+    expect((await adminDb.collection("applications").doc(id).get()).data()?.admin_decision).toBe("REJECTED");
   });
 
   it("commits only one decision email when admins decide the same application concurrently", async () => {
@@ -109,16 +76,14 @@ describe("concurrent submissions against real Firestore transactions", () => {
     expect(responses.filter(r => r.status === 200)).toHaveLength(1);
     expect(responses.filter(r => r.status === 409)).toHaveLength(9);
     expect(await count("email_outbox")).toBe(1);
-    expect(await count("ams_sync_outbox")).toBe(1);
   }, 60000);
 
-  it("commits bulk decisions and both outboxes together", async () => {
+  it("commits bulk decisions and their emails together", async () => {
     const ids = Array.from({ length: 25 }, () => randomUUID());
     await Promise.all(ids.map(id => adminDb.collection("applications").doc(id).set({ admin_decision: "PENDING" })));
     const body = { applicationIds: ids, decision: "WAITLISTED", reason: "Test batch decision reason" };
     expect((await bulkDecision(decisionRequest(body))).status).toBe(200);
     expect(await count("email_outbox")).toBe(25);
-    expect(await count("ams_sync_outbox")).toBe(25);
     expect((await bulkDecision(decisionRequest(body))).status).toBe(409);
     expect(await count("email_outbox")).toBe(25);
   }, 60000);

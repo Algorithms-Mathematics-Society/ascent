@@ -1,6 +1,5 @@
 import { EMAIL_OUTBOX, decisionEmailId, emailJob } from "@/lib/email/messages";
 import { tryDeliverEmail } from "@/lib/email/delivery";
-import { OUTBOX_COLLECTION, outboxEntry } from "@/lib/amsSync";
 import { readBoundedJson } from "@/lib/requestBody";
 import { randomUUID } from "node:crypto";
 import { revalidatePath } from "next/cache";
@@ -137,7 +136,6 @@ export async function PATCH(request: NextRequest) {
         transaction.create(adminDb.collection(EMAIL_OUTBOX).doc(mailId), {
           ...emailJob("DECISION", application.id), decision: parsed.value.decision, revision,
         });
-        transaction.set(adminDb.collection(OUTBOX_COLLECTION).doc(application.id), outboxEntry(application.id, parsed.value.decision, timestamp));
         transaction.create(auditRef, {
           subject_id: application.id,
           event:

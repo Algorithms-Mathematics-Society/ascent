@@ -1,4 +1,4 @@
-import { REGISTRATION_OPENS_AT, registrationOpensAtLabel } from "../registrationLaunch";
+import { REGISTRATION_OPENS_AT, registrationHasOpened, registrationOpensAtLabel } from "../registrationLaunch";
 
 export const EMAIL_OUTBOX = "email_outbox";
 export type EmailKind = "REGISTRATION_CONFIRMATION" | "DECISION" | "REGISTRATION_REMINDER" | "STATUS_ACCESS";
@@ -39,7 +39,7 @@ export function buildEmailMessage(job: EmailJob, data: {
   if (job.kind === "REGISTRATION_REMINDER") {
     return {
       subject: "Ascent ’26 registration is open",
-      text: `You asked for an Ascent ’26 registration reminder.\n\nRegistration opens on ${registrationOpensAtLabel()}. Visit the registration page for its current status and to submit your entry:\n${siteUrl}/register\n\n${footer}`,
+      text: `You asked for an Ascent ’26 registration reminder.\n\n${registrationHasOpened() ? `Registration opened on ${registrationOpensAtLabel()}. The entry form is live now:` : `Registration opens on ${registrationOpensAtLabel()}. Visit the registration page for its current status and to submit your entry:`}\n${siteUrl}/register\n\n${footer}`,
     };
   }
   const reference = data.reference || "Reference unavailable";

@@ -21,9 +21,25 @@ const jetbrains = localFont({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://ascent.amshq.in"),
   icons: { icon: "/ascent-logo.svg" },
   title: site.seo.title,
   description: site.seo.description,
+  openGraph: {
+    type: "website",
+    siteName: "Ascent",
+    title: site.seo.title,
+    description: site.seo.description,
+    url: "/",
+    locale: "en_IN",
+  },
+  // summary, not summary_large_image: there is no share image yet, and the
+  // large card renders as an empty panel without one.
+  twitter: {
+    card: "summary",
+    title: site.seo.title,
+    description: site.seo.description,
+  },
 };
 
 export default function RootLayout({

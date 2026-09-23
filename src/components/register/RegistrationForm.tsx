@@ -414,7 +414,7 @@ function StageFrame({
   );
 }
 
-function SuccessReceipt({ receipt }: { receipt: RegistrationReceipt }) {
+function SuccessReceipt({ receipt, email }: { receipt: RegistrationReceipt; email: string }) {
   const headingRef = useRef<HTMLHeadingElement>(null);
 
   useEffect(() => {
@@ -450,7 +450,15 @@ function SuccessReceipt({ receipt }: { receipt: RegistrationReceipt }) {
         </div>
 
         <div className="p-6 sm:p-8">
-          <p className="mb-5 text-sm"><a href="/register/status" className="underline underline-offset-4">Check your entry status</a> using a secure link sent to your email.</p>
+          <p className="mb-3 text-sm"><a href="/register/status" className="underline underline-offset-4">Check your entry status</a> using a secure link sent to your email.</p>
+          <p className="mb-5 text-sm leading-6 text-ascent-muted">
+            A confirmation has been sent to{" "}
+            <span className="font-medium text-ascent-ink">{email}</span>. If it
+            does not arrive, check your spam folder. If that address is wrong,
+            email{" "}
+            <a href="mailto:team@amshq.in" className="underline underline-offset-4">team@amshq.in</a>{" "}
+            today with your reference.
+          </p>
           <h3 className="text-lg font-semibold text-ascent-ink">
             Entry receipt
           </h3>
@@ -885,7 +893,7 @@ export default function RegistrationForm({
     }
   }
 
-  if (receipt) return <SuccessReceipt receipt={receipt} />;
+  if (receipt) return <SuccessReceipt receipt={receipt} email={values.email} />;
 
   const institutionLabel = selectedCollege
     ? `${selectedCollege.canonical_name}${selectedCollege.campus ? ` · ${selectedCollege.campus}` : ""}`
@@ -1520,7 +1528,9 @@ export default function RegistrationForm({
           </fieldset>
 
           <label className="mt-5 flex items-start gap-3 text-sm leading-6">
-            <input id="terms_accepted" type="checkbox" required checked={values.termsAccepted} disabled={submitting || !registrationOpen}
+            <input id="terms_accepted" name="terms_accepted" type="checkbox" required checked={values.termsAccepted} disabled={submitting || !registrationOpen}
+              aria-invalid={Boolean(fieldErrors.terms_accepted)}
+              aria-describedby={fieldErrors.terms_accepted ? "terms_accepted-error" : undefined}
               onChange={event => updateValue("termsAccepted", event.target.checked, "terms_accepted")} className="mt-1 size-4 shrink-0 accent-ascent-brand" />
             <span>I agree to the <a href={TERMS_URL} target="_blank" rel="noreferrer" className="underline">competition terms</a>.</span>
           </label>

@@ -4,6 +4,7 @@ import { EMAIL_OUTBOX, confirmationEmailId, emailJob } from "@/lib/email/message
 import { tryDeliverEmail } from "@/lib/email/delivery";
 import { readBoundedBody, RequestBodyTooLarge } from "@/lib/requestBody";
 import { randomUUID } from "node:crypto";
+import { waitUntil } from "@vercel/functions";
 import { revalidateTag } from "next/cache";
 import { type NextRequest, NextResponse } from "next/server";
 import { getEligibleInstitutionById } from "@/content/institutions";
@@ -792,7 +793,7 @@ export async function POST(req: NextRequest) {
     status: "ok",
     durationMs: Date.now() - startedAt,
   });
-  await tryDeliverEmail(confirmationEmailId(subjectId));
+  waitUntil(tryDeliverEmail(confirmationEmailId(subjectId)));
   return successResponse(receipt);
 }
 

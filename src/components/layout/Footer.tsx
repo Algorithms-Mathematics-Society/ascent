@@ -53,6 +53,7 @@ export default function Footer({
         <div className="mx-auto flex max-w-7xl flex-col gap-2 px-4 py-5 text-sm text-ascent-muted sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
           <Brand href={homeHref} />
           <p>Competition registration · Ascent by AMS</p>
+          <p><a href="mailto:team@amshq.in" className="inline-flex min-h-11 items-center underline">Help: team@amshq.in</a></p>
           <LegalLinks />
         </div>
       </footer>

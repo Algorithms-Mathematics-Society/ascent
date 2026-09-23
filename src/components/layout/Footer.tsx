@@ -89,7 +89,7 @@ export default function Footer({
         </div>
 
         <div className="mt-8 flex flex-col gap-2 border-t border-ascent-border pt-5 text-xs text-ascent-muted sm:flex-row sm:items-center sm:justify-between">
-          <p>&copy; 2026 Ascent. Organised by the <a href="https://www.linkedin.com/company/algorithms-mathematics-society/" target="_blank" rel="noreferrer" className="underline">Algorithms &amp; Mathematics Society</a>, Mumbai.</p>
+          <p>&copy; 2026 Ascent. Organised by the <a href="https://www.linkedin.com/company/algorithms-mathematics-society/" target="_blank" rel="noreferrer" className="underline">Algorithms &amp; Mathematics Society</a>, Mumbai. <a href="https://discord.gg/fgm4CnBKzV" target="_blank" rel="noreferrer" className="underline">Discord</a></p>
           <LegalLinks />
           <p><a href="mailto:team@amshq.in" className="inline-flex min-h-11 items-center underline">Help: team@amshq.in</a><br /><a href="mailto:partners@amshq.in" className="inline-flex min-h-11 items-center underline">Sponsors: partners@amshq.in</a></p>
         </div>

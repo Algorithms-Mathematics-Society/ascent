@@ -1535,7 +1535,7 @@ export default function RegistrationForm({
             <span>I agree to the <a href={TERMS_URL} target="_blank" rel="noreferrer" className="underline">competition terms</a>.</span>
           </label>
           {fieldErrors.terms_accepted ? <p id="terms_accepted-error" role="alert" className="mt-2 text-sm text-ascent-danger">{fieldErrors.terms_accepted}</p> : null}
-          <p className="mt-3 text-xs leading-5 text-ascent-muted">Under 18? Ask a parent or guardian to contact <a href="mailto:team@amshq.in" className="underline">team@amshq.in</a> before submitting so AMS can arrange permission.</p>
+          <p className="mt-3 text-xs leading-5 text-ascent-muted">Under 18? A parent or guardian must agree to your participation. Guardian consent is required before Round 3, which is held on site in Mumbai and involves travel. Questions: <a href="mailto:team@amshq.in" className="underline">team@amshq.in</a>.</p>
           {step === 3 && registrationOpen ? <BotCheck action="registration" onToken={setBotToken} resetKey={botReset} /> : null}
           <div className="mt-7 flex flex-col gap-3 border-t border-ascent-border pt-5 sm:flex-row sm:items-center sm:justify-between">
             <Button

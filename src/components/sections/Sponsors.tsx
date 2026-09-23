@@ -5,6 +5,10 @@ import { Container, Section, SectionHeading } from "@/components/ui";
 /**
  * Partner credit. The firm is named plainly and the tier label is exact:
  * a sponsor credit is contractual surface, not decoration.
+ *
+ * The supplied Jane_Street.svg is a reversed (white) mark, so it sits on a
+ * dark panel. That is the asset used as intended. Recolouring a sponsor's
+ * logo to suit our palette is not ours to do.
  */
 export default function Sponsors() {
   return (
@@ -30,7 +34,7 @@ export default function Sponsors() {
             target="_blank"
             rel="noreferrer"
             aria-label="Jane Street, Gold Sponsor of Ascent"
-            className="inline-flex min-h-11 items-center rounded-control px-4 py-2 transition-opacity hover:opacity-75 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ascent-focus"
+            className="inline-flex min-h-11 items-center rounded-panel bg-ascent-ink px-10 py-6 transition-opacity hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ascent-focus"
           >
             <Image
               src="/Jane_Street.svg"
@@ -38,7 +42,7 @@ export default function Sponsors() {
               width={302}
               height={80}
               unoptimized
-              className="h-9 w-auto sm:h-11"
+              className="h-8 w-auto sm:h-10"
             />
           </a>
         </div>

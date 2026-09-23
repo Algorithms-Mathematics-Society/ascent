@@ -5,6 +5,7 @@ import {
   Hero,
   About,
   Tracks,
+  Sponsors,
   Timeline,
   RegistrationCta,
   Faq,
@@ -18,6 +19,7 @@ export default function Home() {
         <Hero />
         <About />
         <Tracks />
+        <Sponsors />
         <Timeline />
         <RegistrationCta />
         <Faq />

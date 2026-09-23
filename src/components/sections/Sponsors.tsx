@@ -34,7 +34,7 @@ export default function Sponsors() {
             target="_blank"
             rel="noreferrer"
             aria-label="Jane Street, Gold Sponsor of Ascent"
-            className="inline-flex min-h-11 items-center rounded-panel bg-ascent-ink px-10 py-6 transition-opacity hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ascent-focus"
+            className="inline-flex min-h-11 items-center rounded-panel bg-ascent-ink px-12 py-8 sm:px-16 sm:py-10 transition-opacity hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ascent-focus"
           >
             <Image
               src="/Jane_Street.svg"
@@ -42,7 +42,7 @@ export default function Sponsors() {
               width={302}
               height={80}
               unoptimized
-              className="h-8 w-auto sm:h-10"
+              className="h-10 w-auto sm:h-14"
             />
           </a>
         </div>

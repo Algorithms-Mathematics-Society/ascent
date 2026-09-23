@@ -54,14 +54,14 @@ export const COMPETITION_ROUNDS: CompetitionRound[] = [
     number: "02",
     phase: "Hub optimization",
     participation: "Team",
-    setting: "Participating IIT hubs",
+    setting: "Partner campuses · To be announced",
     focus: "Profile, test, and improve code under a shared set of constraints.",
   },
   {
     number: "03",
     phase: "Codebase finale",
     participation: "Finalists",
-    setting: "IIT Bombay",
+    setting: "Mumbai · Tentative",
     focus: "Optimize a real codebase while preserving its required behaviour.",
   },
 ];
@@ -71,13 +71,13 @@ export const COMPETITION_ROUNDS: CompetitionRound[] = [
 export const TIMELINE: TimelinePhase[] = [
   {
     phase: "Registration opens",
-    timing: "24 September 2026",
-    body: "Submit your contact, education, and competition details. The registration closing date is yet to be announced.",
+    timing: "24 September 2026 · 06:00 IST",
+    body: "Submit your contact, education, and competition details. Registration closes on 20 October 2026.",
   },
   {
     phase: "Round 1: Proficiency",
-    timing: "24 October 2026",
-    body: "Online on AMS Access with remote proctoring. C++ proficiency, puzzles, and live debugging.",
+    timing: "24 October 2026 · 2:00 pm IST",
+    body: "Two hours, online on AMS Access with remote proctoring. C++ proficiency, puzzles, and live debugging.",
   },
   {
     phase: "Round 2: Implementation",
@@ -94,7 +94,7 @@ export const TIMELINE: TimelinePhase[] = [
 export const FAQ: FaqItem[] = [
   {
     q: "Who can register?",
-    a: "Anyone can register. Advancement depends on the qualification process and your contest results.",
+    a: "Registration is open to candidates in India and across the Asia-Pacific region. Seats for candidates outside India are limited to 100 for this edition. Advancement depends on the qualification process and your contest results.",
   },
   {
     q: "What determines my score?",
@@ -110,11 +110,15 @@ export const FAQ: FaqItem[] = [
   },
   {
     q: "When are registration and the competition rounds?",
-    a: "Registration opens on 24 September 2026. Round 1 is on 24 October and Round 2 on 6 December. Round 3 is planned for 20 December 2026 in Mumbai, with that date still tentative. The registration closing date is yet to be announced.",
+    a: "Registration opens on 24 September 2026 at 06:00 IST and closes on 20 October 2026. Round 1 is on 24 October at 2:00 pm IST and runs for two hours. Round 2 is on 6 December. Round 3 is planned for 20 December 2026 in Mumbai, with that date still tentative.",
   },
   {
     q: "What happens after I submit the form?",
-    a: "After you submit, the page confirms your registration and shows your entry reference. Save that reference and check that your email and mobile number are correct so the Ascent team can contact you.",
+    a: "Check your email and mobile number carefully before you submit, because they are how the Ascent team reaches you. After you submit, the page confirms your registration and shows your entry reference, and a confirmation email is sent to the address you gave. You can view your entry at any time from the entry status page. If anything is wrong, email team@amshq.in and we will reply within 24 to 48 hours.",
+  },
+  {
+    q: "What do I need to sit Round 1?",
+    a: "Round 1 runs on AMS Access, our proctored competition application. Windows, macOS and Linux are supported, and screen recording may be required. You can download AMS Access and test your setup from 15 October 2026, ahead of the round on 24 October. Full requirements are at https://www.amsaccess.com. If your machine cannot run it, email team@amshq.in and we will help you sort it out.",
   },
   {
     q: "Is there an entry fee?",

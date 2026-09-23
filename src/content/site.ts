@@ -9,7 +9,7 @@ export const site = {
   seo: {
     title: "Ascent | C++ Performance Competition",
     description:
-      "Ascent is a C++ optimization competition spanning an individual qualifier, team optimization at IIT hubs, and a real-codebase finale.",
+      "Ascent is a C++ optimization competition spanning an individual qualifier, team optimization at partner campuses, and a real-codebase finale.",
   },
 
   /**
@@ -21,7 +21,7 @@ export const site = {
   proof: {
     lead: "From the team behind AMS Derive",
     stats: [
-      { value: "600+", label: "competitors" },
+      { value: "2,500+", label: "registrants" },
       { value: "20+", label: "institutions" },
       { value: "On-site", label: "finals at an IIT hub" },
     ] satisfies ProofStat[],

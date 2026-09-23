@@ -48,7 +48,7 @@ export const COMPETITION_ROUNDS: CompetitionRound[] = [
     phase: "C++ qualifier",
     participation: "Individual",
     setting: "AMS Access",
-    focus: "Performance-focused C++ problems establish who advances.",
+    focus: "C++ proficiency, puzzles and live debugging. Correct answers and how quickly you submit them decide who advances.",
   },
   {
     number: "02",
@@ -98,7 +98,7 @@ export const FAQ: FaqItem[] = [
   },
   {
     q: "What determines my score?",
-    a: "Correctness comes first. Valid solutions are then measured against a common baseline, and performance improvement drives the ranking.",
+    a: "Correctness comes first: an incorrect solution does not score. In Round 1 your rank then comes from how quickly you submit correct answers. From Round 2 onward, valid solutions are measured against a common baseline and the performance improvement drives the ranking. The syllabus describes each round in detail.",
   },
   {
     q: "Do I need a team when I register?",

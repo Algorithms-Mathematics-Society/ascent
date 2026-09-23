@@ -88,6 +88,13 @@ export default function Footer({
           </nav>
         </div>
 
+        <div className="mt-8 flex flex-col gap-3 border-t border-ascent-border pt-5 sm:flex-row sm:items-center sm:gap-5">
+          <p className="font-mono text-xs uppercase tracking-[0.14em] text-ascent-muted">Gold Sponsor</p>
+          <a href="https://www.janestreet.com" target="_blank" rel="noreferrer" className="inline-flex min-h-11 items-center">
+            <Image src="/Jane_Street.svg" alt="Jane Street" width={151} height={40} unoptimized className="h-6 w-auto" />
+          </a>
+        </div>
+
         <div className="mt-8 flex flex-col gap-2 border-t border-ascent-border pt-5 text-xs text-ascent-muted sm:flex-row sm:items-center sm:justify-between">
           <p>&copy; 2026 Ascent. Organised by the <a href="https://www.linkedin.com/company/algorithms-mathematics-society/" target="_blank" rel="noreferrer" className="underline">Algorithms &amp; Mathematics Society</a>, Mumbai. <a href="https://discord.gg/fgm4CnBKzV" target="_blank" rel="noreferrer" className="underline">Discord</a></p>
           <LegalLinks />

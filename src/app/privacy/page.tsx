@@ -1,1 +1,1 @@
-export { default, metadata } from "./2026-09-14/page";
+export { default, metadata } from "./2026-09-24/page";

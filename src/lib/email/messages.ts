@@ -31,7 +31,7 @@ export function buildEmailMessage(job: EmailJob, data: {
   qualificationPath?: string;
   statusUrl?: string;
 }, siteUrl: string): { subject: string; text: string } {
-  const footer = "Algorithms & Mathematics Society (AMS)\nQuestions? Reply to this email.";
+  const footer = "Regards,\nAlgorithms & Mathematics Society (AMS)";
   if (job.kind === "STATUS_ACCESS") {
     if (!data.statusUrl) throw new Error("Status link missing.");
     return { subject: "Your Ascent ’26 entry status link", text: `Use this private link to view your entry status:\n${data.statusUrl}\n\nIt expires in 20 minutes and can be used once. Open it only on a device you trust. If you did not request this email, you can ignore it.\n\n${footer}` };

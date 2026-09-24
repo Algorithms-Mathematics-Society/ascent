@@ -19,8 +19,10 @@ export default function BotCheck({ action, onToken, resetKey = 0 }: {
   callback.current = onToken;
   const [ready, setReady] = useState(false);
   const [error, setError] = useState("");
+  const [widgetPlaced, setWidgetPlaced] = useState(false);
   useEffect(() => {
     callback.current("");
+    setWidgetPlaced(false);
     if (!siteKey || !ready || !target.current || !window.turnstile) return;
     setError("");
     const widget = window.turnstile.render(target.current, {
@@ -30,12 +32,16 @@ export default function BotCheck({ action, onToken, resetKey = 0 }: {
       "timeout-callback": () => { callback.current(""); setError("Verification timed out. Please retry."); },
       "error-callback": () => { callback.current(""); setError("Verification could not load. Check your connection and retry."); },
     });
+    setWidgetPlaced(true);
     return () => { window.turnstile?.remove(widget); };
   }, [action, ready, resetKey, siteKey]);
   if (!siteKey) return <p role="status" className="mt-3 text-sm text-ascent-muted">Online verification is being set up. Please try again later or contact <a className="underline" href="mailto:team@amshq.in">team@amshq.in</a>.</p>;
   return <div className="my-4 min-h-16">
     <Script id="ascent-turnstile" src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" strategy="afterInteractive" onReady={() => setReady(true)} onError={() => setError("Verification could not load. Please check your connection and reload.")} />
+    {/* The reserved box is blank while Cloudflare's script loads, so say so. It goes once the
+        widget fills the box, and it carries no margin so it stays inside min-h-16 and nothing shifts. */}
     <div ref={target} />
+    {!error && !widgetPlaced ? <p role="status" className="text-sm leading-5 text-ascent-muted">Loading the verification check. This usually takes a moment, and it rarely asks anything of you.</p> : null}
     {error ? <p role="alert" className="mt-2 text-sm text-ascent-danger">{error}</p> : null}
   </div>;
 }

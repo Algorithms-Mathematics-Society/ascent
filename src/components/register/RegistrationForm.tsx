@@ -143,6 +143,220 @@ const INITIAL_VALUES: FormValues = {
   termsAccepted: false,
 };
 
+/**
+ * Draft persistence.
+ *
+ * Stage 3 asks for a Google Drive link, so most candidates leave the page to
+ * fetch one. A backgrounded tab on a mid-range phone is a prime eviction
+ * candidate and the Android back gesture unmounts this component outright, so
+ * the answers so far are mirrored into storage and read back after mount.
+ *
+ * sessionStorage, not localStorage: the draft holds personal contact details
+ * and should die with the tab rather than sit on a shared device.
+ *
+ * The schema version lives in the key, so a later field change starts from a
+ * fresh key instead of restoring a shape this code no longer understands.
+ */
+export const DRAFT_STORAGE_KEY = "ascent:registration-draft:v1";
+const DRAFT_SCHEMA_VERSION = 1;
+const DRAFT_MAX_CHARS = 20_000;
+
+/**
+ * The consent flags are absent from this type on purpose: participation
+ * consent and terms acceptance are never written and never restored, so they
+ * have to be given deliberately on every visit.
+ */
+type DraftValues = Omit<FormValues, "contestConsent" | "termsAccepted">;
+
+type DraftTextField = Exclude<keyof DraftValues, "educationStage">;
+
+const DRAFT_TEXT_FIELDS: readonly DraftTextField[] = [
+  "legalName",
+  "email",
+  "phone",
+  "phoneCountryCode",
+  "currentStudyLevel",
+  "graduationYear",
+  "linkedinUrl",
+  "githubUrl",
+  "codeforcesHandle",
+  "resumeUrl",
+  "transcriptUrl",
+];
+
+export interface RegistrationDraft {
+  step: RegistrationStep;
+  values: FormValues;
+  selectedCollege: CollegeResult | null;
+  unlistedName: string;
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function isEducationStage(value: unknown): value is FormValues["educationStage"] {
+  return (
+    value === "" ||
+    EDUCATION_OPTIONS.some((option) => option.value === value)
+  );
+}
+
+function parseDraftCollege(value: unknown): CollegeResult | null {
+  if (!isRecord(value)) return null;
+  const { college_id, canonical_name, campus, tier } = value;
+  if (typeof college_id !== "string" || typeof canonical_name !== "string") {
+    return null;
+  }
+  if (campus !== null && typeof campus !== "string") return null;
+  if (tier !== "AUTO_QUALIFY" && tier !== "STANDARD") return null;
+  return { college_id, canonical_name, campus, tier };
+}
+
+/**
+ * Builds the stored payload field by field. The whitelist is the guarantee
+ * that consent, the submission token and the receipt can never reach storage:
+ * a field only ships if it is named here, and adding one to FormValues breaks
+ * this object until someone decides whether it belongs in a draft.
+ */
+function toStoredValues(values: FormValues) {
+  return {
+    legalName: values.legalName,
+    email: values.email,
+    phone: values.phone,
+    phoneCountryCode: values.phoneCountryCode,
+    educationStage: values.educationStage,
+    currentStudyLevel: values.currentStudyLevel,
+    graduationYear: values.graduationYear,
+    linkedinUrl: values.linkedinUrl,
+    githubUrl: values.githubUrl,
+    codeforcesHandle: values.codeforcesHandle,
+    resumeUrl: values.resumeUrl,
+    transcriptUrl: values.transcriptUrl,
+  } satisfies DraftValues;
+}
+
+export function serializeRegistrationDraft(draft: RegistrationDraft) {
+  return JSON.stringify({
+    version: DRAFT_SCHEMA_VERSION,
+    step: draft.step,
+    values: toStoredValues(draft.values),
+    selectedCollege: draft.selectedCollege,
+    unlistedName: draft.unlistedName,
+  });
+}
+
+/**
+ * Rebuilds a draft from stored text, or returns null. Anything that is not the
+ * exact expected shape is dropped rather than half-applied, and the consent
+ * flags are forced false whatever the stored text claims.
+ */
+export function parseRegistrationDraft(raw: string | null): RegistrationDraft | null {
+  if (typeof raw !== "string" || !raw || raw.length > DRAFT_MAX_CHARS) {
+    return null;
+  }
+
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(raw);
+  } catch {
+    return null;
+  }
+
+  if (!isRecord(parsed)) return null;
+  if (parsed.version !== DRAFT_SCHEMA_VERSION) return null;
+
+  const step = parsed.step;
+  if (step !== 1 && step !== 2 && step !== 3) return null;
+  if (typeof parsed.unlistedName !== "string") return null;
+
+  const stored = parsed.values;
+  if (!isRecord(stored)) return null;
+  if (!isEducationStage(stored.educationStage)) return null;
+
+  const values: FormValues = {
+    ...INITIAL_VALUES,
+    educationStage: stored.educationStage,
+  };
+  for (const field of DRAFT_TEXT_FIELDS) {
+    const value = stored[field];
+    if (typeof value !== "string") return null;
+    values[field] = value;
+  }
+  values.contestConsent = false;
+  values.termsAccepted = false;
+
+  let selectedCollege: CollegeResult | null = null;
+  if (parsed.selectedCollege !== null && parsed.selectedCollege !== undefined) {
+    selectedCollege = parseDraftCollege(parsed.selectedCollege);
+    if (!selectedCollege) return null;
+  }
+
+  return { step, values, selectedCollege, unlistedName: parsed.unlistedName };
+}
+
+/** True once there is anything worth coming back to. */
+export function hasDraftContent(draft: RegistrationDraft) {
+  if (draft.step !== 1) return true;
+  if (draft.selectedCollege !== null || draft.unlistedName !== "") return true;
+  if (draft.values.educationStage !== INITIAL_VALUES.educationStage) return true;
+  return DRAFT_TEXT_FIELDS.some(
+    (field) => draft.values[field] !== INITIAL_VALUES[field],
+  );
+}
+
+export function readRegistrationDraft(): RegistrationDraft | null {
+  if (typeof window === "undefined") return null;
+  let raw: string | null = null;
+  try {
+    raw = window.sessionStorage.getItem(DRAFT_STORAGE_KEY);
+  } catch {
+    return null;
+  }
+  return parseRegistrationDraft(raw);
+}
+
+export function writeRegistrationDraft(draft: RegistrationDraft) {
+  if (typeof window === "undefined") return;
+  try {
+    if (!hasDraftContent(draft)) {
+      window.sessionStorage.removeItem(DRAFT_STORAGE_KEY);
+      return;
+    }
+    window.sessionStorage.setItem(
+      DRAFT_STORAGE_KEY,
+      serializeRegistrationDraft(draft),
+    );
+  } catch {
+    // sessionStorage throws outright in some privacy modes and can fail on
+    // quota. A draft that cannot be saved must never break the live form.
+  }
+}
+
+/**
+ * What a change in form state should do to the stored draft. Split out of the
+ * effect so its two subtle rules can be tested: nothing is written before the
+ * restore pass has run, or the empty initial state would overwrite a saved
+ * draft on mount; and a receipt clears the draft instead of saving it.
+ */
+export function draftStorageAction(state: {
+  draftLoaded: boolean;
+  hasReceipt: boolean;
+}): "skip" | "write" | "clear" {
+  if (!state.draftLoaded) return "skip";
+  if (state.hasReceipt) return "clear";
+  return "write";
+}
+
+export function clearRegistrationDraft() {
+  if (typeof window === "undefined") return;
+  try {
+    window.sessionStorage.removeItem(DRAFT_STORAGE_KEY);
+  } catch {
+    // Same as above: storage is best effort, the form comes first.
+  }
+}
+
 const STEP_FIELDS: Record<RegistrationStep, FieldName[]> = {
   1: ["legal_name", "email", "phone"],
   2: [
@@ -543,6 +757,44 @@ export default function RegistrationForm({
   const [botToken, setBotToken] = useState("");
   const [botReset, setBotReset] = useState(0);
   const errorSummaryRef = useRef<HTMLDivElement>(null);
+  const [draftLoaded, setDraftLoaded] = useState(false);
+
+  // Storage is read here, after mount, and never during render or in a
+  // useState initialiser: the server HTML and the browser's first render stay
+  // identical, so hydration has nothing to disagree about.
+  useEffect(() => {
+    const restored = readRegistrationDraft();
+    if (restored) {
+      setValues(restored.values);
+      setSelectedCollege(restored.selectedCollege);
+      setUnlistedName(restored.unlistedName);
+      if (restored.step >= 2) {
+        setEducationSearchReady(true);
+        void loadCollegeTypeahead();
+      }
+      setStep(restored.step);
+    }
+    // Flipped even when there was nothing to restore, so the writer below can
+    // tell "not read yet" from "read, found nothing" and never overwrites a
+    // stored draft with the empty initial state.
+    setDraftLoaded(true);
+  }, []);
+
+  // Mirror the answers so far back into storage. A receipt means the entry is
+  // in, so the draft is cleared instead: a candidate who returns to this page
+  // should not meet their old answers.
+  useEffect(() => {
+    const action = draftStorageAction({
+      draftLoaded,
+      hasReceipt: receipt !== null,
+    });
+    if (action === "skip") return;
+    if (action === "clear") {
+      clearRegistrationDraft();
+      return;
+    }
+    writeRegistrationDraft({ step, values, selectedCollege, unlistedName });
+  }, [draftLoaded, receipt, step, values, selectedCollege, unlistedName]);
 
   useEffect(() => {
     let timer: number | undefined;
@@ -1105,6 +1357,18 @@ export default function RegistrationForm({
               <CollegeTypeahead
                 disabled={submitting}
                 error={fieldErrors.college}
+                /*
+                 * Seeds the search box with an institution that is already
+                 * chosen, so a restored draft does not show an empty box next
+                 * to a summary that names the institution. The typeahead
+                 * mounts in the same render that flips educationSearchReady,
+                 * which the restore effect sets alongside the institution
+                 * itself, so the restored choice is here in time. It is read
+                 * once, at mount, and is inert on a first visit, where both
+                 * values are empty.
+                 */
+                initialSelection={selectedCollege}
+                initialUnlistedName={unlistedName}
                 onSelect={(college) => {
                   setSelectedCollege(college);
                   if (college) setUnlistedName("");
@@ -1260,7 +1524,7 @@ export default function RegistrationForm({
                       )
                     }
                     placeholder="linkedin.com/in/your-name"
-                    autoComplete="url"
+                    autoComplete="off"
                     disabled={submitting}
                   />
                 </FormField>
@@ -1280,7 +1544,7 @@ export default function RegistrationForm({
                       updateValue("githubUrl", event.target.value, "github_url")
                     }
                     placeholder="github.com/username"
-                    autoComplete="url"
+                    autoComplete="off"
                     disabled={submitting}
                   />
                 </FormField>
@@ -1391,7 +1655,7 @@ export default function RegistrationForm({
                   )
                 }
                 placeholder="drive.google.com/file/d/..."
-                autoComplete="url"
+                autoComplete="off"
                 disabled={submitting}
               />
             </FormField>
@@ -1436,7 +1700,7 @@ export default function RegistrationForm({
                     )
                   }
                   placeholder="drive.google.com/file/d/..."
-                  autoComplete="url"
+                  autoComplete="off"
                   disabled={submitting}
                 />
               </FormField>

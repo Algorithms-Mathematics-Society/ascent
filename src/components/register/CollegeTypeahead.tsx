@@ -16,6 +16,55 @@ interface CollegeTypeaheadProps {
   disabled?: boolean;
   error?: string;
   required?: boolean;
+  /**
+   * An institution the candidate already chose, for example one restored from
+   * a saved draft. It seeds this component's own display state on the first
+   * render and is never read again, so later renders with the same value
+   * cannot undo a newer choice. Leaving it out is the plain first visit.
+   */
+  initialSelection?: CollegeResult | null;
+  /** The unlisted institution name already committed, seeded the same way. */
+  initialUnlistedName?: string;
+}
+
+export type InitialCollegeCommitment = {
+  selected: CollegeResult | null;
+  unlistedName: string;
+  query: string;
+};
+
+/**
+ * Turns the optional seed props into the state this component mounts with.
+ * With no seed, or a seed that carries nothing, the answer is the blank state
+ * a first time visitor has always started from. A canonical selection wins
+ * over an unlisted name, matching the form, where picking a listed
+ * institution clears the unlisted one.
+ */
+export function initialCollegeCommitment(
+  selection?: CollegeResult | null,
+  unlistedName?: string,
+): InitialCollegeCommitment {
+  if (selection) {
+    // The same shape handlePick leaves behind: name in the box, official
+    // institution summary underneath.
+    return {
+      selected: selection,
+      unlistedName: "",
+      query: selection.canonical_name,
+    };
+  }
+
+  const committedUnlisted = (unlistedName ?? "").trim();
+  if (committedUnlisted) {
+    // The same shape handleConfirmUnlisted leaves behind.
+    return {
+      selected: null,
+      unlistedName: committedUnlisted,
+      query: committedUnlisted,
+    };
+  }
+
+  return { selected: null, unlistedName: "", query: "" };
 }
 
 const MIN_QUERY_LENGTH = 2;
@@ -69,6 +118,8 @@ export default function CollegeTypeahead({
   disabled = false,
   error,
   required = true,
+  initialSelection = null,
+  initialUnlistedName = "",
 }: CollegeTypeaheadProps) {
   const inputId = useId();
   const listboxId = `${inputId}-listbox`;
@@ -80,10 +131,20 @@ export default function CollegeTypeahead({
   const confirmationActionsRef = useRef<HTMLDivElement>(null);
   const committedSummaryRef = useRef<HTMLDivElement>(null);
 
-  const [query, setQuery] = useState("");
+  // Read once, on the first render only. A lazy initialiser is the whole
+  // guarantee that the seed cannot reset a newer choice when the parent
+  // re-renders with the same restored institution.
+  const [seed] = useState(() =>
+    initialCollegeCommitment(initialSelection, initialUnlistedName),
+  );
+  const seededCommitmentRef = useRef(
+    Boolean(seed.selected || seed.unlistedName),
+  );
+
+  const [query, setQuery] = useState(seed.query);
   const [results, setResults] = useState<CollegeResult[]>([]);
-  const [selected, setSelected] = useState<CollegeResult | null>(null);
-  const [unlistedName, setUnlistedName] = useState("");
+  const [selected, setSelected] = useState<CollegeResult | null>(seed.selected);
+  const [unlistedName, setUnlistedName] = useState(seed.unlistedName);
   const [activeIndex, setActiveIndex] = useState(-1);
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -203,9 +264,29 @@ export default function CollegeTypeahead({
   }, [confirmingUnlisted]);
 
   useEffect(() => {
-    if (!selected && !unlistedName) return;
+    if (!selected && !unlistedName) {
+      // Cleared, so whatever was seeded is gone and a later commitment is a
+      // fresh one that should pull focus, even if it lands on the same name.
+      seededCommitmentRef.current = false;
+      return;
+    }
+
+    // Focus lands on the summary because the candidate just committed a
+    // choice. A seeded choice was made before this page load, so it does not
+    // grab focus out of nowhere on arrival. Written as a test of the current
+    // state rather than a count of passes, so a remount, as React's strict
+    // mode does in development, reaches the same answer.
+    if (
+      seededCommitmentRef.current &&
+      selected === seed.selected &&
+      unlistedName === seed.unlistedName
+    ) {
+      return;
+    }
+
+    seededCommitmentRef.current = false;
     window.requestAnimationFrame(() => committedSummaryRef.current?.focus());
-  }, [selected, unlistedName]);
+  }, [seed, selected, unlistedName]);
 
   function clearCommitment(focusInput = false) {
     setSelected(null);

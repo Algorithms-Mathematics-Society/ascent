@@ -125,6 +125,152 @@ describe("normalizeGoogleDriveUrl", () => {
       normalizeGoogleDriveUrl("https://drive.google.com/", true).valid,
     ).toBe(false);
   });
+
+  it("tells a student who pasted a folder which link to fetch instead", () => {
+    const folderError =
+      "That is a link to a folder. Open the file inside it, then copy that file's share link.";
+    for (const link of [
+      "https://drive.google.com/drive/folders/1FolderId",
+      "https://drive.google.com/drive/folders/1FolderId?usp=sharing",
+      "https://drive.google.com/drive/folders/1FolderId?usp=drive_link",
+      "https://drive.google.com/drive/u/0/folders/1FolderId",
+      "https://drive.google.com/drive/u/12/folders/1FolderId",
+      "drive.google.com/drive/folders/1FolderId",
+    ]) {
+      expect(normalizeGoogleDriveUrl(link, true)).toEqual({
+        valid: false,
+        normalized: null,
+        error: folderError,
+      });
+    }
+  });
+
+  it("tells a student who pasted a Drive listing page rather than a file", () => {
+    const listingError =
+      "That is a link to Drive itself, not to a file. Open the file, then copy its share link.";
+    for (const link of [
+      "https://drive.google.com/",
+      "https://drive.google.com/drive/my-drive",
+      "https://drive.google.com/drive/u/0/my-drive",
+      "https://drive.google.com/drive/home",
+      "https://drive.google.com/drive/recent",
+      "https://drive.google.com/drive/shared-with-me",
+    ]) {
+      expect(normalizeGoogleDriveUrl(link, true).error).toBe(listingError);
+    }
+  });
+
+  it("tells a student who pasted a download URL to share the file instead", () => {
+    const downloadError =
+      "That is a download link, not a sharing link. Open the file in Drive, then copy its share link.";
+    for (const link of [
+      "https://drive.usercontent.google.com/download?id=1FileId&export=download",
+      "https://lh3.googleusercontent.com/d/1FileId",
+      "https://doc-0s-8c-docs.googleusercontent.com/docs/securesc/abc/def",
+    ]) {
+      expect(normalizeGoogleDriveUrl(link, true).error).toBe(downloadError);
+    }
+  });
+
+  it("accepts an address-bar link carrying a signed-in account index and drops it", () => {
+    expect(
+      normalizeGoogleDriveUrl(
+        "https://docs.google.com/document/u/0/d/1DocId/edit?usp=sharing",
+        true,
+      ),
+    ).toEqual({
+      valid: true,
+      normalized: "https://docs.google.com/document/d/1DocId/edit?usp=sharing",
+    });
+    expect(
+      normalizeGoogleDriveUrl(
+        "https://drive.google.com/drive/u/1/file/d/1FileId/view",
+        true,
+      ),
+    ).toEqual({
+      valid: true,
+      normalized: "https://drive.google.com/file/d/1FileId/view",
+    });
+    expect(
+      normalizeGoogleDriveUrl("https://drive.google.com/u/2/open?id=1FileId", true),
+    ).toEqual({
+      valid: true,
+      normalized: "https://drive.google.com/open?id=1FileId",
+    });
+    expect(
+      normalizeGoogleDriveUrl(
+        "https://docs.google.com/u/0/spreadsheets/d/1SheetId/edit",
+        true,
+      ),
+    ).toEqual({
+      valid: true,
+      normalized: "https://docs.google.com/spreadsheets/d/1SheetId/edit",
+    });
+  });
+
+  it("leaves an already canonical link byte for byte alone", () => {
+    for (const link of [
+      "https://drive.google.com/file/d/1FileId/view?usp=sharing",
+      "https://drive.google.com/file/d/1FileId/view?usp=drive_link",
+      "https://drive.google.com/file/d/1FileId/view?usp=sharing&resourcekey=0-abc",
+      "https://drive.google.com/uc?id=1FileId&export=download",
+      "https://docs.google.com/presentation/d/1DeckId/edit",
+    ]) {
+      expect(normalizeGoogleDriveUrl(link, true)).toEqual({
+        valid: true,
+        normalized: link,
+      });
+    }
+  });
+
+  it("keeps the generic message for input it cannot place", () => {
+    const generic = "Paste a valid Google Drive sharing link.";
+    for (const link of [
+      "https://dropbox.com/s/resume.pdf",
+      "https://bit.ly/my-resume",
+      "https://drive.google.com.evil.example/file/d/1FileId/view",
+      "not a url at all",
+      "https://docs.google.com/forms/d/1FormId/viewform",
+    ]) {
+      expect(normalizeGoogleDriveUrl(link, true).error).toBe(generic);
+    }
+  });
+
+  it("gates every specific message on the real host, not on the path", () => {
+    // The userinfo before the @ is not the host. A folder path under an
+    // attacker host must stay unrecognised rather than be described back to
+    // the student as though it were a Drive folder.
+    for (const link of [
+      "https://drive.google.com@evil.example/drive/folders/1FolderId",
+      "https://evil.example/drive/folders/1FolderId",
+      "https://evil.example/drive/my-drive",
+      "https://googleusercontent.com.evil.example/d/1FileId",
+    ]) {
+      const result = normalizeGoogleDriveUrl(link, true);
+      expect(result.valid).toBe(false);
+      expect(result.normalized).toBe(null);
+      expect(result.error).toBe("Paste a valid Google Drive sharing link.");
+    }
+  });
+
+  it("never returns a normalized link off the two allowed hosts", () => {
+    for (const link of [
+      "https://drive.google.com/file/d/1FileId/view",
+      "https://docs.google.com/document/d/1DocId/edit",
+      "https://drive.google.com@evil.example/file/d/1FileId/view",
+      "https://evil.example/file/d/1FileId/view",
+      "//evil.example/file/d/1FileId/view",
+      "javascript:alert(1)//drive.google.com/file/d/1FileId/view",
+    ]) {
+      const result = normalizeGoogleDriveUrl(link, true);
+      if (result.normalized !== null) {
+        expect(new URL(result.normalized).protocol).toBe("https:");
+        expect(["drive.google.com", "docs.google.com"]).toContain(
+          new URL(result.normalized).hostname,
+        );
+      }
+    }
+  });
 });
 
 describe("normalizeIndianPhone", () => {

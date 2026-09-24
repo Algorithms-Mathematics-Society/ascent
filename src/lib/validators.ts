@@ -24,6 +24,39 @@ export function normalizeCodeforcesHandle(handle: string): {
   return { valid: true, normalized: trimmed };
 }
 
+const DRIVE_LINK_ERROR = "Paste a valid Google Drive sharing link.";
+
+const DRIVE_FOLDER_ERROR =
+  "That is a link to a folder. Open the file inside it, then copy that file's share link.";
+
+const DRIVE_LISTING_ERROR =
+  "That is a link to Drive itself, not to a file. Open the file, then copy its share link.";
+
+const DRIVE_DOWNLOAD_ERROR =
+  "That is a download link, not a sharing link. Open the file in Drive, then copy its share link.";
+
+/**
+ * Reduces the address-bar spellings of a link to the canonical one so the
+ * checks below only have to know a single shape per kind of link.
+ *
+ * Drive and Docs put an account index in the path when more than one Google
+ * account is signed in, so "/drive/u/0/file/d/x" and "/document/u/0/d/x" name
+ * the same things as their plain forms. Students paste that shape often. Match
+ * without the index and store without it too: it names the student's own
+ * account slot, not the reader's, so leaving it in makes an organiser who is
+ * signed into several accounts open the link as the wrong one.
+ *
+ * This only ever rewrites the path. The host allowlist is what decides whether
+ * a link is accepted, and it is checked separately on the real hostname.
+ */
+function canonicalizeGooglePath(pathname: string): string {
+  return pathname
+    .replace(/^\/u\/\d+\//, "/")
+    .replace(/^\/drive\/u\/\d+\//, "/drive/")
+    .replace(/^\/(document|spreadsheets|presentation)\/u\/\d+\//, "/$1/")
+    .replace(/^\/drive\/(file\/d\/)/, "/$1");
+}
+
 export function normalizeGoogleDriveUrl(
   value: string,
   required = false,
@@ -48,37 +81,80 @@ export function normalizeGoogleDriveUrl(
       /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`,
     );
     const hostname = url.hostname.toLowerCase();
+    const isHttp = url.protocol === "https:" || url.protocol === "http:";
+    const pathname = canonicalizeGooglePath(url.pathname);
     const isDriveFile =
       hostname === "drive.google.com" &&
-      (/^\/file\/d\/[^/]+/.test(url.pathname) ||
-        (url.pathname === "/open" && url.searchParams.has("id")) ||
-        (url.pathname === "/uc" && url.searchParams.has("id")));
+      (/^\/file\/d\/[^/]+/.test(pathname) ||
+        (pathname === "/open" && url.searchParams.has("id")) ||
+        (pathname === "/uc" && url.searchParams.has("id")));
     const isGoogleDocument =
       hostname === "docs.google.com" &&
-      /^\/(document|spreadsheets|presentation)\/d\/[^/]+/.test(
-        url.pathname,
-      );
+      /^\/(document|spreadsheets|presentation)\/d\/[^/]+/.test(pathname);
 
     if (
-      (url.protocol !== "https:" && url.protocol !== "http:") ||
-      (!isDriveFile && !isGoogleDocument) ||
-      url.toString().length > 2048
+      isHttp &&
+      (isDriveFile || isGoogleDocument) &&
+      url.toString().length <= 2048
+    ) {
+      url.protocol = "https:";
+      url.hash = "";
+      if (pathname !== url.pathname) url.pathname = pathname;
+      return { valid: true, normalized: url.toString() };
+    }
+
+    // Everything past this point is still a rejection, and the host allowlist
+    // above is the only thing that decides what is accepted. These branches
+    // only pick a message that names what the student actually pasted, because
+    // one unexplained message on a required field ends the registration.
+    if (isHttp && hostname === "drive.google.com") {
+      if (/^\/drive\/folders(\/|$)/.test(pathname)) {
+        return {
+          valid: false,
+          normalized: null,
+          error: DRIVE_FOLDER_ERROR,
+        };
+      }
+      if (
+        pathname === "/" ||
+        /^\/drive\/?$/.test(pathname) ||
+        /^\/drive\/(my-drive|home|recent|starred|shared-with-me|shared-drives|computers|priority|trash|search)(\/|$)/.test(
+          pathname,
+        )
+      ) {
+        return {
+          valid: false,
+          normalized: null,
+          error: DRIVE_LISTING_ERROR,
+        };
+      }
+    }
+
+    // The hosts Drive serves file bytes from. These are not sharing links: they
+    // carry the downloader's own access and go stale, so they stay rejected.
+    if (
+      isHttp &&
+      (hostname === "drive.usercontent.google.com" ||
+        hostname === "googleusercontent.com" ||
+        hostname.endsWith(".googleusercontent.com"))
     ) {
       return {
         valid: false,
         normalized: null,
-        error: "Paste a valid Google Drive sharing link.",
+        error: DRIVE_DOWNLOAD_ERROR,
       };
     }
 
-    url.protocol = "https:";
-    url.hash = "";
-    return { valid: true, normalized: url.toString() };
+    return {
+      valid: false,
+      normalized: null,
+      error: DRIVE_LINK_ERROR,
+    };
   } catch {
     return {
       valid: false,
       normalized: null,
-      error: "Paste a valid Google Drive sharing link.",
+      error: DRIVE_LINK_ERROR,
     };
   }
 }

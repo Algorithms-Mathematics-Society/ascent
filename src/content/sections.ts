@@ -68,6 +68,20 @@ export const COMPETITION_ROUNDS: CompetitionRound[] = [
 
 // Master fact sheet, compiled 11 September 2026: selected calendar Version A.
 // Registration closing is unset; Round 3 remains tentative.
+/**
+ * ISO forms of the dates rendered in TIMELINE below, for structured data.
+ * Change these in the same edit as the display strings.
+ */
+export const SCHEDULE_ISO = {
+  registrationOpens: "2026-09-24T06:00:00+05:30",
+  registrationCloses: "2026-10-20T23:59:59+05:30",
+  roundOne: "2026-10-24T14:00:00+05:30",
+  roundOneEnds: "2026-10-24T16:00:00+05:30",
+  roundTwo: "2026-12-06T00:00:00+05:30",
+  roundThree: "2026-12-20T00:00:00+05:30",
+  roundThreeEnds: "2026-12-20T23:59:59+05:30",
+} as const;
+
 export const TIMELINE: TimelinePhase[] = [
   {
     phase: "Registration opens",

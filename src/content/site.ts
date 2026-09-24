@@ -1,6 +1,9 @@
 // src/content/site.ts
 export type ProofStat = { value: string; label: string };
 
+/** Canonical origin. Used by robots.txt, the sitemap and structured data. */
+export const SITE_ORIGIN = "https://ascent.amshq.in";
+
 /** Single source of truth for brand and SEO copy. */
 export const site = {
   name: "Ascent",

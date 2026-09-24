@@ -1,5 +1,6 @@
 // src/app/page.tsx
 import Navbar from "@/components/layout/Navbar";
+import StructuredData from "@/components/seo/StructuredData";
 import Footer from "@/components/layout/Footer";
 import {
   Hero,
@@ -14,6 +15,7 @@ import {
 export default function Home() {
   return (
     <>
+      <StructuredData />
       <Navbar />
       <main id="top" tabIndex={-1}>
         <Hero />

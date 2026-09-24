@@ -160,6 +160,38 @@ describe("normalizeIndianPhone", () => {
   });
 
 describe("normalizeApacPhone", () => {
+  it("keeps an Indian mobile whose own digits start with the country code", () => {
+    // 9123456789 is a valid 10-digit mobile that happens to begin 91. Reading
+    // those two digits as the country code left 23456789 and rejected it.
+    expect(normalizeApacPhone("9123456789", "91")).toEqual({
+      valid: true,
+      e164: "+919123456789",
+    });
+    expect(normalizeApacPhone("9198765432", "91")).toEqual({
+      valid: true,
+      e164: "+919198765432",
+    });
+    expect(normalizeApacPhone("09123456789", "91")).toEqual({
+      valid: true,
+      e164: "+919123456789",
+    });
+  });
+
+  it("still strips a country code the candidate typed in front of it", () => {
+    expect(normalizeApacPhone("919123456789", "91")).toEqual({
+      valid: true,
+      e164: "+919123456789",
+    });
+    expect(normalizeApacPhone("919876543210", "91")).toEqual({
+      valid: true,
+      e164: "+919876543210",
+    });
+    expect(normalizeApacPhone("+91 9123456789", "91")).toEqual({
+      valid: true,
+      e164: "+919123456789",
+    });
+  });
+
   it("normalizes selected APAC mobile numbers to E.164", () => {
     expect(normalizeApacPhone("0412 345 678", "61")).toEqual({
       valid: true,

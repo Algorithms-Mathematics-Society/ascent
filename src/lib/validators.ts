@@ -180,6 +180,22 @@ type PhoneNormalizationResult = {
   error?: string;
 };
 
+function trimLeadingZero(nationalNumber: string): string {
+  return nationalNumber.startsWith("0") ? nationalNumber.slice(1) : nationalNumber;
+}
+
+/** The same rules the checks below apply, so we can ask before committing. */
+function nationalNumberIsValid(
+  countryCode: string,
+  nationalNumber: string,
+): boolean {
+  if (countryCode === "91") return /^[6-9]\d{9}$/.test(nationalNumber);
+  return (
+    /^\d{6,14}$/.test(nationalNumber) &&
+    countryCode.length + nationalNumber.length <= 15
+  );
+}
+
 export function normalizeApacPhone(
   phone: string,
   selectedCountryCode?: string,
@@ -216,7 +232,13 @@ export function normalizeApacPhone(
   } else if (
     selectedCode &&
     nationalNumber.startsWith(selectedCode) &&
-    nationalNumber.length > selectedCode.length + 5
+    nationalNumber.length > selectedCode.length + 5 &&
+    // A national number can legitimately begin with its own country code. An
+    // Indian mobile may start 91, and stripping those two digits turned a
+    // valid 10-digit number into an 8-digit one that failed the check below.
+    // Only read leading digits as a country code when the number cannot be
+    // valid as typed.
+    !nationalNumberIsValid(countryCode, trimLeadingZero(nationalNumber))
   ) {
     nationalNumber = nationalNumber.slice(selectedCode.length);
   }

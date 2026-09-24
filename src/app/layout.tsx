@@ -49,6 +49,17 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={`${geist.variable} ${jetbrains.variable}`}>
+      <head>
+        {/*
+          Turnstile is the only third-party origin in the candidate flow, and it
+          is requested late: BotCheck mounts on the last stage of the form, and
+          the submit button stays disabled until the token arrives. Warming DNS,
+          TCP and TLS at page load takes that handshake off the critical moment.
+          Hints only, so nothing here changes behaviour if they are ignored.
+        */}
+        <link rel="preconnect" href="https://challenges.cloudflare.com" />
+        <link rel="dns-prefetch" href="https://challenges.cloudflare.com" />
+      </head>
       <body className="bg-ascent-canvas font-sans text-ascent-ink antialiased">
         {children}
       </body>

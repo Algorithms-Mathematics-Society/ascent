@@ -50,6 +50,7 @@ export async function deliverEmail(id: string): Promise<string> {
     let email: unknown;
     let reference: string | undefined;
     let qualificationPath: string | undefined;
+    let adminDecision: string | undefined;
     // Recheck the source on EVERY attempt, including retries with a frozen
     // payload. Freezing an idempotent payload does not authorize stale sends.
     if (job.kind === "REGISTRATION_REMINDER") {
@@ -73,6 +74,7 @@ export async function deliverEmail(id: string): Promise<string> {
       email = pii.data()?.email;
       reference = application.data()?.reference;
       qualificationPath = application.data()?.qualification_path;
+      adminDecision = application.data()?.admin_decision;
     }
     const normalized = normalizeEmail(typeof email === "string" ? email : "");
     if (!normalized.valid || !normalized.normalized) {
@@ -109,7 +111,7 @@ export async function deliverEmail(id: string): Promise<string> {
         });
       }
       payload = { from: config.from, replyTo: config.replyTo, to: normalized.normalized,
-        ...buildEmailMessage(job, { reference, qualificationPath, statusUrl }, config.siteUrl),
+        ...buildEmailMessage(job, { reference, qualificationPath, statusUrl, adminDecision }, config.siteUrl),
         ...(job.kind === "REGISTRATION_REMINDER" && opensAt > now ? { scheduledAt: new Date(opensAt).toISOString() } : {}) };
     }
     tx.update(ref, { status: "SENDING", lease, due_at: now + LEASE_MS,

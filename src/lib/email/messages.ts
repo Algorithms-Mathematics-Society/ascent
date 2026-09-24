@@ -30,6 +30,7 @@ export function buildEmailMessage(job: EmailJob, data: {
   reference?: string;
   qualificationPath?: string;
   statusUrl?: string;
+  adminDecision?: string;
 }, siteUrl: string): { subject: string; text: string } {
   const footer = "Regards,\nAlgorithms & Mathematics Society (AMS)";
   if (job.kind === "STATUS_ACCESS") {
@@ -44,10 +45,15 @@ export function buildEmailMessage(job: EmailJob, data: {
   }
   const reference = data.reference || "Reference unavailable";
   if (job.kind === "REGISTRATION_CONFIRMATION") {
-    const path = data.qualificationPath === "AUTO" ? "Direct path" : "Qualifier path";
+    // An entry from a listed institution is accepted on submission. Everyone
+    // else is reviewed, so the receipt must not imply a decision either way.
+    const accepted = data.adminDecision === "APPROVED";
+    const outcome = accepted
+      ? `Status: Accepted\n\nYour entry is confirmed and you go through to Round 1 on 24 October 2026 at 2:00 pm IST. Joining instructions follow closer to the date.`
+      : `Status: Under review\n\nYour entry is with the Ascent team. We will email a decision to this address.`;
     return {
       subject: `Ascent ’26 registration received: ${reference}`,
-      text: `We received your Ascent ’26 registration.\n\nYour reference: ${reference}\nStatus at submission: Received\nQualification path: ${path}\n\nKeep this email so you can find your reference later. Registration receipt does not confirm selection. Decision updates are sent separately. This receipt records your submission and does not replace a later decision.\n\nCheck your current entry status: ${siteUrl}/register/status\nEvent details: ${siteUrl}\n\n${footer}`,
+      text: `We received your Ascent ’26 registration.\n\nYour reference: ${reference}\n${outcome}\n\nKeep this email so you can find your reference later.\n\nCheck your current entry status: ${siteUrl}/register/status\nEvent details: ${siteUrl}\n\n${footer}`,
     };
   }
   const decision = job.decision;

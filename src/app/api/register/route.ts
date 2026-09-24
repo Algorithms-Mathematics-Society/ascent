@@ -633,7 +633,12 @@ export async function POST(req: NextRequest) {
         edition: EDITION,
         reference,
         state: "QUALIFICATION_DETERMINED",
-        admin_decision: "PENDING",
+        // An entry from a listed institution is accepted on submission and goes
+        // straight into Round 1. Review is for entries from institutions that
+        // are not on the list.
+        admin_decision: collegeTier === "UNLISTED" ? "PENDING" : "APPROVED",
+        admin_decision_source:
+          collegeTier === "UNLISTED" ? "REVIEW_REQUIRED" : "AUTO_LISTED_INSTITUTION",
         codeforces_handle: codeforcesResult.normalized,
         college_id: resolvedCollegeId,
         college_tier: collegeTier,

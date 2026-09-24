@@ -25,12 +25,20 @@ describe("email configuration and templates", () => {
     expect(getEmailConfig()).toBeNull();
     expect(provider.send).not.toHaveBeenCalled();
   });
-  it("sends the reference and path without inventing candidate sign-in", () => {
-    const message = buildEmailMessage(emailJob("REGISTRATION_CONFIRMATION", "candidate"), { reference: "ASC-TEST", qualificationPath: "QUALIFIER" }, "https://ascent.amshq.in");
-    expect(message.text).toContain("ASC-TEST"); expect(message.text).toContain("Qualifier path");
+  it("tells an accepted candidate they are through, without inventing candidate sign-in", () => {
+    const message = buildEmailMessage(emailJob("REGISTRATION_CONFIRMATION", "candidate"), { reference: "ASC-TEST", adminDecision: "APPROVED" }, "https://ascent.amshq.in");
+    expect(message.text).toContain("ASC-TEST");
+    expect(message.text).toContain("Status: Accepted");
+    expect(message.text).toContain("Round 1");
+    expect(message.text).not.toContain("Under review");
     expect(message.text).not.toMatch(/password|magic link|sign in/i);
-    expect(message.text).toContain("Status at submission: Received");
-    expect(message.text).not.toContain("awaiting review");
+  });
+  it("tells a reviewed candidate a decision is coming, and claims no outcome", () => {
+    const message = buildEmailMessage(emailJob("REGISTRATION_CONFIRMATION", "candidate"), { reference: "ASC-TEST", adminDecision: "PENDING" }, "https://ascent.amshq.in");
+    expect(message.text).toContain("ASC-TEST");
+    expect(message.text).toContain("Status: Under review");
+    expect(message.text).not.toContain("Accepted");
+    expect(message.text).not.toMatch(/password|magic link|sign in/i);
   });
   it.each(["APPROVED", "WAITLISTED", "REJECTED"] as const)("renders a %s decision without internal reviewer notes", decision => {
     const message = buildEmailMessage({ ...emailJob("DECISION", "candidate"), decision, revision: 1 }, { reference: "ASC-TEST" }, "https://ascent.amshq.in");

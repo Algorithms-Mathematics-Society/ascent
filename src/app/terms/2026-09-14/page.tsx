@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import LegalPage from "@/components/legal/LegalPage";
 import { TERMS_VERSION } from "@/content/legal";
-export const metadata: Metadata = { title: "Competition terms | Ascent", description: "Terms for registering and participating in Ascent ’26." };
+export const metadata: Metadata = { title: "Competition terms | Ascent", description: "Terms for registering and participating in Ascent ’26.", alternates: { canonical: "/terms" } };
 export default function TermsPage() {
   return <LegalPage title="Competition terms" version={TERMS_VERSION}>
     <section><h2>Organiser and scope</h2><p>Algorithms &amp; Mathematics Society (AMS), Mumbai, organises Ascent ’26. These terms cover this website, registration and participation. The <a href="/privacy">privacy policy</a> explains personal-data use. Candidate help and general enquiries go to <a href="mailto:team@amshq.in">team@amshq.in</a>; sponsorship enquiries go to <a href="mailto:partners@amshq.in">partners@amshq.in</a>.</p></section>

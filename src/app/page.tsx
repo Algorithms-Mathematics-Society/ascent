@@ -1,4 +1,5 @@
 // src/app/page.tsx
+import type { Metadata } from "next";
 import Navbar from "@/components/layout/Navbar";
 import StructuredData from "@/components/seo/StructuredData";
 import Footer from "@/components/layout/Footer";
@@ -11,6 +12,8 @@ import {
   RegistrationCta,
   Faq,
 } from "@/components/sections";
+
+export const metadata: Metadata = { alternates: { canonical: "/" } };
 
 export default function Home() {
   return (

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import LegalPage from "@/components/legal/LegalPage";
 import { PRIVACY_VERSION, SUPPORT_EMAIL, PARTNERS_EMAIL } from "@/content/legal";
-export const metadata: Metadata = { title: "Privacy policy | Ascent", description: "How AMS uses and protects Ascent registration and reminder data." };
+export const metadata: Metadata = { title: "Privacy policy (superseded 24 September 2026) | Ascent", description: "The Ascent privacy policy published on 14 September 2026, superseded by the current version.", robots: { index: false, follow: true } };
 
 export default function PrivacyPage() {
   return <LegalPage title="Privacy policy" version={PRIVACY_VERSION}>

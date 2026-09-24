@@ -23,6 +23,7 @@ export const metadata: Metadata = {
   title: "Syllabus · Ascent",
   description:
     "The published Round 1 C++ syllabus and the working outlines for Rounds 2 and 3 of Ascent.",
+  alternates: { canonical: "/syllabus" },
 };
 
 function StepMark() {

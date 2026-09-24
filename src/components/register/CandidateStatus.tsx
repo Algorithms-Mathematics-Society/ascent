@@ -88,7 +88,6 @@ export default function CandidateStatus({ initialEntry, emailEnabled }: { initia
       </ol>
       <dl className="mt-6 grid gap-5 sm:grid-cols-2">
         <div><dt className="text-sm text-ascent-muted">Qualification path</dt><dd className="mt-1 font-semibold">{entry.qualificationPath === "AUTO" ? "Direct path" : "Qualifier path"}</dd></div>
-        <div><dt className="text-sm text-ascent-muted">Institution verification</dt><dd className="mt-1 font-semibold">{entry.collegeVerified ? "Verified" : "Pending verification"}</dd></div>
         {entry.qualificationPath === "QUALIFIER" ? <div><dt className="text-sm text-ascent-muted">Published Round 1 date</dt><dd className="mt-1 font-semibold">{entry.roundOneDate}</dd></div> : null}
       </dl>
       <h3 className="mt-7 font-semibold">What to do next</h3><p className="mt-2 text-sm leading-7">{NEXT[entry.state]}</p>

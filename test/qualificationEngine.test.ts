@@ -2,45 +2,33 @@ import { describe, it, expect } from "vitest";
 import { determinePath } from "../src/lib/qualificationEngine";
 
 describe("determinePath", () => {
-  it("AUTO_QUALIFY + VERIFIED -> AUTO", () => {
-    expect(determinePath("AUTO_QUALIFY", "VERIFIED")).toEqual({
+  it("routes a listed institution to the direct path", () => {
+    expect(determinePath("AUTO_QUALIFY")).toEqual({
       path: "AUTO",
-      reason: "verified tier-1 college",
+      reason: "listed institution",
     });
   });
 
-  it("AUTO_QUALIFY + UNVERIFIED -> QUALIFIER, tier-1 claim unverified", () => {
-    expect(determinePath("AUTO_QUALIFY", "UNVERIFIED")).toEqual({
+  it("routes an unlisted institution to the qualifier path, where the team decides", () => {
+    expect(determinePath("UNLISTED")).toEqual({
       path: "QUALIFIER",
-      reason: "tier-1 claim unverified",
+      reason: "unlisted institution",
     });
   });
 
-  it("STANDARD + VERIFIED -> QUALIFIER, standard tier", () => {
-    expect(determinePath("STANDARD", "VERIFIED")).toEqual({
-      path: "QUALIFIER",
-      reason: "standard tier",
-    });
-  });
-
-  it("STANDARD + UNVERIFIED -> QUALIFIER, standard tier", () => {
-    expect(determinePath("STANDARD", "UNVERIFIED")).toEqual({
+  it("routes any other tier to the qualifier path", () => {
+    expect(determinePath("STANDARD")).toEqual({
       path: "QUALIFIER",
       reason: "standard tier",
     });
   });
 
-  it("UNLISTED + UNVERIFIED -> QUALIFIER, unlisted college", () => {
-    expect(determinePath("UNLISTED", "UNVERIFIED")).toEqual({
-      path: "QUALIFIER",
-      reason: "unlisted college",
-    });
-  });
-
-  it("UNLISTED + VERIFIED -> QUALIFIER, unlisted college (verification is meaningless without a college)", () => {
-    expect(determinePath("UNLISTED", "VERIFIED")).toEqual({
-      path: "QUALIFIER",
-      reason: "unlisted college",
-    });
+  it("depends on nothing but the tier, so no unverified claim can reach the direct path", () => {
+    // The direct path is granted by list membership alone. This asserts the
+    // only input, so reintroducing a second condition breaks the test rather
+    // than silently changing who is accepted without review.
+    expect(determinePath("AUTO_QUALIFY").path).toBe("AUTO");
+    expect(determinePath("UNLISTED").path).toBe("QUALIFIER");
+    expect(determinePath("STANDARD").path).toBe("QUALIFIER");
   });
 });

@@ -563,7 +563,7 @@ export async function POST(req: NextRequest) {
     collegeLabel = unlistedName;
   }
 
-  const qualification = determinePath(collegeTier, "UNVERIFIED");
+  const qualification = determinePath(collegeTier);
   const emailRef = adminDb
     .collection("emails")
     .doc(`${EDITION}_${sha256(normalizedEmail)}`);

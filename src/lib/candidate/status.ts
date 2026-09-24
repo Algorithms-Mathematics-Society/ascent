@@ -7,7 +7,7 @@ import { TIMELINE } from "@/content/sections";
 
 export type CandidateStatus = {
   reference: string; state: "RECEIVED" | "UNDER_REVIEW" | "APPROVED" | "WAITLISTED" | "REJECTED" | "WITHDRAWN";
-  qualificationPath: "AUTO" | "QUALIFIER"; collegeVerified: boolean; roundOneDate: string;
+  qualificationPath: "AUTO" | "QUALIFIER"; roundOneDate: string;
 };
 export async function getCandidateStatus(session: string | undefined): Promise<CandidateStatus | null> {
   const claims = verifyStatusToken(session, "session");
@@ -25,6 +25,6 @@ export async function getCandidateStatus(session: string | undefined): Promise<C
     app.review_started_at || (operations.data()?.revision || 0) > 0 ? "UNDER_REVIEW" : "RECEIVED";
   // Explicit allowlist: no names, contact details, documents or internal notes.
   return { reference: typeof app.reference === "string" ? app.reference : "Not recorded", state,
-    qualificationPath: app.qualification_path === "AUTO" && app.college_verification_status === "VERIFIED" ? "AUTO" : "QUALIFIER",
-    collegeVerified: app.college_verification_status === "VERIFIED", roundOneDate: TIMELINE[1].timing };
+    qualificationPath: app.qualification_path === "AUTO" ? "AUTO" : "QUALIFIER",
+    roundOneDate: TIMELINE[1].timing };
 }

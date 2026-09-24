@@ -246,19 +246,16 @@ function focusTarget(field: FieldName) {
 }
 
 function qualificationLabel(path: string) {
-  if (path === "AUTO") return "Direct qualification";
-  if (path === "QUALIFIER") return "Qualifier";
+  if (path === "AUTO") return "Direct path";
+  if (path === "QUALIFIER") return "Qualifier path";
   return "Qualification pending";
 }
 
-function qualificationNextStep(path: string, reason: string) {
+function qualificationNextStep(path: string) {
   if (path === "AUTO") {
-    return "Your entry is on the direct-qualification route. Keep your reference; confirmed round details will be shared using your registration contact details.";
+    return "Your institution is on the eligible list, so your entry is accepted and you go through to Round 1. Keep your reference; joining instructions will be sent to your registration contact details.";
   }
-  if (reason === "tier-1 claim unverified") {
-    return "Your entry is currently on the qualifier route. The event team will share the qualifier schedule and any institution-verification update using your registration contact details.";
-  }
-  return "Your next competition stage is the C++ qualifier. The confirmed schedule and rules will be shared using your registration contact details.";
+  return "Your institution is not on the eligible list, so the Ascent team will review your entry and email you a decision. Keep your reference.";
 }
 
 
@@ -495,10 +492,7 @@ function SuccessReceipt({ receipt, email }: { receipt: RegistrationReceipt; emai
               What happens next
             </p>
             <p className="mt-1 text-sm leading-6 text-ascent-ink">
-              {qualificationNextStep(
-                receipt.qualificationPath,
-                receipt.qualificationReason,
-              )}
+              {qualificationNextStep(receipt.qualificationPath)}
             </p>
           </div>
 

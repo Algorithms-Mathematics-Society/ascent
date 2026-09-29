@@ -403,7 +403,9 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(
       {
         success: false,
-        error: "Too many attempts for these details. Try again in 30 minutes.",
+        error:
+          "Too many attempts for these details. Try again in 30 minutes. If you have already registered, the entry status page emails you a secure link to your entry, and team@amshq.in can help.",
+        recovery: "status",
       },
       { status: 429 },
     );
@@ -774,14 +776,28 @@ export async function POST(req: NextRequest) {
 
   if (transactionResult.kind === "duplicate") {
     await recordFailedAttempt();
+    // Deliberately not a field error. The address is not wrong, it is already
+    // ours, so pinning the message on the input sends the candidate back to
+    // stage 1 to correct something that is already correct, with nowhere to go
+    // from there. Architecture section 7 asks for an account-recovery path on
+    // a collision, and /register/status is it: a global notice keeps them
+    // where they are and carries the link.
     const messages: Record<DuplicateField, string> = {
-      email: "This email is already registered.",
-      phone: "This phone number is already registered.",
+      email:
+        "This email is already registered, so your entry is already with us and you do not need to send another one. The entry status page emails you a secure link so you can see it, and team@amshq.in can help if you cannot get in.",
+      phone:
+        "This phone number is already registered, so your entry is already with us and you do not need to send another one. The entry status page emails you a secure link so you can see it, and team@amshq.in can help if you cannot get in.",
     };
-    return fieldError(
-      transactionResult.field,
-      messages[transactionResult.field],
-      409,
+    return NextResponse.json(
+      {
+        success: false,
+        error: messages[transactionResult.field],
+        recovery: "status",
+      },
+      {
+        status: 409,
+        headers: { "Cache-Control": "private, no-store" },
+      },
     );
   }
 

@@ -3,6 +3,14 @@ import { Container, Section, SectionHeading } from "@/components/ui";
 import RegistrationReminder from "@/components/register/RegistrationReminder";
 import { TIMELINE } from "@/content/sections";
 
+// The tentative marker lives in the content layer, so this note tracks it
+// rather than restating it. A stale hardcoded copy of a schedule fact is what
+// made this callout contradict the timeline it sits next to. Phase names read
+// as "Round 3: Mastery"; the note names the round only.
+const TENTATIVE_ROUNDS = TIMELINE.filter((item) =>
+  item.timing.includes("Tentative"),
+).map((item) => item.phase.split(":")[0].trim());
+
 export default function Timeline() {
   return (
     <Section
@@ -17,10 +25,13 @@ export default function Timeline() {
               title="Know what happens next."
               lede="Registration opens in September, followed by three rounds from October to December 2026."
             />
-            <div className="mt-7 rounded-r-control border-l-2 border-ascent-brand bg-ascent-brand-tint px-4 py-3 text-sm leading-6 text-ascent-brand">
-              The Round 3 date is tentative. The registration closing date is
-              yet to be announced.
-            </div>
+            {TENTATIVE_ROUNDS.length > 0 ? (
+              <div className="mt-7 rounded-r-control border-l-2 border-ascent-brand bg-ascent-brand-tint px-4 py-3 text-sm leading-6 text-ascent-brand">
+                {TENTATIVE_ROUNDS.length > 1
+                  ? `The ${TENTATIVE_ROUNDS.join(" and ")} dates are tentative.`
+                  : `The ${TENTATIVE_ROUNDS[0]} date is tentative.`}
+              </div>
+            ) : null}
           </div>
 
           <ol className="border-t border-ascent-border">

@@ -67,7 +67,7 @@ export const COMPETITION_ROUNDS: CompetitionRound[] = [
 ];
 
 // Master fact sheet, compiled 11 September 2026: selected calendar Version A.
-// Registration closing is unset; Round 3 remains tentative.
+// Registration closes 20 October 2026; Round 3 remains tentative.
 /**
  * ISO forms of the dates rendered in TIMELINE below, for structured data.
  * Change these in the same edit as the display strings.

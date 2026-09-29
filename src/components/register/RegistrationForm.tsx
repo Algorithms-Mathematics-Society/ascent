@@ -1,6 +1,7 @@
 "use client";
 import BotCheck from "@/components/security/BotCheck";
 import { PRIVACY_VERSION, TERMS_VERSION, PRIVACY_URL, TERMS_URL, PARTICIPATION_NOTICE } from "@/content/legal";
+import { SCHEDULE_ISO, TIMELINE } from "@/content/sections";
 
 import {
   useEffect,
@@ -119,6 +120,8 @@ interface RegisterResponse {
   success?: boolean;
   error?: string;
   field?: string;
+  /** "status" means the server is pointing at the entry status recovery path. */
+  recovery?: string;
   codeforces_handle?: string | null;
   reference?: string;
   qualification_path?: string;
@@ -473,13 +476,68 @@ function qualificationNextStep(path: string) {
 }
 
 
-const PROGRESS_WIDTH: Record<RegistrationStep, string> = {
-  1: "w-1/3",
-  2: "w-2/3",
-  3: "w-full",
+/**
+ * How far through the form the candidate is, not which stage they arrived at.
+ * Each stage owns a third of the track and the bar sits in the middle of the
+ * stage being worked on, so reaching stage 3 reads as "nearly there" instead
+ * of "done". The bar never reaches the end while the form is still open: only
+ * the receipt means finished, and stage 3 is the longest stage of the three.
+ */
+const PROGRESS: Record<RegistrationStep, { width: string; percent: number }> = {
+  1: { width: "w-1/6", percent: 17 },
+  2: { width: "w-1/2", percent: 50 },
+  3: { width: "w-5/6", percent: 83 },
 };
 
-function StageProgress({
+/** The painted width and the announced value, from one source, so they agree. */
+export function registrationProgress(step: RegistrationStep) {
+  return PROGRESS[step];
+}
+
+/**
+ * A registration that cannot go through is a dead end unless the notice
+ * carries the way out. The status page emails a secure link to the address
+ * already on file, which is the account-recovery path the architecture asks
+ * for in place of a second entry.
+ */
+export function StatusRecoveryNote({ message }: { message: string }) {
+  return (
+    <>
+      {message}
+      <span className="mt-2 block">
+        <a href="/register/status" className="underline underline-offset-4">
+          Open the entry status page
+        </a>{" "}
+        ·{" "}
+        <a href="mailto:team@amshq.in" className="underline underline-offset-4">
+          Email team@amshq.in
+        </a>
+      </span>
+    </>
+  );
+}
+
+/**
+ * Shown when the submit button is pressed with no verification token. The
+ * widget can fail to appear at all if Cloudflare's script never loads, so the
+ * notice has to say what is missing, that nothing typed is lost, and who to
+ * write to when reloading does not help.
+ */
+export function VerificationRequiredNote() {
+  return (
+    <>
+      The verification check below has not finished, so your entry was not
+      sent. Your answers are saved on this device, so reloading the page will
+      not lose them. If the check never appears, email{" "}
+      <a href="mailto:team@amshq.in" className="underline underline-offset-4">
+        team@amshq.in
+      </a>{" "}
+      and the team will help.
+    </>
+  );
+}
+
+export function StageProgress({
   current,
   onNavigate,
 }: {
@@ -517,12 +575,15 @@ function StageProgress({
       <div
         className="mt-3 h-1 overflow-hidden rounded-full bg-ascent-border"
         role="progressbar"
-        aria-valuemin={1}
-        aria-valuemax={3}
-        aria-valuenow={current}
-        aria-label={`Registration step ${current} of 3`}
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-valuenow={registrationProgress(current).percent}
+        aria-valuetext={`Step ${current} of 3, ${registrationProgress(current).percent}% through the form`}
+        aria-label="Registration progress"
       >
-        <div className={`h-full rounded-full bg-ascent-brand ${PROGRESS_WIDTH[current]}`} />
+        <div
+          className={`h-full rounded-full bg-ascent-brand ${registrationProgress(current).width}`}
+        />
       </div>
 
       <ol className="mt-3 grid grid-cols-3">
@@ -625,7 +686,7 @@ function StageFrame({
   );
 }
 
-function SuccessReceipt({ receipt, email }: { receipt: RegistrationReceipt; email: string }) {
+export function SuccessReceipt({ receipt, email }: { receipt: RegistrationReceipt; email: string }) {
   const headingRef = useRef<HTMLHeadingElement>(null);
 
   useEffect(() => {
@@ -710,6 +771,29 @@ function SuccessReceipt({ receipt, email }: { receipt: RegistrationReceipt; emai
             </p>
           </div>
 
+          <div className="mt-4 rounded-control border border-ascent-border bg-ascent-surface-subtle px-4 py-3">
+            <p className="text-sm font-semibold text-ascent-ink">
+              Round 1:{" "}
+              <time dateTime={SCHEDULE_ISO.roundOne}>{TIMELINE[1].timing}</time>
+            </p>
+            <p className="mt-1 text-sm leading-6 text-ascent-muted">
+              Round 1 runs for two hours, online with remote proctoring. It runs
+              on AMS Access, a proctored desktop application for Windows, macOS
+              and Linux, so you will need a laptop or a desktop computer. A
+              phone cannot run it. You can download AMS Access and test your
+              setup from 15 October 2026. The requirements are at{" "}
+              <a
+                href="https://www.amsaccess.com"
+                target="_blank"
+                rel="noreferrer"
+                className="underline underline-offset-4"
+              >
+                www.amsaccess.com
+              </a>
+              .
+            </p>
+          </div>
+
           <div className="mt-7 flex flex-col gap-4 border-t border-ascent-border pt-5 sm:flex-row sm:items-center sm:justify-between">
             <p className="text-sm text-ascent-muted">
               Save this reference for any registration support request.
@@ -749,7 +833,7 @@ export default function RegistrationForm({
   const [fieldErrors, setFieldErrors] = useState<
     Partial<Record<FieldName, string>>
   >({});
-  const [globalError, setGlobalError] = useState("");
+  const [globalError, setGlobalError] = useState<ReactNode>("");
   const [submitting, setSubmitting] = useState(false);
   const [receipt, setReceipt] = useState<RegistrationReceipt | null>(null);
   const submissionTokenRef = useRef<string | null>(null);
@@ -1024,7 +1108,14 @@ export default function RegistrationForm({
       return;
     }
     if (!values.educationStage) return;
-    if (!botToken) { setGlobalError("Complete the verification check before submitting."); focusErrorSummary(); return; }
+    // Reachable only because the submit button is no longer disabled on a
+    // missing token. It sits after validation, which returns before the try
+    // block so a client-side failure never burns a single-use token.
+    if (!botToken) {
+      setGlobalError(<VerificationRequiredNote />);
+      focusErrorSummary();
+      return;
+    }
 
     submittingRef.current = true;
     setSubmitting(true);
@@ -1094,7 +1185,13 @@ export default function RegistrationForm({
           if (mappedStep !== step) goToStep(mappedStep);
           window.requestAnimationFrame(() => focusTarget(mappedField));
         } else {
-          setGlobalError(message);
+          setGlobalError(
+            data.recovery === "status" ? (
+              <StatusRecoveryNote message={message} />
+            ) : (
+              message
+            ),
+          );
           focusErrorSummary();
         }
         return;
@@ -1760,8 +1857,8 @@ export default function RegistrationForm({
                   aria-invalid={Boolean(fieldErrors.contest_consent)}
                   aria-describedby={
                     fieldErrors.contest_consent
-                      ? "contest_consent-error"
-                      : undefined
+                      ? "contest_consent-error contest_consent-sharing"
+                      : "contest_consent-sharing"
                   }
                   className="mt-1 size-4 shrink-0 accent-ascent-brand"
                 />
@@ -1769,9 +1866,23 @@ export default function RegistrationForm({
                   {PARTICIPATION_NOTICE} Read the <a href={PRIVACY_URL} target="_blank" rel="noreferrer" className="underline">privacy policy</a>.
                 </span>
               </label>
-              <p className="mt-2 pl-7 text-xs leading-5 text-ascent-muted">
-                This consent covers competition participation only. It does not
-                opt you into public profile visibility or sponsor sharing.
+              <p
+                id="contest_consent-sharing"
+                className="mt-2 pl-7 text-xs leading-5 text-ascent-muted"
+              >
+                Ticking this shares your registration details and your results
+                with AMS partner firms so they can consider you for roles and
+                internships. No public candidate profile is published without
+                your separate permission. You can stop future sharing at any
+                time by emailing{" "}
+                <a
+                  href="mailto:team@amshq.in"
+                  className="underline underline-offset-4"
+                >
+                  team@amshq.in
+                </a>
+                , though a firm cannot be asked to give back what it already
+                holds. Stopping does not affect your entry or your result.
               </p>
               {fieldErrors.contest_consent ? (
                 <p
@@ -1811,7 +1922,7 @@ export default function RegistrationForm({
             <Button
               type="submit"
               size="lg"
-              disabled={submitting || !registrationOpen || !botToken}
+              disabled={submitting || !registrationOpen}
               className="w-full sm:w-auto"
             >
               {submitting ? (

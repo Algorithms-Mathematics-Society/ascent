@@ -27,6 +27,30 @@ interface CollegeTypeaheadProps {
   initialUnlistedName?: string;
 }
 
+/**
+ * Whether the results popup opens.
+ *
+ * The popup is absolutely positioned over the content beneath it, and the
+ * control that commits an unlisted institution sits in that content. So the
+ * popup only opens when it has something a candidate can act on: results to
+ * pick, or a search in flight. It deliberately does NOT open just to say
+ * nothing matched, because that message used to float on top of the one
+ * control the message was telling the candidate to use, which left anyone from
+ * an unlisted institution with no way forward.
+ */
+export function shouldShowPopup(state: {
+  isOpen: boolean;
+  canSearch: boolean;
+  isLoading: boolean;
+  resultCount: number;
+}): boolean {
+  return (
+    state.isOpen &&
+    state.canSearch &&
+    (state.isLoading || state.resultCount > 0)
+  );
+}
+
 export type InitialCollegeCommitment = {
   selected: CollegeResult | null;
   unlistedName: string;
@@ -162,8 +186,16 @@ export default function CollegeTypeahead({
     normalizedQuery.length >= MIN_QUERY_LENGTH &&
     hasSearched &&
     !isLoading;
-  const showPopup =
-    isOpen && canSearch && (isLoading || hasSearched || Boolean(searchError));
+  // The search finished and there is nothing to pick from, either because
+  // nothing matched or because the lookup failed.
+  const searchEndedEmpty =
+    hasSearched && !isLoading && visibleResults.length === 0;
+  const showPopup = shouldShowPopup({
+    isOpen,
+    canSearch,
+    isLoading,
+    resultCount: visibleResults.length,
+  });
 
   useEffect(() => {
     const currentRequestId = ++requestIdRef.current;
@@ -595,19 +627,30 @@ export default function CollegeTypeahead({
             </div>
           </div>
         ) : (
-          <button
-            type="button"
-            onClick={() => {
-              setIsOpen(false);
-              setConfirmingUnlisted(true);
-            }}
-            disabled={disabled}
-            className="min-h-11 self-start text-sm font-medium text-ascent-brand underline decoration-ascent-brand underline-offset-4 hover:text-ascent-brand-hover disabled:cursor-not-allowed disabled:opacity-60"
-          >
-            {searchError
-              ? "Continue with this institution name"
-              : "My institution is not listed"}
-          </button>
+          <div className="flex flex-col items-start gap-1">
+            {searchError ? (
+              <p className="text-sm leading-5 text-ascent-danger">
+                {searchError}
+              </p>
+            ) : searchEndedEmpty ? (
+              <p className="text-sm leading-5 text-ascent-muted">
+                No matches found for “{normalizedQuery}”.
+              </p>
+            ) : null}
+            <button
+              type="button"
+              onClick={() => {
+                setIsOpen(false);
+                setConfirmingUnlisted(true);
+              }}
+              disabled={disabled}
+              className="min-h-11 text-sm font-medium text-ascent-brand underline decoration-ascent-brand underline-offset-4 hover:text-ascent-brand-hover disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {searchError
+                ? "Continue with this institution name"
+                : "My institution is not listed"}
+            </button>
+          </div>
         )
       ) : null}
     </div>

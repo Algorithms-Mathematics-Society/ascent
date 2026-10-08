@@ -83,14 +83,16 @@ export function normalizeGoogleDriveUrl(
     const hostname = url.hostname.toLowerCase();
     const isHttp = url.protocol === "https:" || url.protocol === "http:";
     const pathname = canonicalizeGooglePath(url.pathname);
+    const drivePathId = pathname.match(/^\/file\/d\/([^/]+)/)?.[1] ?? "";
+    const documentPathId = pathname.match(/^\/(document|spreadsheets|presentation)\/d\/([^/]+)/)?.[2] ?? "";
     const isDriveFile =
       hostname === "drive.google.com" &&
-      (/^\/file\/d\/[^/]+/.test(pathname) ||
-        (pathname === "/open" && url.searchParams.has("id")) ||
-        (pathname === "/uc" && url.searchParams.has("id")));
+      (Boolean(decodeURIComponent(drivePathId).trim()) ||
+        (pathname === "/open" && Boolean(url.searchParams.get("id")?.trim())) ||
+        (pathname === "/uc" && Boolean(url.searchParams.get("id")?.trim())));
     const isGoogleDocument =
       hostname === "docs.google.com" &&
-      /^\/(document|spreadsheets|presentation)\/d\/[^/]+/.test(pathname);
+      Boolean(decodeURIComponent(documentPathId).trim());
 
     if (
       isHttp &&
@@ -305,18 +307,26 @@ export function normalizeApacPhone(
       };
     }
     nationalNumber = digits.slice(countryCode.length);
-  } else if (
-    selectedCode &&
-    nationalNumber.startsWith(selectedCode) &&
-    nationalNumber.length > selectedCode.length + 5 &&
-    // A national number can legitimately begin with its own country code. An
-    // Indian mobile may start 91, and stripping those two digits turned a
-    // valid 10-digit number into an 8-digit one that failed the check below.
-    // Only read leading digits as a country code when the number cannot be
-    // valid as typed.
-    !nationalNumberIsValid(countryCode, trimLeadingZero(nationalNumber))
-  ) {
-    nationalNumber = nationalNumber.slice(selectedCode.length);
+  } else if (selectedCode && nationalNumber.startsWith(selectedCode)) {
+    const withoutCode = nationalNumber.slice(selectedCode.length);
+    const validAsNational = nationalNumberIsValid(
+      countryCode,
+      trimLeadingZero(nationalNumber),
+    );
+    const validWithoutCode = nationalNumberIsValid(
+      countryCode,
+      trimLeadingZero(withoutCode),
+    );
+    // Outside India the broad length check cannot distinguish a local number
+    // from one pasted with its country code. Ask for explicit notation rather
+    // than silently adding or removing digits from an ambiguous contact.
+    if (validAsNational && validWithoutCode) {
+      return {
+        valid: false,
+        error: `This number could already include the country code. Enter the full number starting with +${countryCode} to confirm it.`,
+      };
+    }
+    if (!validAsNational && validWithoutCode) nationalNumber = withoutCode;
   }
 
   if (nationalNumber.startsWith("0")) {

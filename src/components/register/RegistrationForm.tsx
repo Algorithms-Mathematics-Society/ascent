@@ -12,6 +12,8 @@ import {
 } from "react";
 import dynamic from "next/dynamic";
 import RegistrationReminder from "@/components/register/RegistrationReminder";
+import { useRegistrationExperience } from "./RegistrationExperience";
+import { registrationRejectionAllowsEditing, registrationRetryBody, snapshotRegistrationSubmission, type RegistrationSubmission } from "./registrationSubmission";
 import { CheckCircle2 } from "lucide-react";
 import type { CollegeResult } from "@/components/register/CollegeTypeahead";
 import {
@@ -118,6 +120,8 @@ interface RegistrationReceipt {
 
 interface RegisterResponse {
   success?: boolean;
+  /** Describes this request only; earlier uncertain attempts may still have saved. */
+  submission_outcome?: "not_created";
   error?: string;
   field?: string;
   /** "status" means the server is pointing at the entry status recovery path. */
@@ -319,20 +323,24 @@ export function readRegistrationDraft(): RegistrationDraft | null {
   return parseRegistrationDraft(raw);
 }
 
-export function writeRegistrationDraft(draft: RegistrationDraft) {
-  if (typeof window === "undefined") return;
+export type DraftSaveStatus = "empty" | "saved" | "unavailable";
+
+export function writeRegistrationDraft(draft: RegistrationDraft): DraftSaveStatus {
+  if (typeof window === "undefined") return "unavailable";
   try {
     if (!hasDraftContent(draft)) {
       window.sessionStorage.removeItem(DRAFT_STORAGE_KEY);
-      return;
+      return "empty";
     }
     window.sessionStorage.setItem(
       DRAFT_STORAGE_KEY,
       serializeRegistrationDraft(draft),
     );
+    return "saved";
   } catch {
     // sessionStorage throws outright in some privacy modes and can fail on
     // quota. A draft that cannot be saved must never break the live form.
+    return "unavailable";
   }
 }
 
@@ -477,24 +485,6 @@ function qualificationNextStep(path: string) {
 
 
 /**
- * How far through the form the candidate is, not which stage they arrived at.
- * Each stage owns a third of the track and the bar sits in the middle of the
- * stage being worked on, so reaching stage 3 reads as "nearly there" instead
- * of "done". The bar never reaches the end while the form is still open: only
- * the receipt means finished, and stage 3 is the longest stage of the three.
- */
-const PROGRESS: Record<RegistrationStep, { width: string; percent: number }> = {
-  1: { width: "w-1/6", percent: 17 },
-  2: { width: "w-1/2", percent: 50 },
-  3: { width: "w-5/6", percent: 83 },
-};
-
-/** The painted width and the announced value, from one source, so they agree. */
-export function registrationProgress(step: RegistrationStep) {
-  return PROGRESS[step];
-}
-
-/**
  * A registration that cannot go through is a dead end unless the notice
  * carries the way out. The status page emails a secure link to the address
  * already on file, which is the account-recovery path the architecture asks
@@ -523,12 +513,13 @@ export function StatusRecoveryNote({ message }: { message: string }) {
  * notice has to say what is missing, that nothing typed is lost, and who to
  * write to when reloading does not help.
  */
-export function VerificationRequiredNote() {
+export function VerificationRequiredNote({ draftSaved = false }: { draftSaved?: boolean }) {
   return (
     <>
       The verification check below has not finished, so your entry was not
-      sent. Your answers are saved on this device, so reloading the page will
-      not lose them. If the check never appears, email{" "}
+      sent. {draftSaved
+        ? "Your answers are saved in this tab. Keep it open while you get help."
+        : "Keep this page open so you do not lose your answers."} If the check never appears, email{" "}
       <a href="mailto:team@amshq.in" className="underline underline-offset-4">
         team@amshq.in
       </a>{" "}
@@ -540,9 +531,11 @@ export function VerificationRequiredNote() {
 export function StageProgress({
   current,
   onNavigate,
+  disabled = false,
 }: {
   current: RegistrationStep;
   onNavigate: (step: RegistrationStep) => void;
+  disabled?: boolean;
 }) {
   const steps = [
     { number: 1, label: "Contact details", shortLabel: "Contact" },
@@ -551,7 +544,7 @@ export function StageProgress({
       label: "Education & institution",
       shortLabel: "Education",
     },
-    { number: 3, label: "Review & submit", shortLabel: "Submit" },
+    { number: 3, label: "Resume & confirmation", shortLabel: "Confirm" },
   ] as const;
 
   return (
@@ -567,23 +560,8 @@ export function StageProgress({
           Step {current} of 3
         </p>
         <p className="text-xs leading-5 text-ascent-muted">
-          Three short stages. You can revisit completed details before you
-          submit.
+          Contact, education, then your resume and confirmation.
         </p>
-      </div>
-
-      <div
-        className="mt-3 h-1 overflow-hidden rounded-full bg-ascent-border"
-        role="progressbar"
-        aria-valuemin={0}
-        aria-valuemax={100}
-        aria-valuenow={registrationProgress(current).percent}
-        aria-valuetext={`Step ${current} of 3, ${registrationProgress(current).percent}% through the form`}
-        aria-label="Registration progress"
-      >
-        <div
-          className={`h-full rounded-full bg-ascent-brand ${registrationProgress(current).width}`}
-        />
       </div>
 
       <ol className="mt-3 grid grid-cols-3">
@@ -600,7 +578,7 @@ export function StageProgress({
                     : "block font-mono text-[0.6875rem] text-ascent-muted"
                 }
               >
-                0{step.number}
+                {complete ? <CheckCircle2 aria-hidden="true" className="h-4 w-4 text-ascent-success" /> : `0${step.number}`}
               </span>
               <span
                 className={
@@ -634,6 +612,7 @@ export function StageProgress({
                 <button
                   type="button"
                   onClick={() => onNavigate(step.number)}
+                  disabled={disabled}
                   className="min-h-11 w-full text-left hover:text-ascent-brand"
                 >
                   {content}
@@ -688,10 +667,46 @@ function StageFrame({
 
 export function SuccessReceipt({ receipt, email }: { receipt: RegistrationReceipt; email: string }) {
   const headingRef = useRef<HTMLHeadingElement>(null);
+  const { setCompleted } = useRegistrationExperience();
+  const [receiptAction, setReceiptAction] = useState("");
 
   useEffect(() => {
+    setCompleted(true);
     headingRef.current?.focus();
-  }, []);
+    return () => setCompleted(false);
+  }, [setCompleted]);
+
+  async function copyReference() {
+    try {
+      await navigator.clipboard.writeText(receipt.reference);
+      setReceiptAction("Reference copied.");
+    } catch {
+      setReceiptAction("Copy is unavailable. Select the reference above to copy it, or save your receipt.");
+    }
+  }
+
+  function saveReceipt() {
+    const contents = [
+      "Ascent registration receipt",
+      `Reference: ${receipt.reference}`,
+      `Email: ${email}`,
+      `Institution: ${receipt.college}`,
+      `Competition route: ${qualificationLabel(receipt.qualificationPath)}`,
+      qualificationNextStep(receipt.qualificationPath),
+      `Round 1: ${TIMELINE[1].timing}`,
+      `Entry status: ${window.location.origin}/register/status`,
+      "Support: team@amshq.in",
+    ].join("\n");
+    const url = URL.createObjectURL(new Blob([contents], { type: "text/plain;charset=utf-8" }));
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "ascent-registration-receipt.txt";
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+    setReceiptAction("Your receipt download has started.");
+  }
 
   return (
     <main className="mx-auto max-w-5xl">
@@ -711,7 +726,7 @@ export function SuccessReceipt({ receipt, email }: { receipt: RegistrationReceip
                 tabIndex={-1}
                 className="mt-2 text-3xl font-semibold tracking-tight text-ascent-ink outline-none sm:text-4xl"
               >
-                Registration complete
+                {receipt.qualificationPath === "AUTO" ? "You’re registered for Ascent" : "Your Ascent entry is submitted"}
               </h2>
               <p className="mt-3 leading-7 text-ascent-muted">
                 Your Ascent competition entry is recorded. Keep the
@@ -724,7 +739,7 @@ export function SuccessReceipt({ receipt, email }: { receipt: RegistrationReceip
         <div className="p-6 sm:p-8">
           <p className="mb-3 text-sm"><a href="/register/status" className="underline underline-offset-4">Check your entry status</a> using a secure link sent to your email.</p>
           <p className="mb-5 text-sm leading-6 text-ascent-muted">
-            A confirmation has been sent to{" "}
+            Your entry is saved. A confirmation email is queued for{" "}
             <span className="font-medium text-ascent-ink">{email}</span>. If it
             does not arrive, check your spam folder. If that address is wrong,
             email{" "}
@@ -762,6 +777,12 @@ export function SuccessReceipt({ receipt, email }: { receipt: RegistrationReceip
             ))}
           </dl>
 
+          <div className="mt-4 flex flex-wrap gap-3">
+            <Button type="button" variant="secondary" onClick={copyReference}>Copy reference</Button>
+            <Button type="button" variant="secondary" onClick={saveReceipt}>Save receipt</Button>
+          </div>
+          <p className="mt-2 text-sm text-ascent-muted" role="status" aria-live="polite">{receiptAction}</p>
+
           <div className="mt-6 rounded-r-control border-l-2 border-ascent-brand bg-ascent-brand-tint px-4 py-3">
             <p className="text-sm font-semibold text-ascent-brand">
               What happens next
@@ -798,8 +819,8 @@ export function SuccessReceipt({ receipt, email }: { receipt: RegistrationReceip
             <p className="text-sm text-ascent-muted">
               Save this reference for any registration support request.
             </p>
-            <Button href="/" variant="secondary">
-              Return to event
+            <Button href="/syllabus">
+              Explore the syllabus
             </Button>
           </div>
         </div>
@@ -828,6 +849,7 @@ export default function RegistrationForm({
   );
   const [unlistedName, setUnlistedName] = useState("");
   const [optionalProfilesOpen, setOptionalProfilesOpen] = useState(false);
+  const [optionalContextOpen, setOptionalContextOpen] = useState(false);
   const [educationSearchReady, setEducationSearchReady] = useState(false);
   const [website, setWebsite] = useState("");
   const [fieldErrors, setFieldErrors] = useState<
@@ -837,11 +859,16 @@ export default function RegistrationForm({
   const [submitting, setSubmitting] = useState(false);
   const [receipt, setReceipt] = useState<RegistrationReceipt | null>(null);
   const submissionTokenRef = useRef<string | null>(null);
+  const submissionSnapshotRef = useRef<RegistrationSubmission | null>(null);
+  const [recoveryPending, setRecoveryPending] = useState(false);
+  const [receiptEmail, setReceiptEmail] = useState("");
+  const formLocked = submitting || recoveryPending;
   const submittingRef = useRef(false);
   const [botToken, setBotToken] = useState("");
   const [botReset, setBotReset] = useState(0);
   const errorSummaryRef = useRef<HTMLDivElement>(null);
   const [draftLoaded, setDraftLoaded] = useState(false);
+  const [draftSaveStatus, setDraftSaveStatus] = useState<DraftSaveStatus>("empty");
 
   // Storage is read here, after mount, and never during render or in a
   // useState initialiser: the server HTML and the browser's first render stay
@@ -850,6 +877,8 @@ export default function RegistrationForm({
     const restored = readRegistrationDraft();
     if (restored) {
       setValues(restored.values);
+      setOptionalProfilesOpen(Boolean(restored.values.linkedinUrl || restored.values.githubUrl));
+      setOptionalContextOpen(Boolean(restored.values.transcriptUrl || restored.values.codeforcesHandle));
       setSelectedCollege(restored.selectedCollege);
       setUnlistedName(restored.unlistedName);
       if (restored.step >= 2) {
@@ -877,7 +906,7 @@ export default function RegistrationForm({
       clearRegistrationDraft();
       return;
     }
-    writeRegistrationDraft({ step, values, selectedCollege, unlistedName });
+    setDraftSaveStatus(writeRegistrationDraft({ step, values, selectedCollege, unlistedName }));
   }, [draftLoaded, receipt, step, values, selectedCollege, unlistedName]);
 
   useEffect(() => {
@@ -918,6 +947,7 @@ export default function RegistrationForm({
     value: FormValues[Key],
     field: FieldName,
   ) {
+    if (formLocked) return;
     setValues((current) => ({ ...current, [key]: value }));
     clearFieldError(field);
     setGlobalError("");
@@ -927,6 +957,7 @@ export default function RegistrationForm({
     errors: Partial<Record<FieldName, string>>,
   ) {
     if (errors.linkedin_url || errors.github_url) setOptionalProfilesOpen(true);
+    if (errors.transcript_url || errors.codeforces_handle) setOptionalContextOpen(true);
   }
 
   function validateStage(targetStep: RegistrationStep) {
@@ -1033,6 +1064,7 @@ export default function RegistrationForm({
   }
 
   function goToStep(nextStep: RegistrationStep) {
+    if (formLocked) return;
     if (nextStep >= 2) prepareEducationSearch();
     setStep(nextStep);
     setGlobalError("");
@@ -1112,7 +1144,9 @@ export default function RegistrationForm({
     // missing token. It sits after validation, which returns before the try
     // block so a client-side failure never burns a single-use token.
     if (!botToken) {
-      setGlobalError(<VerificationRequiredNote />);
+      setGlobalError(recoveryPending
+        ? "Complete the verification check below, then recover your original entry. Your original answers are unchanged."
+        : <VerificationRequiredNote draftSaved={draftSaveStatus === "saved"} />);
       focusErrorSummary();
       return;
     }
@@ -1154,6 +1188,13 @@ export default function RegistrationForm({
     formData.set("submission_token", submissionTokenRef.current);
     formData.set("website", website);
 
+    // A timeout can happen after the server saves the entry. Keep both the
+    // token and the exact original answers until that outcome is resolved.
+    submissionSnapshotRef.current ??= snapshotRegistrationSubmission(formData);
+    const submittedSnapshot = submissionSnapshotRef.current;
+    const wasRecovering = recoveryPending;
+    const requestBody = registrationRetryBody(submittedSnapshot, botToken);
+
     const controller = new AbortController();
     const timeoutId = window.setTimeout(
       () => controller.abort(),
@@ -1163,13 +1204,24 @@ export default function RegistrationForm({
     try {
       const response = await fetch("/api/register", {
         method: "POST",
-        body: formData,
+        body: requestBody,
         signal: controller.signal,
       });
       const data = (await response
         .json()
         .catch(() => ({}))) as RegisterResponse;
       if (!response.ok || !data.success) {
+        const canCorrect = registrationRejectionAllowsEditing(response.status, data, wasRecovering);
+        if (!canCorrect) {
+          setRecoveryPending(true);
+          setGlobalError(data.error || "We could not confirm whether your entry was saved. Recover your original entry below.");
+          focusErrorSummary();
+          return;
+        }
+        // A definite first rejection did not create an entry. Corrections can
+        // be submitted normally, without carrying old answers into a receipt.
+        submissionSnapshotRef.current = null;
+        submissionTokenRef.current = null;
         const mappedField = data.field
           ? SERVER_FIELD_MAP[data.field]
           : undefined;
@@ -1207,13 +1259,16 @@ export default function RegistrationForm({
         typeof data.qualification_reason !== "string" ||
         typeof data.college !== "string"
       ) {
+        setRecoveryPending(true);
         setGlobalError(
-          "The registration receipt could not be read. Submit again to retrieve it.",
+          "The registration receipt could not be read. Recover your original entry below.",
         );
         focusErrorSummary();
         return;
       }
 
+      setReceiptEmail(submittedSnapshot.email);
+      setRecoveryPending(false);
       setReceipt({
         codeforcesHandle: data.codeforces_handle ?? null,
         reference: data.reference,
@@ -1222,10 +1277,11 @@ export default function RegistrationForm({
         college: data.college,
       });
     } catch (error) {
+      setRecoveryPending(true);
       setGlobalError(
         error instanceof DOMException && error.name === "AbortError"
-          ? "Submission is taking longer than expected. Try again. Your retry will use the same entry reference."
-          : "A network error interrupted submission. Check your connection and try again.",
+          ? "The request took too long to confirm. Your entry may already be saved. Recover your original entry below."
+          : "Your connection was interrupted. Your entry may already be saved. Check your connection, then recover your original entry below.",
       );
       focusErrorSummary();
     } finally {
@@ -1236,7 +1292,7 @@ export default function RegistrationForm({
     }
   }
 
-  if (receipt) return <SuccessReceipt receipt={receipt} email={values.email} />;
+  if (receipt) return <SuccessReceipt receipt={receipt} email={receiptEmail} />;
 
   const institutionLabel = selectedCollege
     ? `${selectedCollege.canonical_name}${selectedCollege.campus ? ` · ${selectedCollege.campus}` : ""}`
@@ -1261,11 +1317,32 @@ export default function RegistrationForm({
         </Notice>
       ) : null}
 
-      <StageProgress current={step} onNavigate={goToStep} />
+      <StageProgress current={step} onNavigate={goToStep} disabled={formLocked} />
+
+      {draftSaveStatus !== "empty" && !recoveryPending ? (
+        <p className="mt-3 text-xs leading-5 text-ascent-muted" role="status" aria-live="polite">
+          {draftSaveStatus === "saved"
+            ? "Your answers are saved in this tab. Keep it open while you get your resume link."
+            : "We could not save a draft in this browser. Keep this page open so you do not lose your answers."}
+        </p>
+      ) : null}
+
+      {recoveryPending ? (
+        <div className="mt-5">
+          <Notice tone="info" heading="Recover your original entry">
+            Your entry may already be saved with <span className="break-all">{submissionSnapshotRef.current?.email}</span>.
+            Your answers are locked while we check. Complete the verification below,
+            then choose “Recover original entry” to retry the same answers safely.
+            Keep this tab open. To check separately or request a correction, use the{" "}
+            <a href="/register/status" target="_blank" rel="noreferrer" className="underline underline-offset-4">entry status page</a>{" "}
+            or email <a href="mailto:team@amshq.in" className="underline underline-offset-4">team@amshq.in</a>.
+          </Notice>
+        </div>
+      ) : null}
 
       {globalError ? (
         <div ref={errorSummaryRef} tabIndex={-1} className="mt-5 outline-none">
-          <Notice tone="danger" heading="Registration not submitted">
+          <Notice tone="danger" heading={recoveryPending ? "Registration needs confirmation" : "Registration not submitted"}>
             {globalError}
           </Notice>
         </div>
@@ -1283,13 +1360,13 @@ export default function RegistrationForm({
         <StageFrame
           number={1}
           title="Contact details"
-          description="Tell the event team who you are and how to reach you with schedule and administration updates."
+          description="So we can send your entry confirmation and competition updates."
           hidden={step !== 1}
         >
           <p className="mb-5 font-mono text-xs uppercase tracking-[0.12em] text-ascent-muted">
             Required unless marked optional.
           </p>
-          <fieldset disabled={submitting || !registrationOpen} className="grid gap-5 sm:grid-cols-2">
+          <fieldset disabled={formLocked || !registrationOpen} className="grid gap-5 sm:grid-cols-2">
             <legend className="sr-only">Contact details</legend>
             <FormField
               label="Full name"
@@ -1305,7 +1382,7 @@ export default function RegistrationForm({
                   updateValue("legalName", event.target.value, "legal_name")
                 }
                 autoComplete="name"
-                disabled={submitting}
+                disabled={formLocked}
               />
             </FormField>
             <FormField
@@ -1323,7 +1400,7 @@ export default function RegistrationForm({
                   updateValue("email", event.target.value, "email")
                 }
                 autoComplete="email"
-                disabled={submitting}
+                disabled={formLocked}
               />
             </FormField>
             <div className="flex flex-col gap-2">
@@ -1341,7 +1418,7 @@ export default function RegistrationForm({
                     updateValue("phoneCountryCode", event.target.value, "phone")
                   }
                   aria-label="Mobile number country or territory"
-                  disabled={submitting}
+                  disabled={formLocked}
                 >
                   {APAC_PHONE_COUNTRIES.map((country) => (
                     <option key={country.callingCode} value={country.callingCode}>
@@ -1366,11 +1443,11 @@ export default function RegistrationForm({
                       : "phone-description"
                   }
                   aria-invalid={Boolean(fieldErrors.phone)}
-                  disabled={submitting}
+                  disabled={formLocked}
                 />
               </div>
               <p id="phone-description" className="text-xs leading-5 text-ascent-muted">
-                Enter the local number, without its country code.
+                Enter your local number, or paste the full number starting with +.
               </p>
               {fieldErrors.phone ? (
                 <p
@@ -1385,9 +1462,10 @@ export default function RegistrationForm({
           </fieldset>
           <div className="mt-7 flex flex-col gap-4 border-t border-ascent-border pt-5 sm:flex-row sm:items-center sm:justify-between">
             <p className="max-w-md text-xs leading-5 text-ascent-muted">
-              <span className="font-semibold text-ascent-ink">Private:</span>{" "}
-              these contact details are used for competition administration and
-              are not shown on the public ranklist.
+              Your contact details are not shown on the public ranklist. Registration
+              includes consent to competition administration and sharing your profile
+              and results with AMS partner firms for recruitment. You will review
+              the full notice before submitting.
             </p>
             <div className="group relative w-full sm:w-auto">
               <div
@@ -1437,10 +1515,10 @@ export default function RegistrationForm({
         <StageFrame
           number={2}
           title="Education & institution"
-          description="Choose your current situation. The form will ask only for the education details that apply."
+          description="Choose your institution and current situation."
           hidden={step !== 2}
         >
-          <fieldset disabled={submitting || !registrationOpen} className="space-y-6">
+          <fieldset disabled={formLocked || !registrationOpen} className="space-y-6">
             <legend className="sr-only">Education and profiles</legend>
             <div>
               <p className="font-mono text-xs font-semibold uppercase tracking-[0.14em] text-ascent-brand">
@@ -1452,7 +1530,7 @@ export default function RegistrationForm({
             </div>
             {educationSearchReady ? (
               <CollegeTypeahead
-                disabled={submitting}
+                disabled={formLocked}
                 error={fieldErrors.college}
                 /*
                  * Seeds the search box with an institution that is already
@@ -1503,7 +1581,7 @@ export default function RegistrationForm({
                   clearFieldError("current_study_level");
                   clearFieldError("graduation_year");
                 }}
-                disabled={submitting}
+                disabled={formLocked}
               >
                 <option value="">Select your current situation</option>
                 {EDUCATION_OPTIONS.map((option) => (
@@ -1533,7 +1611,7 @@ export default function RegistrationForm({
                           "current_study_level",
                         )
                       }
-                      disabled={submitting}
+                      disabled={formLocked}
                     >
                       <option value="">Select grade</option>
                       {SCHOOL_GRADES.map((grade) => (
@@ -1579,7 +1657,7 @@ export default function RegistrationForm({
                       )
                     }
                     placeholder={String(CURRENT_YEAR + 1)}
-                    disabled={submitting}
+                    disabled={formLocked}
                   />
                 </FormField>
               </div>
@@ -1622,7 +1700,7 @@ export default function RegistrationForm({
                     }
                     placeholder="linkedin.com/in/your-name"
                     autoComplete="off"
-                    disabled={submitting}
+                    disabled={formLocked}
                   />
                 </FormField>
                 <FormField
@@ -1642,7 +1720,7 @@ export default function RegistrationForm({
                     }
                     placeholder="github.com/username"
                     autoComplete="off"
-                    disabled={submitting}
+                    disabled={formLocked}
                   />
                 </FormField>
               </div>
@@ -1670,8 +1748,8 @@ export default function RegistrationForm({
 
         <StageFrame
           number={3}
-          title="Review & submit"
-          description="Add the required resume link first, then any optional context you want us to consider."
+          title="Resume & confirmation"
+          description="Add your resume, check your details, then confirm your entry."
           hidden={step !== 3}
         >
           <div className="rounded-panel border border-ascent-border bg-ascent-surface-subtle p-4 sm:p-5">
@@ -1691,11 +1769,12 @@ export default function RegistrationForm({
                   {values.email}
                 </dd>
                 <dd className="mt-0.5 text-xs text-ascent-muted">
-                  {values.phone}
+                  {normalizeApacPhone(values.phone, values.phoneCountryCode).e164 ?? values.phone}
                 </dd>
                 <button
                   type="button"
                   onClick={() => goToStep(1)}
+                  disabled={formLocked}
                   className="mt-2 min-h-11 text-xs font-semibold text-ascent-brand underline underline-offset-4"
                 >
                   Edit contact details
@@ -1714,6 +1793,7 @@ export default function RegistrationForm({
                 <button
                   type="button"
                   onClick={() => goToStep(2)}
+                  disabled={formLocked}
                   className="mt-2 min-h-11 text-xs font-semibold text-ascent-brand underline underline-offset-4"
                 >
                   Edit education details
@@ -1722,7 +1802,7 @@ export default function RegistrationForm({
             </dl>
           </div>
 
-          <fieldset disabled={submitting || !registrationOpen} className="mt-6 space-y-6">
+          <fieldset disabled={formLocked || !registrationOpen} className="mt-6 space-y-6">
             <legend className="sr-only">Competition entry</legend>
             <div>
               <p className="font-mono text-xs font-semibold uppercase tracking-[0.14em] text-ascent-brand">
@@ -1753,7 +1833,7 @@ export default function RegistrationForm({
                 }
                 placeholder="drive.google.com/file/d/..."
                 autoComplete="off"
-                disabled={submitting}
+                disabled={formLocked}
               />
             </FormField>
 
@@ -1768,15 +1848,19 @@ export default function RegistrationForm({
               </p>
             </details>
 
-            <div className="border-t border-ascent-border pt-6">
-              <p className="font-mono text-xs font-semibold uppercase tracking-[0.14em] text-ascent-brand">
-                Optional context
-              </p>
+            <details
+              className="group border-t border-ascent-border pt-6"
+              open={optionalContextOpen}
+              onToggle={(event) => setOptionalContextOpen(event.currentTarget.open)}
+            >
+              <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-4 text-sm font-semibold text-ascent-ink [&::-webkit-details-marker]:hidden">
+                <span>Transcript and Codeforces handle <span className="font-normal text-ascent-muted">(optional)</span></span>
+                <span aria-hidden="true" className="font-mono text-base text-ascent-brand transition-transform duration-150 motion-reduce:transition-none group-open:rotate-45">+</span>
+              </summary>
               <p className="mt-1 text-sm leading-5 text-ascent-muted">
                 Add either item only if you want it considered with your entry.
               </p>
-            </div>
-            <div className="grid gap-6 sm:grid-cols-2">
+            <div className="mt-5 grid gap-6 sm:grid-cols-2">
               <FormField
                 label="Transcript link"
                 id="transcript_url"
@@ -1798,7 +1882,7 @@ export default function RegistrationForm({
                   }
                   placeholder="drive.google.com/file/d/..."
                   autoComplete="off"
-                  disabled={submitting}
+                  disabled={formLocked}
                 />
               </FormField>
 
@@ -1825,10 +1909,11 @@ export default function RegistrationForm({
                   spellCheck={false}
                   placeholder="e.g. tourist"
                   maxLength={24}
-                  disabled={submitting}
+                  disabled={formLocked}
                 />
               </FormField>
             </div>
+            </details>
             <div className="rounded-control border border-ascent-border bg-ascent-surface-subtle p-4">
               <p className="font-mono text-xs font-semibold uppercase tracking-[0.14em] text-ascent-brand">
                 Final confirmation
@@ -1853,7 +1938,7 @@ export default function RegistrationForm({
                     )
                   }
                   required
-                  disabled={submitting}
+                  disabled={formLocked}
                   aria-invalid={Boolean(fieldErrors.contest_consent)}
                   aria-describedby={
                     fieldErrors.contest_consent
@@ -1897,7 +1982,7 @@ export default function RegistrationForm({
           </fieldset>
 
           <label className="mt-5 flex items-start gap-3 text-sm leading-6">
-            <input id="terms_accepted" name="terms_accepted" type="checkbox" required checked={values.termsAccepted} disabled={submitting || !registrationOpen}
+            <input id="terms_accepted" name="terms_accepted" type="checkbox" required checked={values.termsAccepted} disabled={formLocked || !registrationOpen}
               aria-invalid={Boolean(fieldErrors.terms_accepted)}
               aria-describedby={fieldErrors.terms_accepted ? "terms_accepted-error" : undefined}
               onChange={event => updateValue("termsAccepted", event.target.checked, "terms_accepted")} className="mt-1 size-4 shrink-0 accent-ascent-brand" />
@@ -1911,7 +1996,7 @@ export default function RegistrationForm({
               type="button"
               variant="secondary"
               onClick={() => goToStep(2)}
-              disabled={submitting}
+              disabled={formLocked}
               className="w-full sm:w-auto"
             >
               Back
@@ -1931,7 +2016,7 @@ export default function RegistrationForm({
                   Submitting competition entry…
                 </>
               ) : (
-                "Submit competition entry"
+                recoveryPending ? "Recover original entry" : "Submit competition entry"
               )}
             </Button>
           </div>
@@ -1950,7 +2035,7 @@ export default function RegistrationForm({
             onChange={(event) => setWebsite(event.target.value)}
             autoComplete="off"
             tabIndex={-1}
-            disabled={submitting}
+            disabled={formLocked}
           />
         </div>
       </form>

@@ -79,9 +79,11 @@ type TransactionResult =
   | { kind: "idempotent"; receipt: RegistrationReceipt }
   | { kind: "unavailable"; message: string };
 
+// These failures stop before entry writes, or return an explicit no-write
+// transaction result. This describes the current request, not earlier retries.
 function fieldError(field: string, error: string, status = 400) {
   return NextResponse.json(
-    { success: false, error, field },
+    { success: false, submission_outcome: "not_created", error, field },
     {
       status,
       headers: { "Cache-Control": "private, no-store" },
@@ -187,7 +189,7 @@ export async function POST(req: NextRequest) {
 
   if (!requestIsSameOrigin(req)) {
     return NextResponse.json(
-      { success: false, error: "Registration request was not accepted." },
+      { success: false, submission_outcome: "not_created", error: "Registration request was not accepted." },
       { status: 403 },
     );
   }
@@ -195,7 +197,7 @@ export async function POST(req: NextRequest) {
   const contentType = req.headers.get("content-type") ?? "";
   if (!contentType.toLowerCase().startsWith("multipart/form-data")) {
     return NextResponse.json(
-      { success: false, error: "Invalid registration request." },
+      { success: false, submission_outcome: "not_created", error: "Invalid registration request." },
       { status: 415 },
     );
   }
@@ -209,7 +211,7 @@ export async function POST(req: NextRequest) {
     (!Number.isFinite(contentLength) || contentLength > MAX_FORM_BYTES)
   ) {
     return NextResponse.json(
-      { success: false, error: "Registration request is too large." },
+      { success: false, submission_outcome: "not_created", error: "Registration request is too large." },
       { status: 413 },
     );
   }
@@ -221,7 +223,7 @@ export async function POST(req: NextRequest) {
   } catch (error) {
     if (error instanceof RequestBodyTooLarge) return fieldError("registration", "Registration request is too large.", 413);
     return NextResponse.json(
-      { success: false, error: "Invalid registration request." },
+      { success: false, submission_outcome: "not_created", error: "Invalid registration request." },
       { status: 400 },
     );
   }
@@ -232,7 +234,7 @@ export async function POST(req: NextRequest) {
     (typeof honeypot !== "string" || honeypot.trim().length > 0)
   ) {
     return NextResponse.json(
-      { success: false, error: "Registration request was not accepted." },
+      { success: false, submission_outcome: "not_created", error: "Registration request was not accepted." },
       { status: 400 },
     );
   }
@@ -269,7 +271,7 @@ export async function POST(req: NextRequest) {
       error,
     );
     return NextResponse.json(
-      { success: false, error: "Registration could not be checked. Try again." },
+      { success: false, submission_outcome: "not_created", error: "Registration could not be checked. Try again." },
       { status: 500 },
     );
   }
@@ -291,7 +293,7 @@ export async function POST(req: NextRequest) {
       error,
     );
     return NextResponse.json(
-      { success: false, error: "Registration availability could not be checked. Try again." },
+      { success: false, submission_outcome: "not_created", error: "Registration availability could not be checked. Try again." },
       { status: 503 },
     );
   }
@@ -394,7 +396,7 @@ export async function POST(req: NextRequest) {
       error,
     );
     return NextResponse.json(
-      { success: false, error: "Registration could not be checked. Try again." },
+      { success: false, submission_outcome: "not_created", error: "Registration could not be checked. Try again." },
       { status: 500 },
     );
   }
@@ -403,6 +405,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(
       {
         success: false,
+        submission_outcome: "not_created",
         error:
           "Too many attempts for these details. Try again in 30 minutes. If you have already registered, the entry status page emails you a secure link to your entry, and team@amshq.in can help.",
         recovery: "status",
@@ -759,6 +762,8 @@ export async function POST(req: NextRequest) {
       },
       error,
     );
+    // A transaction was attempted: do not label its failure "not_created".
+    // Even an empty recovery read cannot rule out an in-flight commit.
     return NextResponse.json(
       {
         success: false,

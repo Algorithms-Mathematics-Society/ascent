@@ -15,17 +15,10 @@ import RegistrationForm, {
   StatusRecoveryNote,
   SuccessReceipt,
   VerificationRequiredNote,
-  registrationProgress,
 } from "@/components/register/RegistrationForm";
 
 function form() {
   return renderToStaticMarkup(<RegistrationForm initiallyOpen />);
-}
-
-function progressBar(markup: string) {
-  const found = markup.match(/role="progressbar"[\s\S]{0,500}?<\/div>/);
-  expect(found).not.toBeNull();
-  return found![0];
 }
 
 const RECEIPT = {
@@ -87,59 +80,23 @@ describe("participation consent: the helper text under the checkbox", () => {
   });
 });
 
-describe("stage progress: how full the bar is", () => {
-  it("is not full on stage 3, where the longest stage is still ahead", () => {
-    expect(registrationProgress(3).width).not.toBe("w-full");
-    expect(registrationProgress(3).percent).toBeLessThan(100);
-    expect(progressBar(
-      renderToStaticMarkup(<StageProgress current={3} onNavigate={() => {}} />),
-    )).not.toContain("w-full");
-  });
-
-  it("is never full on any stage, because the form is still open", () => {
+describe("stage progress: truthful completed stages", () => {
+  it("names the current step without implying a percentage of effort completed", () => {
     for (const step of [1, 2, 3] as const) {
-      const bar = progressBar(
-        renderToStaticMarkup(
-          <StageProgress current={step} onNavigate={() => {}} />,
-        ),
-      );
-      expect(bar).not.toContain("w-full");
-      expect(bar).not.toContain('aria-valuenow="100"');
+      const markup = renderToStaticMarkup(<StageProgress current={step} onNavigate={() => {}} />);
+      expect(markup).toContain(`Step ${step} of 3`);
+      expect(markup).not.toContain('role="progressbar"');
+      expect(markup).not.toContain("% through the form");
+      expect(markup).toContain('aria-current="step"');
+      expect((markup.match(/>Completed</g) ?? []).length).toBe(step - 1);
     }
   });
 
-  it("starts partially filled and only moves forward", () => {
-    expect(registrationProgress(1).percent).toBeGreaterThan(0);
-    expect(registrationProgress(1).percent).toBeLessThan(
-      registrationProgress(2).percent,
-    );
-    expect(registrationProgress(2).percent).toBeLessThan(
-      registrationProgress(3).percent,
-    );
-  });
-
-  it("announces the same value it paints", () => {
-    for (const step of [1, 2, 3] as const) {
-      const bar = progressBar(
-        renderToStaticMarkup(
-          <StageProgress current={step} onNavigate={() => {}} />,
-        ),
-      );
-      const { width, percent } = registrationProgress(step);
-
-      expect(bar).toContain(`aria-valuenow="${percent}"`);
-      expect(bar).toContain('aria-valuemin="0"');
-      expect(bar).toContain('aria-valuemax="100"');
-      expect(bar).toContain(`Step ${step} of 3, ${percent}% through the form`);
-      expect(bar).toContain(`bg-ascent-brand ${width}`);
-    }
-  });
-
-  it("renders stage 1 of the live form at the partial start value", () => {
-    const bar = progressBar(form());
-
-    expect(bar).toContain(`aria-valuenow="${registrationProgress(1).percent}"`);
-    expect(bar).toContain(`bg-ascent-brand ${registrationProgress(1).width}`);
+  it("locks backward navigation when an original entry needs recovery", () => {
+    const markup = renderToStaticMarkup(<StageProgress current={3} onNavigate={() => {}} disabled />);
+    const buttons = markup.match(/<button[^>]*>/g) ?? [];
+    expect(buttons).toHaveLength(2);
+    expect(buttons.every(button => button.includes("disabled"))).toBe(true);
   });
 });
 
@@ -153,15 +110,20 @@ describe("submit button: reachable feedback", () => {
     expect(submit![0]).not.toContain("disabled");
   });
 
-  it("explains what is missing and that nothing typed is lost", () => {
+  it("does not promise saved answers without a successful draft write", () => {
     const markup = renderToStaticMarkup(<VerificationRequiredNote />);
 
     expect(markup).toContain("verification check");
     expect(markup).toContain("your entry was not sent");
-    expect(markup).toContain(
-      "Your answers are saved on this device, so reloading the page will not lose them.",
-    );
+    expect(markup).toContain("Keep this page open so you do not lose your answers.");
+    expect(markup).not.toContain("Your answers are saved");
     expect(markup).toContain('href="mailto:team@amshq.in"');
+  });
+
+  it("limits a successful save assurance to the current tab", () => {
+    const markup = renderToStaticMarkup(<VerificationRequiredNote draftSaved />);
+    expect(markup).toContain("Your answers are saved in this tab.");
+    expect(markup).not.toContain("reloading the page will not lose them");
   });
 });
 
@@ -205,6 +167,21 @@ describe("success receipt: what the candidate needs on the day", () => {
     expect(markup).toContain(RECEIPT.reference);
     expect(markup).toContain(RECEIPT.college);
     expect(markup).toContain("/register/status");
+  });
+
+  it("distinguishes an accepted direct entry from an entry awaiting review", () => {
+    const pending = renderToStaticMarkup(<SuccessReceipt receipt={{ ...RECEIPT, qualificationPath: "QUALIFIER" }} email="asha@example.com" />);
+    expect(markup).toContain("You’re registered for Ascent");
+    expect(pending).toContain("Your Ascent entry is submitted");
+    expect(pending).not.toContain("You’re registered for Ascent");
+  });
+
+  it("offers a saved record and useful next step without claiming delivered mail", () => {
+    expect(markup).toContain("Copy reference");
+    expect(markup).toContain("Save receipt");
+    expect(markup).toContain('href="/syllabus"');
+    expect(markup).toContain("A confirmation email is queued for");
+    expect(markup).not.toContain("A confirmation has been sent");
   });
 
   it("stays calm: no exclamation marks in the receipt copy", () => {

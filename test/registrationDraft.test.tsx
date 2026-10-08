@@ -359,7 +359,7 @@ describe("registration draft: talking to sessionStorage", () => {
   it("saves under the versioned key and reads the draft back", () => {
     const { store } = installStorage();
 
-    writeRegistrationDraft(FILLED_DRAFT);
+    expect(writeRegistrationDraft(FILLED_DRAFT)).toBe("saved");
 
     expect([...store.keys()]).toEqual(["ascent:registration-draft:v1"]);
     expect(DRAFT_STORAGE_KEY).toBe("ascent:registration-draft:v1");
@@ -390,7 +390,7 @@ describe("registration draft: talking to sessionStorage", () => {
     const { store, storage } = installStorage();
     store.set(DRAFT_STORAGE_KEY, "stale");
 
-    writeRegistrationDraft(EMPTY_DRAFT);
+    expect(writeRegistrationDraft(EMPTY_DRAFT)).toBe("empty");
 
     expect(storage.setItem).not.toHaveBeenCalled();
     expect(store.has(DRAFT_STORAGE_KEY)).toBe(false);
@@ -423,7 +423,7 @@ describe("registration draft: talking to sessionStorage", () => {
       }),
     });
 
-    expect(() => writeRegistrationDraft(FILLED_DRAFT)).not.toThrow();
+    expect(writeRegistrationDraft(FILLED_DRAFT)).toBe("unavailable");
     expect(storage.setItem).toHaveBeenCalledOnce();
   });
 

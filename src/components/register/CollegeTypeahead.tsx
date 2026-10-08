@@ -93,6 +93,7 @@ export function initialCollegeCommitment(
 
 const MIN_QUERY_LENGTH = 2;
 const MAX_VISIBLE_RESULTS = 8;
+export const COLLEGE_SEARCH_TIMEOUT_MS = 8_000;
 const SEARCH_CACHE_TTL_MS = 5 * 60 * 1000;
 const SEARCH_CACHE_MAX_ENTRIES = 32;
 
@@ -128,6 +129,55 @@ function writeCachedSearch(query: string, results: CollegeResult[]) {
     const oldestKey = searchCache.keys().next().value;
     if (typeof oldestKey !== "string") break;
     searchCache.delete(oldestKey);
+  }
+}
+
+class CollegeSearchError extends Error {}
+
+/** Bound both the request and body read so a stalled search exposes the fallback. */
+export async function fetchCollegeSearch(
+  query: string,
+  signal: AbortSignal,
+): Promise<CollegeResult[]> {
+  const controller = new AbortController();
+  let timeout: ReturnType<typeof setTimeout> | undefined;
+  let cancel: (() => void) | undefined;
+  const interrupted = new Promise<never>((_, reject) => {
+    cancel = () => {
+      reject(new DOMException("Institution search was cancelled.", "AbortError"));
+      controller.abort();
+    };
+    if (signal.aborted) {
+      cancel();
+      return;
+    }
+    signal.addEventListener("abort", cancel, { once: true });
+    timeout = setTimeout(() => {
+      reject(new CollegeSearchError("Institution search is taking too long. Try again or continue with this institution name."));
+      controller.abort();
+    }, COLLEGE_SEARCH_TIMEOUT_MS);
+  });
+  try {
+    return await Promise.race([
+      interrupted,
+      (async () => {
+        if (signal.aborted) throw new DOMException("Institution search was cancelled.", "AbortError");
+        const response = await fetch(
+          `/api/colleges/search?q=${encodeURIComponent(query)}`,
+          { signal: controller.signal },
+        );
+        if (!response.ok) {
+          throw new CollegeSearchError(response.status === 429
+            ? "Too many searches. Wait a moment, then try again."
+            : "Institution search is unavailable. Try again.");
+        }
+        const data = (await response.json()) as { results?: CollegeResult[] };
+        return (data.results ?? []).slice(0, MAX_VISIBLE_RESULTS);
+      })(),
+    ]);
+  } finally {
+    if (timeout !== undefined) clearTimeout(timeout);
+    if (cancel) signal.removeEventListener("abort", cancel);
   }
 }
 
@@ -227,30 +277,8 @@ export default function CollegeTypeahead({
 
     const timer = window.setTimeout(async () => {
       try {
-        const response = await fetch(
-          `/api/colleges/search?q=${encodeURIComponent(normalizedQuery)}`,
-          { signal: controller.signal },
-        );
-
-        if (requestIdRef.current !== currentRequestId) return;
-
-        if (!response.ok) {
-          setResults([]);
-          setSearchError(
-            response.status === 429
-              ? "Too many searches. Wait a moment, then try again."
-              : "Institution search is unavailable. Try again.",
-          );
-          return;
-        }
-
-        const data = (await response.json()) as {
-          results?: CollegeResult[];
-        };
-        const nextResults = (data.results ?? []).slice(
-          0,
-          MAX_VISIBLE_RESULTS,
-        );
+        const nextResults = await fetchCollegeSearch(normalizedQuery, controller.signal);
+        if (requestIdRef.current !== currentRequestId || controller.signal.aborted) return;
         writeCachedSearch(cacheKey, nextResults);
         setActiveIndex(-1);
         setResults(nextResults);
@@ -263,7 +291,9 @@ export default function CollegeTypeahead({
           )
         ) {
           setResults([]);
-          setSearchError("Institution search is unavailable. Try again.");
+          setSearchError(fetchError instanceof CollegeSearchError
+            ? fetchError.message
+            : "Institution search is unavailable. Try again.");
         }
       } finally {
         if (requestIdRef.current === currentRequestId) {

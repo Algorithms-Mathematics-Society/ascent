@@ -111,6 +111,29 @@ describe("normalizeGoogleDriveUrl", () => {
     ).toBe(true);
   });
 
+  it("rejects missing or blank Drive file IDs in query-style links", () => {
+    for (const path of ["open", "uc"]) {
+      for (const query of ["", "?id=", "?id=%20%20", "?id=+&export=download"]) {
+        expect(normalizeGoogleDriveUrl(`https://drive.google.com/${path}${query}`, true).valid).toBe(false);
+      }
+      expect(normalizeGoogleDriveUrl(`https://drive.google.com/${path}?id=valid-file_id`, true).valid).toBe(true);
+    }
+  });
+
+  it("rejects blank encoded IDs in Drive and Docs paths", () => {
+    for (const prefix of [
+      "https://drive.google.com/file/d/",
+      "https://docs.google.com/document/d/",
+      "https://docs.google.com/spreadsheets/d/",
+      "https://docs.google.com/presentation/d/",
+    ]) {
+      for (const id of ["", "%20", "%09", "%E3%80%80"]) {
+        expect(normalizeGoogleDriveUrl(`${prefix}${id}`, true).valid).toBe(false);
+      }
+      expect(normalizeGoogleDriveUrl(`${prefix}valid-file_id/view`, true).valid).toBe(true);
+    }
+  });
+
   it("rejects non-Google URLs, folders, and bare Drive pages", () => {
     expect(
       normalizeGoogleDriveUrl("https://dropbox.com/resume.pdf", true).valid,
@@ -350,6 +373,36 @@ describe("normalizeApacPhone", () => {
     expect(normalizeApacPhone("090-1234-5678", "81")).toEqual({
       valid: true,
       e164: "+819012345678",
+    });
+  });
+
+  it("asks for an explicit country code when a bare number is ambiguous", () => {
+    for (const [number, country] of [
+      ["6581234567", "65"],
+      ["65 8123 4567", "65"],
+      ["65123456", "65"],
+      ["61412345678", "61"],
+    ]) {
+      const result = normalizeApacPhone(number, country);
+      expect(result.valid).toBe(false);
+      expect(result.e164).toBeUndefined();
+      expect(result.error).toContain(`starting with +${country}`);
+    }
+  });
+
+  it("preserves either interpretation once an ambiguous number is explicit", () => {
+    expect(normalizeApacPhone("+65 8123 4567", "65")).toEqual({
+      valid: true, e164: "+6581234567",
+    });
+    expect(normalizeApacPhone("0065 8123 4567", "65")).toEqual({
+      valid: true, e164: "+6581234567",
+    });
+    expect(normalizeApacPhone("+61 412 345 678", "61")).toEqual({
+      valid: true, e164: "+61412345678",
+    });
+    // A national number may legitimately begin with its own country's digits.
+    expect(normalizeApacPhone("+65 6512 3456", "65")).toEqual({
+      valid: true, e164: "+6565123456",
     });
   });
 

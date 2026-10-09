@@ -893,6 +893,19 @@ export default function RegistrationForm({
     setDraftLoaded(true);
   }, []);
 
+  // Warm the small search chunk while contact details are being entered.
+  // Import only: mounting it here would seed the control before draft restore.
+  useEffect(() => {
+    if (!registrationOpen) return;
+    const preload = () => { void loadCollegeTypeahead().catch(() => {}); };
+    if (typeof window.requestIdleCallback === "function") {
+      const handle = window.requestIdleCallback(preload, { timeout: 1000 });
+      return () => window.cancelIdleCallback?.(handle);
+    }
+    const handle = window.setTimeout(preload, 500);
+    return () => window.clearTimeout(handle);
+  }, [registrationOpen]);
+
   // Mirror the answers so far back into storage. A receipt means the entry is
   // in, so the draft is cleared instead: a candidate who returns to this page
   // should not meet their old answers.

@@ -1,4 +1,5 @@
 // src/components/ui/Button.tsx
+import Link from "next/link";
 import type {
   AnchorHTMLAttributes,
   ButtonHTMLAttributes,
@@ -50,6 +51,25 @@ export default function Button(props: ButtonAsLink | ButtonAsButton) {
 
   if ("href" in props && props.href !== undefined) {
     const anchorProps = rest as AnchorHTMLAttributes<HTMLAnchorElement>;
+    // Keep downloads, explicit browsing targets and private routes on their
+    // native navigation path. Public pages can reuse the current app shell.
+    const isPublicRoute = ["/", "/syllabus", "/register"].includes(props.href);
+    if (
+      isPublicRoute &&
+      anchorProps.target === undefined &&
+      anchorProps.download === undefined
+    ) {
+      return (
+        <Link
+          className={classes}
+          {...anchorProps}
+          href={props.href}
+          prefetch={props.href === "/register" ? false : undefined}
+        >
+          {children}
+        </Link>
+      );
+    }
     return (
       <a className={classes} {...anchorProps}>
         {children}

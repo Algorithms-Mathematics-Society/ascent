@@ -71,10 +71,10 @@ function SectionHeader({
 
 function TopicGroup({ group }: { group: SyllabusGroup }) {
   return (
-    <section aria-labelledby={`topic-${group.title.replaceAll(" ", "-").toLowerCase()}`}>
+    <section className="rounded-panel border border-ascent-border bg-ascent-surface p-5 sm:p-6" aria-labelledby={`topic-${group.title.replaceAll(" ", "-").toLowerCase()}`}>
       <h3
         id={`topic-${group.title.replaceAll(" ", "-").toLowerCase()}`}
-        className="font-mono text-[0.7rem] font-semibold uppercase tracking-[0.24em] text-ascent-gold-ink"
+        className="font-mono text-xs font-semibold uppercase tracking-[0.14em] text-ascent-gold-ink"
       >
         {group.title}
       </h3>
@@ -82,9 +82,9 @@ function TopicGroup({ group }: { group: SyllabusGroup }) {
         {group.items.map((item) => (
           <li
             key={item}
-            className="grid grid-cols-[0.45rem_minmax(0,1fr)] gap-3 font-mono text-[0.78rem] leading-[1.55] text-ascent-muted sm:text-[0.82rem]"
+            className="grid grid-cols-[0.45rem_minmax(0,1fr)] gap-3 text-sm leading-6 text-ascent-ink"
           >
-            <span aria-hidden="true" className="mt-[0.46rem] h-1 w-1 bg-ascent-gold" />
+            <span aria-hidden="true" className="mt-2.5 h-1 w-1 bg-ascent-gold" />
             <span>{item}</span>
           </li>
         ))}
@@ -105,9 +105,6 @@ function SectionFooter({ children }: { children: React.ReactNode }) {
 }
 
 export default function SyllabusPage() {
-  const behavior = ROUND_ONE_GROUPS[2];
-  const generics = ROUND_ONE_GROUPS[3];
-
   return (
     <>
       <Navbar page="syllabus" />
@@ -117,7 +114,7 @@ export default function SyllabusPage() {
             <p className="font-mono text-[0.68rem] font-semibold uppercase tracking-[0.28em] text-ascent-on-brand/70">
               Ascent · Competition syllabus
             </p>
-            <div className="mt-5 grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(20rem,0.52fr)] lg:items-end">
+            <div className="mt-5">
               <div>
                 <h1 className="max-w-4xl font-display text-5xl font-semibold leading-[0.94] tracking-[-0.03em] sm:text-6xl lg:text-7xl">
                   Know the language. Understand the machine.
@@ -127,76 +124,71 @@ export default function SyllabusPage() {
                   individual language fluency to team implementation and real toolchain work.
                 </p>
               </div>
-              <nav aria-label="Syllabus sections" className="border-t border-ascent-on-brand/25 pt-4 lg:border-l lg:border-t-0 lg:pl-6 lg:pt-0">
-                <ol className="grid gap-px overflow-hidden rounded-control bg-ascent-on-brand/20">
-                  {[
-                    ["01", "Round 1 topics", "#round-1"],
-                    ["02", "Question formats", "#question-formats"],
-                    ["03", "Rounds 2 & 3", "#later-rounds"],
-                  ].map(([number, label, href]) => (
-                    <li key={href}>
-                      <a
-                        href={href}
-                        className="group grid min-h-12 grid-cols-[2rem_1fr_auto] items-center gap-3 bg-ascent-brand px-3 font-mono text-xs text-ascent-on-brand/75 hover:bg-ascent-ink hover:text-ascent-on-brand"
-                      >
-                        <span className="text-ascent-on-brand/65">{number}</span>
-                        <span>{label}</span>
-                        <span aria-hidden="true" className="transition-transform group-hover:translate-x-1">→</span>
-                      </a>
-                    </li>
-                  ))}
-                </ol>
-              </nav>
             </div>
           </div>
         </section>
 
-        <section id="round-1" className="scroll-mt-16 border-b border-ascent-border bg-ascent-canvas px-4 py-14 sm:px-6 sm:py-16 lg:px-8 lg:py-20">
+        <nav aria-label="Syllabus sections" className="sticky top-16 z-40 border-b border-ascent-border bg-ascent-surface px-4 sm:px-6 lg:px-8">
+          <ol className="mx-auto grid max-w-7xl grid-cols-2 sm:grid-cols-4">
+            {[
+              ["01", "Language", "#round-1"],
+              ["02", "Library & machine", "#library-machine"],
+              ["03", "Question formats", "#question-formats"],
+              ["04", "Rounds 2 & 3", "#later-rounds"],
+            ].map(([number, label, href]) => (
+              <li key={href}>
+                <a href={href} className="flex min-h-11 items-center gap-2 rounded-control px-2 py-2 text-xs font-medium text-ascent-ink hover:bg-ascent-brand-tint focus-visible:outline-ascent-brand focus-visible:-outline-offset-2 sm:px-3 sm:text-sm">
+                  <span className="font-mono text-xs text-ascent-gold-ink">{number}</span>
+                  <span>{label}</span>
+                </a>
+              </li>
+            ))}
+          </ol>
+        </nav>
+
+        <section id="round-1" className="scroll-mt-44 sm:scroll-mt-32 border-b border-ascent-border bg-ascent-canvas px-4 py-14 sm:px-6 sm:py-16 lg:px-8 lg:py-20">
           <div className="mx-auto max-w-7xl">
             <SectionHeader
               eyebrow="Syllabus · Round 1 · Proficiency, puzzles & debugging"
               title="The language."
             />
-            <div className="mt-8 grid gap-10 md:grid-cols-2 lg:grid-cols-3 lg:gap-12">
-              <TopicGroup group={ROUND_ONE_GROUPS[0]} />
-              <TopicGroup group={ROUND_ONE_GROUPS[1]} />
-              <div className="grid content-start gap-10">
-                <TopicGroup group={behavior} />
-                <TopicGroup group={generics} />
-              </div>
+            <div className="mt-8 grid items-start gap-5 md:grid-cols-2 sm:gap-6">
+              {ROUND_ONE_GROUPS.map((group) => (
+                <TopicGroup key={group.title} group={group} />
+              ))}
             </div>
             <SectionFooter>ascent · round 1 · language</SectionFooter>
           </div>
         </section>
 
-        <section className="border-b border-ascent-border bg-ascent-surface px-4 py-14 sm:px-6 sm:py-16 lg:px-8 lg:py-20">
+        <section id="library-machine" className="scroll-mt-44 sm:scroll-mt-32 border-b border-ascent-border bg-ascent-surface px-4 py-14 sm:px-6 sm:py-16 lg:px-8 lg:py-20">
           <div className="mx-auto max-w-7xl">
             <SectionHeader
               eyebrow="Syllabus · Round 1 · Continued"
               title="The library & the machine."
             />
 
-            <div className="mt-8 grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(17rem,0.85fr)] lg:gap-12">
+            <div className="mt-8 grid items-start gap-5 md:grid-cols-2 sm:gap-6">
               {LIBRARY_GROUPS.map((group) => (
                 <TopicGroup key={group.title} group={group} />
               ))}
-              <aside className="rounded-panel border border-ascent-border bg-ascent-surface-strong p-5 sm:p-6" aria-labelledby="how-to-read-title">
+              <aside className="rounded-panel border border-ascent-border bg-ascent-surface-strong p-5 sm:p-6 md:col-span-2" aria-labelledby="how-to-read-title">
                 <p id="how-to-read-title" className="font-mono text-xs font-semibold text-ascent-gold-ink">
                   {"// how to read this"}
                 </p>
-                <p className="mt-4 font-mono text-[0.78rem] leading-[1.55] text-ascent-muted">
+                <p className="mt-4 text-sm leading-6 text-ascent-muted">
                   Round 1 tests C++ proficiency, puzzle-solving and debugging. Topics
                   marked “internals” cover memory layout and how the feature is
                   implemented.
                 </p>
-                <p className="mt-6 border-t border-ascent-border pt-4 font-mono text-[0.72rem] leading-5 text-ascent-muted">
+                <p className="mt-6 border-t border-ascent-border pt-4 text-xs leading-5 text-ascent-muted">
                   * These topics may move to Round 2.
                 </p>
               </aside>
             </div>
 
-            <section id="question-formats" className="scroll-mt-20 mt-14 border-t border-ascent-border pt-7 sm:mt-16" aria-labelledby="question-formats-title">
-              <h3 id="question-formats-title" className="font-mono text-[0.7rem] font-semibold uppercase tracking-[0.24em] text-ascent-gold-ink">
+            <section id="question-formats" className="scroll-mt-44 sm:scroll-mt-32 mt-14 border-t border-ascent-border pt-7 sm:mt-16" aria-labelledby="question-formats-title">
+              <h3 id="question-formats-title" className="font-mono text-xs font-semibold uppercase tracking-[0.14em] text-ascent-gold-ink">
                 Question formats · Round 1
               </h3>
               <div className="mt-5 grid gap-px overflow-hidden rounded-panel border border-ascent-border bg-ascent-border md:grid-cols-2">
@@ -204,8 +196,8 @@ export default function SyllabusPage() {
                   <article key={format.number} className="bg-ascent-surface-subtle p-5 sm:p-6">
                     <p className="font-mono text-[0.68rem] font-semibold text-ascent-gold-ink">{format.number}</p>
                     <h4 className="mt-3 font-display text-2xl font-semibold leading-none text-ascent-ink">{format.title}</h4>
-                    <p className="mt-4 font-mono text-[0.78rem] leading-[1.55] text-ascent-muted">{format.description}</p>
-                    <p className="mt-5 border-t border-ascent-border pt-4 font-mono text-[0.7rem] leading-5 text-ascent-muted">
+                    <p className="mt-4 text-sm leading-6 text-ascent-muted">{format.description}</p>
+                    <p className="mt-5 border-t border-ascent-border pt-4 text-xs leading-5 text-ascent-muted">
                       tests: {format.tests}
                     </p>
                   </article>
@@ -216,7 +208,7 @@ export default function SyllabusPage() {
           </div>
         </section>
 
-        <section id="later-rounds" className="scroll-mt-16 bg-ascent-canvas px-4 py-14 sm:px-6 sm:py-16 lg:px-8 lg:py-20">
+        <section id="later-rounds" className="scroll-mt-44 sm:scroll-mt-32 bg-ascent-canvas px-4 py-14 sm:px-6 sm:py-16 lg:px-8 lg:py-20">
           <div className="mx-auto max-w-7xl">
             <SectionHeader
               eyebrow="Syllabus · Rounds 2 & 3 · Outline"
@@ -231,8 +223,8 @@ export default function SyllabusPage() {
                     {round.round} · {round.mode}
                   </p>
                   <h3 className="mt-4 font-display text-3xl font-semibold leading-none text-ascent-ink">{round.title}</h3>
-                  <p className="mt-5 font-mono text-[0.78rem] leading-[1.55] text-ascent-muted">{round.description}</p>
-                  <ul className="mt-6 grid gap-2 font-mono text-[0.76rem] leading-5 text-ascent-muted">
+                  <p className="mt-5 text-sm leading-6 text-ascent-muted">{round.description}</p>
+                  <ul className="mt-6 grid gap-2 text-sm leading-6 text-ascent-muted">
                     {round.facts.map((fact) => (
                       <li key={fact}>· {fact}</li>
                     ))}
@@ -245,10 +237,10 @@ export default function SyllabusPage() {
             </div>
 
             <aside className="mt-14 border-t border-ascent-border pt-7" aria-labelledby="moves-between-title">
-              <h3 id="moves-between-title" className="font-mono text-[0.7rem] font-semibold uppercase tracking-[0.24em] text-ascent-gold-ink">
+              <h3 id="moves-between-title" className="font-mono text-xs font-semibold uppercase tracking-[0.14em] text-ascent-gold-ink">
                 What moves between rounds
               </h3>
-              <p className="mt-4 max-w-5xl font-mono text-[0.78rem] leading-[1.55] text-ascent-muted">
+              <p className="mt-4 max-w-5xl text-sm leading-6 text-ascent-muted">
                 Cache lines, false sharing and atomics may move from Round 1 to Round 2.
                 Their final placement will be confirmed in the detailed syllabus.
               </p>

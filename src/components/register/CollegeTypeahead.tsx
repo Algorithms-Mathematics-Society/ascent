@@ -2,6 +2,7 @@
 
 import { useEffect, useId, useRef, useState, type KeyboardEvent } from "react";
 import { Button, Input } from "@/components/ui";
+import { searchEligibleInstitutions } from "@/content/institutions";
 
 export interface CollegeResult {
   college_id: string;
@@ -93,92 +94,16 @@ export function initialCollegeCommitment(
 
 const MIN_QUERY_LENGTH = 2;
 const MAX_VISIBLE_RESULTS = 8;
-export const COLLEGE_SEARCH_TIMEOUT_MS = 8_000;
-const SEARCH_CACHE_TTL_MS = 5 * 60 * 1000;
-const SEARCH_CACHE_MAX_ENTRIES = 32;
-
-type CachedCollegeSearch = {
-  results: CollegeResult[];
-  expiresAt: number;
-};
-
-const searchCache = new Map<string, CachedCollegeSearch>();
-
-function readCachedSearch(query: string) {
-  const cached = searchCache.get(query);
-  if (!cached) return null;
-  if (cached.expiresAt <= Date.now()) {
-    searchCache.delete(query);
-    return null;
-  }
-
-  // Refresh insertion order so the bounded map behaves as a small LRU.
-  searchCache.delete(query);
-  searchCache.set(query, cached);
-  return cached.results;
-}
-
-function writeCachedSearch(query: string, results: CollegeResult[]) {
-  searchCache.delete(query);
-  searchCache.set(query, {
-    results,
-    expiresAt: Date.now() + SEARCH_CACHE_TTL_MS,
-  });
-
-  while (searchCache.size > SEARCH_CACHE_MAX_ENTRIES) {
-    const oldestKey = searchCache.keys().next().value;
-    if (typeof oldestKey !== "string") break;
-    searchCache.delete(oldestKey);
-  }
-}
-
-class CollegeSearchError extends Error {}
-
-/** Bound both the request and body read so a stalled search exposes the fallback. */
-export async function fetchCollegeSearch(
-  query: string,
-  signal: AbortSignal,
-): Promise<CollegeResult[]> {
-  const controller = new AbortController();
-  let timeout: ReturnType<typeof setTimeout> | undefined;
-  let cancel: (() => void) | undefined;
-  const interrupted = new Promise<never>((_, reject) => {
-    cancel = () => {
-      reject(new DOMException("Institution search was cancelled.", "AbortError"));
-      controller.abort();
-    };
-    if (signal.aborted) {
-      cancel();
-      return;
-    }
-    signal.addEventListener("abort", cancel, { once: true });
-    timeout = setTimeout(() => {
-      reject(new CollegeSearchError("Institution search is taking too long. Try again or continue with this institution name."));
-      controller.abort();
-    }, COLLEGE_SEARCH_TIMEOUT_MS);
-  });
-  try {
-    return await Promise.race([
-      interrupted,
-      (async () => {
-        if (signal.aborted) throw new DOMException("Institution search was cancelled.", "AbortError");
-        const response = await fetch(
-          `/api/colleges/search?q=${encodeURIComponent(query)}`,
-          { signal: controller.signal },
-        );
-        if (!response.ok) {
-          throw new CollegeSearchError(response.status === 429
-            ? "Too many searches. Wait a moment, then try again."
-            : "Institution search is unavailable. Try again.");
-        }
-        const data = (await response.json()) as { results?: CollegeResult[] };
-        return (data.results ?? []).slice(0, MAX_VISIBLE_RESULTS);
-      })(),
-    ]);
-  } finally {
-    if (timeout !== undefined) clearTimeout(timeout);
-    if (cancel) signal.removeEventListener("abort", cancel);
-  }
+/** Search the same published institution list as the API, without a network wait. */
+export function searchColleges(query: string): CollegeResult[] {
+  return searchEligibleInstitutions(query, MAX_VISIBLE_RESULTS).map(
+    ({ id, canonical_name, campus, tier }) => ({
+      college_id: id,
+      canonical_name,
+      campus,
+      tier,
+    }),
+  );
 }
 
 /**
@@ -200,7 +125,6 @@ export default function CollegeTypeahead({
   const descriptionId = `${inputId}-description`;
   const errorId = `${inputId}-error`;
   const statusId = `${inputId}-status`;
-  const requestIdRef = useRef(0);
   const inputRef = useRef<HTMLInputElement>(null);
   const confirmationActionsRef = useRef<HTMLDivElement>(null);
   const committedSummaryRef = useRef<HTMLDivElement>(null);
@@ -221,11 +145,8 @@ export default function CollegeTypeahead({
   const [unlistedName, setUnlistedName] = useState(seed.unlistedName);
   const [activeIndex, setActiveIndex] = useState(-1);
   const [isOpen, setIsOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
-  const [searchError, setSearchError] = useState("");
   const [confirmingUnlisted, setConfirmingUnlisted] = useState(false);
-  const [retryNonce, setRetryNonce] = useState(0);
 
   const normalizedQuery = query.trim();
   const isCommitted = Boolean(selected || unlistedName);
@@ -234,80 +155,22 @@ export default function CollegeTypeahead({
   const visibleResults = results.slice(0, MAX_VISIBLE_RESULTS);
   const canConfirmUnlisted =
     normalizedQuery.length >= MIN_QUERY_LENGTH &&
-    hasSearched &&
-    !isLoading;
-  // The search finished and there is nothing to pick from, either because
-  // nothing matched or because the lookup failed.
+    hasSearched;
+  // The search finished and there is nothing to pick from.
   const searchEndedEmpty =
-    hasSearched && !isLoading && visibleResults.length === 0;
+    hasSearched && visibleResults.length === 0;
   const showPopup = shouldShowPopup({
     isOpen,
     canSearch,
-    isLoading,
+    isLoading: false,
     resultCount: visibleResults.length,
   });
 
   useEffect(() => {
-    const currentRequestId = ++requestIdRef.current;
-    const controller = new AbortController();
-
-    if (!canSearch) {
-      setResults([]);
-      setActiveIndex(-1);
-      setIsLoading(false);
-      setHasSearched(false);
-      setSearchError("");
-      return () => controller.abort();
-    }
-
-    const cacheKey = normalizedQuery.toLocaleLowerCase("en");
-    const cachedResults = readCachedSearch(cacheKey);
-    if (cachedResults) {
-      setResults(cachedResults);
-      setActiveIndex(-1);
-      setIsLoading(false);
-      setHasSearched(true);
-      setSearchError("");
-      return () => controller.abort();
-    }
-
-    setIsLoading(true);
-    setHasSearched(false);
-    setSearchError("");
-
-    const timer = window.setTimeout(async () => {
-      try {
-        const nextResults = await fetchCollegeSearch(normalizedQuery, controller.signal);
-        if (requestIdRef.current !== currentRequestId || controller.signal.aborted) return;
-        writeCachedSearch(cacheKey, nextResults);
-        setActiveIndex(-1);
-        setResults(nextResults);
-      } catch (fetchError) {
-        if (
-          requestIdRef.current === currentRequestId &&
-          !(
-            fetchError instanceof DOMException &&
-            fetchError.name === "AbortError"
-          )
-        ) {
-          setResults([]);
-          setSearchError(fetchError instanceof CollegeSearchError
-            ? fetchError.message
-            : "Institution search is unavailable. Try again.");
-        }
-      } finally {
-        if (requestIdRef.current === currentRequestId) {
-          setIsLoading(false);
-          setHasSearched(true);
-        }
-      }
-    }, 250);
-
-    return () => {
-      window.clearTimeout(timer);
-      controller.abort();
-    };
-  }, [canSearch, normalizedQuery, retryNonce]);
+    setResults(canSearch ? searchColleges(normalizedQuery) : []);
+    setActiveIndex(-1);
+    setHasSearched(canSearch);
+  }, [canSearch, normalizedQuery]);
 
   useEffect(() => {
     if (!showPopup || activeIndex < 0) return;
@@ -396,10 +259,6 @@ export default function CollegeTypeahead({
   function cancelUnlistedConfirmation() {
     setConfirmingUnlisted(false);
     window.requestAnimationFrame(() => inputRef.current?.focus());
-    if (searchError) {
-      setIsOpen(true);
-      setRetryNonce((value) => value + 1);
-    }
   }
 
   function handleKeyDown(event: KeyboardEvent<HTMLInputElement>) {
@@ -445,15 +304,11 @@ export default function CollegeTypeahead({
     }
   }
 
-  const statusMessage = isLoading
-    ? "Searching institutions."
-    : searchError
-      ? searchError
-      : hasSearched
-        ? visibleResults.length > 0
-          ? `${visibleResults.length} institution${visibleResults.length === 1 ? "" : "s"} found.`
-          : "No matching institutions found."
-        : "";
+  const statusMessage = hasSearched
+    ? visibleResults.length > 0
+      ? `${visibleResults.length} institution${visibleResults.length === 1 ? "" : "s"} found.`
+      : "No matching institutions found."
+    : "";
 
   return (
     <div className="flex flex-col gap-2">
@@ -537,9 +392,7 @@ export default function CollegeTypeahead({
                   aria-selected="false"
                   className="px-3 py-3 text-sm text-ascent-muted"
                 >
-                  {isLoading
-                    ? "Searching…"
-                    : searchError || "No matches found."}
+                  No matches found.
                 </li>
               )}
             </ul>
@@ -555,20 +408,6 @@ export default function CollegeTypeahead({
         <p id={errorId} className="text-sm leading-5 text-ascent-danger">
           {error}
         </p>
-      ) : null}
-
-      {searchError && !isCommitted ? (
-        <button
-          type="button"
-          onClick={() => {
-            setIsOpen(true);
-            setRetryNonce((value) => value + 1);
-          }}
-          disabled={disabled}
-          className="min-h-11 self-start text-sm font-medium text-ascent-brand underline decoration-ascent-brand underline-offset-4 hover:text-ascent-brand-hover disabled:cursor-not-allowed disabled:opacity-60"
-        >
-          Retry institution search
-        </button>
       ) : null}
 
       {selected ? (
@@ -658,11 +497,7 @@ export default function CollegeTypeahead({
           </div>
         ) : (
           <div className="flex flex-col items-start gap-1">
-            {searchError ? (
-              <p className="text-sm leading-5 text-ascent-danger">
-                {searchError}
-              </p>
-            ) : searchEndedEmpty ? (
+            {searchEndedEmpty ? (
               <p className="text-sm leading-5 text-ascent-muted">
                 No matches found for “{normalizedQuery}”.
               </p>
@@ -676,9 +511,7 @@ export default function CollegeTypeahead({
               disabled={disabled}
               className="min-h-11 text-sm font-medium text-ascent-brand underline decoration-ascent-brand underline-offset-4 hover:text-ascent-brand-hover disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {searchError
-                ? "Continue with this institution name"
-                : "My institution is not listed"}
+              My institution is not listed
             </button>
           </div>
         )

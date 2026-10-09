@@ -1,4 +1,6 @@
 import Image from "next/image";
+import Link from "next/link";
+import type { AnchorHTMLAttributes } from "react";
 import { Button } from "@/components/ui";
 
 interface NavbarProps {
@@ -12,6 +14,12 @@ const PUBLIC_LINKS = [
   { label: "FAQ", href: "#faq" },
   { label: "Syllabus", href: "/syllabus" },
 ] as const;
+
+function NavigationLink(props: AnchorHTMLAttributes<HTMLAnchorElement> & { href: string }) {
+  // Fragment-only links keep the browser's existing in-page scrolling.
+  if (props.href.startsWith("#")) return <a {...props} />;
+  return <Link {...props} />;
+}
 
 /** Shared, solid site chrome for marketing and registration routes. */
 export default function Navbar({ page = "home" }: NavbarProps) {
@@ -36,7 +44,7 @@ export default function Navbar({ page = "home" }: NavbarProps) {
         className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8"
       >
         <div className="flex shrink-0 items-center gap-8 lg:gap-10">
-          <a
+          <NavigationLink
             href={isHome ? "#top" : "/#top"}
             aria-label="Ascent home"
             className="group flex min-h-11 shrink-0 items-center gap-2 font-mono text-sm font-bold tracking-tight text-ascent-ink hover:text-ascent-brand"
@@ -51,12 +59,12 @@ export default function Navbar({ page = "home" }: NavbarProps) {
               className="h-8 w-8 shrink-0"
             />
             <span>Ascent</span>
-          </a>
+          </NavigationLink>
 
           {!isRegistration ? (
             <div className="hidden items-center gap-6 md:flex">
               {PUBLIC_LINKS.map((link) => (
-                <a
+                <NavigationLink
                   key={link.href}
                   href={resolveHref(link.href)}
                   aria-current={
@@ -71,7 +79,7 @@ export default function Navbar({ page = "home" }: NavbarProps) {
                   }`}
                 >
                   {link.label}
-                </a>
+                </NavigationLink>
               ))}
             </div>
           ) : null}
@@ -88,7 +96,7 @@ export default function Navbar({ page = "home" }: NavbarProps) {
           </div>
         ) : (
           <div className="flex items-center gap-3">
-            <a
+            <Link
               href="/syllabus"
               aria-current={page === "syllabus" ? "page" : undefined}
               className={`inline-flex min-h-11 items-center text-sm font-medium md:hidden ${
@@ -96,7 +104,7 @@ export default function Navbar({ page = "home" }: NavbarProps) {
               }`}
             >
               Syllabus
-            </a>
+            </Link>
             <Button href="/register" size="sm">
               Register
             </Button>

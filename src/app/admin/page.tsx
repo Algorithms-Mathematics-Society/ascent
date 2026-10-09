@@ -2,8 +2,16 @@ import { requireAdminSession } from "@/lib/adminAuth";
 import type { Metadata } from "next";
 import AdminDecisionControl from "@/components/admin/AdminDecisionControl";
 import AdminBulkReview from "@/components/admin/AdminBulkReview";
+import AdminExportPicker, {
+  type AdminExportCarriedParam,
+} from "@/components/admin/AdminExportPicker";
 import AdminMetric from "@/components/admin/AdminMetric";
 import { Button } from "@/components/ui";
+import {
+  ADMIN_EXPORT_DEFAULT_COLUMNS,
+  parseAdminExportColumns,
+  parseAdminExportScope,
+} from "@/lib/adminExport";
 import {
   ADMIN_REGISTRATION_TAG_LABEL,
   ADMIN_REGISTRATION_TAGS,
@@ -319,23 +327,50 @@ export default async function AdminHomePage({
   );
   const pagination = paginateAdminRegistrations(filteredRows, requestedPage);
   const rows = pagination.rows;
-  const exportParams = new URLSearchParams();
-  if (filters.query) exportParams.set("q", filters.query);
-  if (filters.decision !== "ALL") exportParams.set("decision", filters.decision);
-  if (filters.path !== "ALL") exportParams.set("path", filters.path);
-  if (filters.tag !== "ALL") exportParams.set("tag", filters.tag);
-  if (sort !== "NEWEST") exportParams.set("sort", sort);
-  const exportHref = `/api/admin/registrations/export${
-    exportParams.size ? `?${exportParams.toString()}` : ""
-  }`;
+  const exportColumns = parseAdminExportColumns(searchParams.columns);
+  const exportScope = parseAdminExportScope(firstParam(searchParams.scope));
+  // Both lists are in canonical column order, so comparing them position by
+  // position is enough to tell a default selection from a chosen one.
+  const defaultColumnSelection =
+    exportColumns.join(",") === ADMIN_EXPORT_DEFAULT_COLUMNS.join(",");
   const filtering =
     Boolean(filters.query) ||
     filters.decision !== "ALL" ||
     filters.path !== "ALL" ||
     filters.tag !== "ALL";
-  const viewParams = new URLSearchParams(exportParams);
+
+  // The filters and sort that describe the current admin view.
+  const viewParams = new URLSearchParams();
+  if (filters.query) viewParams.set("q", filters.query);
+  if (filters.decision !== "ALL") viewParams.set("decision", filters.decision);
+  if (filters.path !== "ALL") viewParams.set("path", filters.path);
+  if (filters.tag !== "ALL") viewParams.set("tag", filters.tag);
+  if (sort !== "NEWEST") viewParams.set("sort", sort);
+
+  // The export choice, kept in the URL so the link stays reproducible.
+  const choiceParams = new URLSearchParams();
+  if (exportScope !== "ALL") choiceParams.set("scope", "filter");
+  if (!defaultColumnSelection) {
+    for (const column of exportColumns) choiceParams.append("columns", column);
+  }
+
+  // Scope is always spelled out in the export link: a data export should never
+  // leave the reader guessing how many rows it covers.
+  const exportParams = new URLSearchParams();
+  exportParams.set("scope", exportScope === "FILTERED" ? "filter" : "all");
+  if (exportScope === "FILTERED") {
+    for (const [name, value] of viewParams) exportParams.append(name, value);
+  }
+  for (const column of exportColumns) exportParams.append("columns", column);
+  const exportHref = `/api/admin/registrations/export?${exportParams.toString()}`;
+
+  const carriedExportParams: AdminExportCarriedParam[] = [
+    ...viewParams,
+  ].map(([name, value]) => ({ name, value }));
+
   const pageHref = (page: number) => {
     const params = new URLSearchParams(viewParams);
+    for (const [name, value] of choiceParams) params.append(name, value);
     if (page > 1) params.set("page", String(page));
     return `/admin${params.size ? `?${params.toString()}` : ""}`;
   };
@@ -388,9 +423,14 @@ export default async function AdminHomePage({
                   ? `${pagination.start}–${pagination.end} of ${pagination.total}`
                   : "0"} {pagination.total === 1 ? "registration" : "registrations"}
               </p>
-              <Button href={exportHref} variant="secondary" className="min-h-9 px-3 py-2 text-xs">
-                Export current view · CSV
-              </Button>
+              <AdminExportPicker
+                exportHref={exportHref}
+                columns={exportColumns}
+                scope={exportScope}
+                carried={carriedExportParams}
+                loadedCount={dataset.rows.length}
+                filteredCount={filteredRows.length}
+              />
             </div>
           </div>
 
@@ -488,6 +528,23 @@ export default async function AdminHomePage({
                 <option value="DECISION">Review priority</option>
               </select>
             </label>
+            {/*
+              Applying a filter must not silently discard the export choice,
+              so it rides along in the same query string the filters use.
+            */}
+            {exportScope !== "ALL" ? (
+              <input type="hidden" name="scope" value="filter" />
+            ) : null}
+            {defaultColumnSelection
+              ? null
+              : exportColumns.map((column) => (
+                  <input
+                    key={column}
+                    type="hidden"
+                    name="columns"
+                    value={column}
+                  />
+                ))}
             <div className="flex items-end gap-2">
               <Button type="submit" className="min-h-11 flex-1 lg:flex-none">
                 Apply filters

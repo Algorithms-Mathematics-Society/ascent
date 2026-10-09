@@ -1,7 +1,11 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { verifyAdminSessionValue } from "@/lib/adminAuth";
 import { isAdminDecision } from "@/lib/adminDecision";
-import { registrationsCsv } from "@/lib/adminExport";
+import {
+  parseAdminExportColumns,
+  parseAdminExportScope,
+  registrationsCsv,
+} from "@/lib/adminExport";
 import { isAdminRegistrationTag } from "@/lib/adminOperations";
 import {
   filterAdminRegistrations,
@@ -46,17 +50,25 @@ export async function GET(request: NextRequest) {
     );
   }
 
+  // Scope defaults to every registrant regardless of approval state. Only an
+  // explicit scope=filter narrows the export to the admin list's filters.
+  const scope = parseAdminExportScope(
+    request.nextUrl.searchParams.get("scope"),
+  );
+  const columns = parseAdminExportColumns(
+    request.nextUrl.searchParams.getAll("columns"),
+  );
+  const loaded = (await getAllAdminRegistrations()).rows;
   const rows = sortAdminRegistrations(
-    filterAdminRegistrations(
-      (await getAllAdminRegistrations()).rows,
-      parseFilters(request),
-    ),
+    scope === "FILTERED"
+      ? filterAdminRegistrations(loaded, parseFilters(request))
+      : loaded,
     parseSort(request),
   );
   const date = new Intl.DateTimeFormat("en-CA", {
     timeZone: "Asia/Kolkata",
   }).format(new Date());
-  return new NextResponse(`\uFEFF${registrationsCsv(rows)}`, {
+  return new NextResponse(`\uFEFF${registrationsCsv(rows, columns)}`, {
     status: 200,
     headers: {
       "Cache-Control": "private, no-store",

@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useContext, useState, type ReactNode } from "react";
+import { site } from "@/content/site";
 
 const RegistrationExperience = createContext({
   completed: false,
@@ -39,6 +40,12 @@ export function RegistrationIntro({ title, description }: { title: string; descr
           </p>
           {!description && !completed ? (
             <>
+              {site.registration.countLabel ? (
+                <p className="mt-4 inline-flex items-center gap-2.5 rounded-control border border-ascent-border bg-ascent-canvas px-3 py-2 text-sm text-ascent-brand">
+                  <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-ascent-gold" aria-hidden="true" />
+                  <span className="font-semibold tabular-nums">{site.registration.countLabel}</span>
+                </p>
+              ) : null}
               <p className="mt-2 text-sm leading-6 text-ascent-muted">
                 Have a shareable Google Drive resume link ready.
               </p>

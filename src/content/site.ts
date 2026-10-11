@@ -36,6 +36,8 @@ export const site = {
    * countdown. While null, the countdown renders nothing.
    */
   registration: {
+    // Organizer-confirmed milestone; static copy adds no Firestore reads.
+    countLabel: "Over 1,000 registrations. Add yours." as string | null,
     closeISO: null as string | null,
   },
 };

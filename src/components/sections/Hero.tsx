@@ -47,6 +47,17 @@ export default function Hero() {
               >
                 See the three rounds
               </Button>
+              <Button
+                href="https://chat.whatsapp.com/IJGBXxIxFQN5AqtiEx3Jno"
+                target="_blank"
+                rel="noopener noreferrer"
+                variant="secondary"
+                size="lg"
+                className="w-full sm:w-64"
+              >
+                Join WhatsApp community
+                <span className="sr-only"> (opens in a new tab)</span>
+              </Button>
             </div>
 
             <dl className="mt-8 grid max-w-3xl grid-cols-3 border-y border-ascent-border py-5 sm:mt-10">

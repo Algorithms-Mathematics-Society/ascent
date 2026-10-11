@@ -14,8 +14,9 @@ vi.mock("@/lib/adminRegistrations", () => ({
   getAllAdminRegistrations: mocks.getAllAdminRegistrations,
   getAdminRegistrationStats: mocks.getAdminRegistrationStats,
 }));
-// These two call useRouter, which needs a mounted app router. They are not
-// part of the export surface, so they are stubbed out of the page render.
+// Decision controls are outside the export surface. The refresh control also
+// needs an app-router stub when this page is rendered to static markup.
+vi.mock("next/navigation", () => ({ useRouter: () => ({ refresh: vi.fn() }) }));
 vi.mock("@/components/admin/AdminBulkReview", () => ({
   default: () => null,
 }));

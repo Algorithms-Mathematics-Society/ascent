@@ -9,13 +9,14 @@ const root = require('node:path').resolve(__dirname, '../..');
 const fixture = `
 import React, { useState } from 'react';
 import { createRoot } from 'react-dom/client';
-import Feedback from '${root}/src/components/admin/AdminDecisionFeedback';
+import Feedback, { AdminQueueRefresh } from '${root}/src/components/admin/AdminDecisionFeedback';
 import Control from '${root}/src/components/admin/AdminDecisionControl';
 import Bulk from '${root}/src/components/admin/AdminBulkReview';
 const rows = [1,2].map(n => ({id:'application_test_'+n, legalName:'Applicant '+n, reference:'REF'+n, institution:'Example university'}));
 function App() {
  const [server, setServer] = useState({}); window.updateServer = setServer;
  return <Feedback>
+  <AdminQueueRefresh/>
   <Bulk rows={rows.filter(row=>!server[row.id] || server[row.id].decision==='PENDING')}/>
   {['desktop','mobile'].map(view=><div key={view} data-view={view}>{rows.map(row=><div key={row.id} data-row={row.id}>
    <Control applicationId={row.id} applicantName={row.legalName} reference={row.reference}
@@ -59,14 +60,16 @@ createRoot(document.getElementById('root')).render(<App/>);
   assert.equal(calls.length,1);
   await pending.fulfill({json:{success:true,decision:'APPROVED',message:'Registration approved.'}});
   await decided('Approved');await page.getByRole('button',{name:'Review 1 pending',exact:true}).waitFor();
+  assert.equal(await page.evaluate(()=>window.refreshCount||0),0);
+  await page.getByRole('button',{name:'Refresh list',exact:true}).click();
   assert.equal(await page.evaluate(()=>window.refreshCount),1);
-  console.log('PASS: approval visible in both views before refresh; no optimistic success or duplicate submit');
+  console.log('PASS: approval updates both views without rereading the queue; explicit refresh works; duplicate submits blocked');
   await page.evaluate(()=>window.updateServer({application_test_1:{decision:'REJECTED',decisionReason:'Corrected after additional review.',decidedBy:'Second reviewer',decidedAt:'2026-10-11T12:00:00Z'}}));
   await decided('Not approved'); await row().getByText(/by Second reviewer/).waitFor();assert.equal(await row().getByText('Registration approved.',{exact:true}).count(),0);
   console.log('PASS: refreshed server decision and metadata supersede local confirmation');
   await reset();await row().getByRole('button',{name:'Reject Applicant 1',exact:true}).click();
   await row().locator('textarea').fill('Eligibility could not be verified.');await row().getByRole('button',{name:'Confirm rejection',exact:true}).click();
-  await decided('Not approved');assert.equal(calls[0].reason,'Eligibility could not be verified.');
+  await decided('Not approved');assert.equal(await page.evaluate(()=>window.refreshCount||0),0);assert.equal(calls[0].reason,'Eligibility could not be verified.');
   console.log('PASS: rejection immediately updates both views');
   await reset('failure');await approve();await row().getByRole('alert').waitFor();assert.equal(await row().getByText('Pending review',{exact:true}).count(),1);assert.equal(await page.evaluate(()=>window.refreshCount||0),0);
   behavior='success';await row().getByRole('button',{name:'Confirm approval',exact:true}).click();await decided('Approved');assert.equal(calls.length,2);
@@ -78,7 +81,7 @@ createRoot(document.getElementById('root')).render(<App/>);
   await page.locator('textarea').first().fill('Reviewed all eligibility evidence.');
   await page.getByRole('button',{name:'Review batch before saving'}).click();
   await page.getByRole('checkbox').check();await page.getByRole('button',{name:'Confirm approval',exact:true}).click();
-  await decided('Approved',1);await decided('Approved',2);assert.deepEqual(calls[0].applicationIds,['application_test_1','application_test_2']);
+  await decided('Approved',1);await decided('Approved',2);assert.equal(await page.evaluate(()=>window.refreshCount||0),0);assert.deepEqual(calls[0].applicationIds,['application_test_1','application_test_2']);
   assert.equal(await page.getByRole('button',{name:/Review \d+ pending/}).count(),0);
   console.log('PASS: bulk success updates all rows and clears pending batch choices before refresh');
   assert.deepEqual(errors,[]);

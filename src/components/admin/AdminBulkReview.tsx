@@ -103,7 +103,8 @@ export default function AdminBulkReview({
       setReviewing(false);
       setConfirmed(false);
       setOpen(false);
-      router.refresh();
+      // The confirmed outcome is already shared with the queue. Refreshing
+      // here rereads the entire dataset after every decision and burns quota.
     } catch (submissionError) {
       setError(
         submissionError instanceof Error

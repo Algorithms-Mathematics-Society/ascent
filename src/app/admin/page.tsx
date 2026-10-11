@@ -1,6 +1,6 @@
 import { requireAdminSession } from "@/lib/adminAuth";
 import type { Metadata } from "next";
-import AdminDecisionFeedback from "@/components/admin/AdminDecisionFeedback";
+import AdminDecisionFeedback, { AdminQueueRefresh } from "@/components/admin/AdminDecisionFeedback";
 import AdminDecisionControl from "@/components/admin/AdminDecisionControl";
 import AdminBulkReview from "@/components/admin/AdminBulkReview";
 import AdminExportPicker, {
@@ -377,7 +377,9 @@ export default async function AdminHomePage({
   };
 
   return (
-    <AdminDecisionFeedback>
+    <AdminDecisionFeedback
+      key={rows.map((row) => `${row.id}:${row.decision}:${row.decidedAt}`).join("|")}
+    >
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 lg:py-12">
       <div className="flex flex-col gap-4 border-b border-ascent-border pb-7 sm:flex-row sm:items-end sm:justify-between">
         <div>
@@ -560,6 +562,7 @@ export default async function AdminHomePage({
           </form>
         </div>
 
+        <AdminQueueRefresh />
         <AdminBulkReview
           rows={rows
             .filter((row) => row.decision === "PENDING")

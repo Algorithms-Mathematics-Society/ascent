@@ -146,7 +146,8 @@ export default function AdminDecisionControl({
       setNotice(payload.message || "Decision saved.");
       setSelected(null);
       setReason("");
-      router.refresh();
+      // The confirmed outcome is already shared with the queue. Refreshing
+      // here rereads the entire dataset after every decision and burns quota.
     } catch (submissionError) {
       setError(
         submissionError instanceof Error

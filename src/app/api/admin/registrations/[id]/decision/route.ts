@@ -112,14 +112,26 @@ export async function PATCH(
         decisionRef,
       );
       if (!application.exists) return { kind: "not_found" as const };
+      if (["WITHDRAWN", "DELETED"].includes(application.data()?.state)) {
+        return { kind: "inactive" as const };
+      }
 
       const previousDecision = currentDecision(
         application.data()?.admin_decision,
       );
-      if (previousDecision !== parsed.value.expectedDecision) {
+      const storedRevision = previousRecord.data()?.revision;
+      const previousRevision =
+        typeof storedRevision === "number" && Number.isSafeInteger(storedRevision) && storedRevision >= 0
+          ? storedRevision
+          : 0;
+      if (
+        previousDecision !== parsed.value.expectedDecision ||
+        (parsed.value.expectedRevision !== undefined && parsed.value.expectedRevision !== previousRevision)
+      ) {
         return {
           kind: "conflict" as const,
           currentDecision: previousDecision,
+          currentRevision: previousRevision,
         };
       }
 
@@ -130,10 +142,7 @@ export async function PATCH(
         actor_uid: session.uid,
         actor_email: session.email,
         previous_decision: previousDecision,
-        revision:
-          (typeof previousRecord.data()?.revision === "number"
-            ? previousRecord.data()?.revision
-            : 0) + 1,
+        revision: previousRevision + 1,
         decided_at: adminServerTimestamp(),
       };
 
@@ -145,7 +154,10 @@ export async function PATCH(
       transaction.set(decisionRef, decisionData);
       const mailId = decisionEmailId(params.id, decisionData.revision);
       transaction.create(adminDb.collection(EMAIL_OUTBOX).doc(mailId), {
-        ...emailJob("DECISION", params.id), decision: parsed.value.decision, revision: decisionData.revision,
+        ...emailJob("DECISION", params.id),
+        decision: parsed.value.decision,
+        ...(previousDecision !== "PENDING" ? { previous_decision: previousDecision } : {}),
+        revision: decisionData.revision,
       });
 
       transaction.create(auditRef, {
@@ -156,21 +168,26 @@ export async function PATCH(
         previous_decision: previousDecision,
         decision: parsed.value.decision,
         reason: parsed.value.reason,
+        revision: decisionData.revision,
         timestamp: adminServerTimestamp(),
       });
 
-      return { kind: "updated" as const, mailId };
+      return { kind: "updated" as const, mailId, revision: decisionData.revision };
     });
 
     if (result.kind === "not_found") {
       return noStoreJson({ success: false, error: "Registration not found." }, 404);
     }
+    if (result.kind === "inactive") {
+      return noStoreJson({ success: false, error: "Withdrawn or deleted registrations cannot be decided." }, 409);
+    }
     if (result.kind === "conflict") {
       return noStoreJson(
         {
           success: false,
-          error: "This registration was already decided. Refreshing the queue.",
+          error: "This registration's decision changed. Refresh before trying again.",
           currentDecision: result.currentDecision,
+          currentRevision: result.currentRevision,
         },
         409,
       );
@@ -178,12 +195,24 @@ export async function PATCH(
 
     // The decision and durable email job are committed. Keep delivery alive
     // after the response without making the administrator wait for the provider.
-    waitUntil(tryDeliverEmail(result.mailId));
-    revalidatePath("/admin");
-    revalidatePath(`/admin/registrations/${params.id}`);
+    try {
+      waitUntil(tryDeliverEmail(result.mailId).catch((error) => {
+        console.error("admin_decision_email_delivery_failed", { applicationId: params.id, error });
+      }));
+    } catch (error) {
+      console.error("admin_decision_email_background_failed", { applicationId: params.id, error });
+    }
+    try {
+      revalidatePath("/admin");
+      revalidatePath(`/admin/registrations/${params.id}`);
+    } catch (error) {
+      console.error("admin_decision_revalidation_failed", { applicationId: params.id, error });
+    }
     return noStoreJson({
       success: true,
       decision: parsed.value.decision,
+      decisionRevision: result.revision,
+      emailStatus: "QUEUED",
       message: decisionMessage(parsed.value.decision),
     });
   } catch (error) {

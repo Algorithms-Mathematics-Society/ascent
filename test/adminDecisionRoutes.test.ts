@@ -38,7 +38,7 @@ function deferred<T>() {
   return { promise, resolve };
 }
 
-function request(bulk: boolean, decision = "APPROVED", csrf = "test-csrf") {
+function request(bulk: boolean, decision = "APPROVED", csrf = "test-csrf", details: Record<string, unknown> = {}) {
   return new NextRequest(`https://ascent.test/api/admin/registrations/${bulk ? "bulk-decision" : `${ids[0]}/decision`}`, {
     method: "PATCH",
     headers: {
@@ -51,6 +51,7 @@ function request(bulk: boolean, decision = "APPROVED", csrf = "test-csrf") {
       decision,
       reason: "Eligibility evidence reviewed carefully.",
       ...(bulk ? { applicationIds: ids } : { expectedDecision: "PENDING" }),
+      ...details,
     }),
   });
 }
@@ -188,4 +189,85 @@ it("continues bulk emails in the background with the existing provider pacing", 
   expect(mocks.deliver).toHaveBeenLastCalledWith(decisionEmailId(ids[1], 3));
   await vi.advanceTimersByTimeAsync(600);
   await mocks.waitUntil.mock.calls[0][0];
+});
+
+
+describe("single decision corrections", () => {
+  function existing(decision: string, revision: number | undefined = 2, state = "RECEIVED") {
+    mocks.getAll.mockImplementation(async (...refs: { id: string; path: string }[]) => refs.map((ref) => ({
+      ref, id: ref.id, exists: true,
+      data: () => ref.path.startsWith("applications/") ? { admin_decision: decision, state } : { revision },
+    })));
+  }
+  function correct(decision = "APPROVED", expectedDecision = "REJECTED", expectedRevision: unknown = 2) {
+    return singleDecision(request(false, decision, "test-csrf", { expectedDecision, expectedRevision }), { params: { id: ids[0] } });
+  }
+
+  it.each([
+    ["REJECTED", "APPROVED"], ["REJECTED", "WAITLISTED"],
+    ["APPROVED", "REJECTED"], ["APPROVED", "WAITLISTED"],
+    ["WAITLISTED", "APPROVED"], ["WAITLISTED", "REJECTED"],
+  ])("atomically audits and queues correction from %s to %s", async (previous, decision) => {
+    existing(previous);
+    const response = await correct(decision, previous);
+    expect(response.status).toBe(200);
+    expect(await response.json()).toMatchObject({ success: true, decision, decisionRevision: 3, emailStatus: "QUEUED" });
+    expect(mocks.set).toHaveBeenCalledWith(expect.objectContaining({ path: `admin_registration_decisions/${ids[0]}` }),
+      expect.objectContaining({ previous_decision: previous, decision, revision: 3, reason: "Eligibility evidence reviewed carefully.", actor_uid: "reviewer" }));
+    expect(mocks.create).toHaveBeenCalledWith(expect.objectContaining({ path: `${EMAIL_OUTBOX}/${decisionEmailId(ids[0], 3)}` }),
+      expect.objectContaining({ kind: "DECISION", decision, previous_decision: previous, revision: 3 }));
+    expect(mocks.create).toHaveBeenCalledWith(expect.objectContaining({ path: expect.stringContaining("audit_log/") }),
+      expect.objectContaining({ previous_decision: previous, decision, revision: 3, actor_email: "reviewer@example.test" }));
+  });
+
+  it("rejects an old revision even after repeated reversals restore the same outcome", async () => {
+    existing("REJECTED", 4);
+    const response = await correct();
+    expect(response.status).toBe(409);
+    expect(await response.json()).toMatchObject({ currentDecision: "REJECTED", currentRevision: 4 });
+    expect(mocks.update).not.toHaveBeenCalled();
+    expect(mocks.create).not.toHaveBeenCalled();
+    expect(mocks.deliver).not.toHaveBeenCalled();
+  });
+
+  it("requires a revision before starting a correction transaction", async () => {
+    const response = await singleDecision(request(false, "APPROVED", "test-csrf", { expectedDecision: "REJECTED" }), { params: { id: ids[0] } });
+    expect(response.status).toBe(422);
+    expect(mocks.transaction).not.toHaveBeenCalled();
+  });
+
+  it("supports legacy records with no stored revision", async () => {
+    mocks.getAll.mockImplementation(async (...refs: { id: string; path: string }[]) => refs.map((ref) => ({
+      ref, id: ref.id, exists: true, data: () => ({ admin_decision: "REJECTED" }),
+    })));
+    expect((await correct("APPROVED", "REJECTED", 0)).status).toBe(200);
+    expect(mocks.deliver).toHaveBeenCalledWith(decisionEmailId(ids[0], 1));
+  });
+
+  it.each(["WITHDRAWN", "DELETED"])("blocks changes to %s registrations", async (state) => {
+    existing("REJECTED", 2, state);
+    expect((await correct()).status).toBe(409);
+    expect(mocks.update).not.toHaveBeenCalled();
+    expect(mocks.create).not.toHaveBeenCalled();
+    expect(mocks.deliver).not.toHaveBeenCalled();
+  });
+
+  it.each(["waitUntil", "revalidatePath", "deliver"] as const)("reports committed success when %s throws", async (name) => {
+    existing("REJECTED");
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    mocks[name].mockImplementationOnce(() => { throw new Error("Post-commit failure"); });
+    const response = await correct();
+    expect(response.status).toBe(200);
+    expect(await response.json()).toMatchObject({ success: true, decision: "APPROVED", emailStatus: "QUEUED" });
+    expect(mocks.update).toHaveBeenCalledOnce();
+  });
+
+  it("contains background delivery rejection after a successful save", async () => {
+    existing("REJECTED");
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    mocks.deliver.mockRejectedValueOnce(new Error("Provider unavailable"));
+    const response = await correct();
+    expect(response.status).toBe(200);
+    await expect(mocks.waitUntil.mock.calls[0][0]).resolves.toBeUndefined();
+  });
 });

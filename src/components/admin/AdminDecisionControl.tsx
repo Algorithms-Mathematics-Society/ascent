@@ -190,6 +190,12 @@ export default function AdminDecisionControl({
             </p>
           </details>
         ) : null}
+        <a
+          href={`/admin/registrations/${encodeURIComponent(applicationId)}#decision-panel-title`}
+          className="mt-3 inline-block text-xs font-semibold text-ascent-brand underline underline-offset-4 hover:text-ascent-ink"
+        >
+          Change decision
+        </a>
       </div>
     );
   }

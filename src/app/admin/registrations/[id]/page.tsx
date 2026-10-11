@@ -1,3 +1,4 @@
+import { getEmailConfig } from "@/lib/email/resend";
 import { requireAdminSession } from "@/lib/adminAuth";
 import type { ReactNode } from "react";
 import { notFound } from "next/navigation";
@@ -109,7 +110,7 @@ export default async function AdminRegistrationDetailPage({
 }: {
   params: { id: string };
 }) {
-  await requireAdminSession();
+  const session = await requireAdminSession();
   if (!isSafeApplicationId(params.id)) notFound();
   const registration = await getAdminRegistrationDetail(params.id);
   if (!registration) notFound();
@@ -355,6 +356,11 @@ export default async function AdminRegistrationDetailPage({
           <AdminDecisionWorkspace
             applicationId={registration.id}
             applicantName={registration.legalName}
+            email={registration.email}
+            emailSiteUrl={getEmailConfig()?.siteUrl || "https://ascent.amshq.in"}
+            decisionChangesAllowed={registration.applicationState !== "WITHDRAWN" && registration.applicationState !== "DELETED"}
+            decisionEmail={registration.decisionEmail}
+            canRetryEmail={session.role === "OWNER"}
             reference={registration.reference}
             currentDecision={registration.decision}
             currentReason={registration.decisionReason}

@@ -104,6 +104,25 @@ registrations and decisions made before this integration are not automatically
 backfilled. Queued payloads contain recipient data and must be included in future
 erasure/retention handling, together with any scheduled message in Resend.
 
+## Correcting an admin decision
+
+Open a registration's full review, choose **Change decision**, select the new
+outcome, and enter an internal reason. The confirmation shows the recipient and
+exact email wording. Corrections require the displayed decision revision to
+still be current; withdrawn and deleted entries cannot be changed.
+
+Saving atomically records the new outcome, audit event, and one email job for the
+new revision. Correction emails explicitly replace the earlier decision; internal
+reasons stay private. Obsolete queued jobs are suppressed when processed, but an
+email already in flight or accepted by Resend cannot be recalled.
+
+The review page shows the latest decision email separately from the saved
+outcome. **Refresh email status** rereads it. Owners can use **Retry due email**
+only for an existing queued/retry job whose backoff has elapsed; this preserves
+its payload, idempotency key, and delivery checks. Accepted, in-flight, skipped,
+and **Needs review** jobs cannot be force-resent. Review uncertain attempts in
+Resend and `/admin/email`; never change a decision merely to resend its email.
+
 ## Private status links
 
 `/register/status` accepts only an email address and a successful Turnstile check.

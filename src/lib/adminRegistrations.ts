@@ -1,5 +1,9 @@
 import "server-only";
 
+import { summarizeDecisionEmail, type AdminDecisionEmail } from "@/lib/adminDecisionEmail";
+import { EMAIL_OUTBOX, decisionEmailId } from "@/lib/email/messages";
+import { getEmailConfig } from "@/lib/email/resend";
+
 import { getEligibleInstitutionById } from "@/content/institutions";
 import {
   normalizeAdminTags,
@@ -58,6 +62,7 @@ export interface AdminRegistrationDetail extends AdminRegistrationRow {
   emailVerified: boolean;
   updatedAt: string | null;
   decisionRevision: number;
+  decisionEmail: AdminDecisionEmail;
   operationsRevision: number;
   consentGranted: boolean;
   consentPolicyVersion: string | null;
@@ -270,6 +275,18 @@ export async function getAdminRegistrationDetail(
   const pii = piiDocument.data() ?? {};
   const unlisted = unlistedDocument.data() ?? {};
   const decision = decisionDocument.data() ?? {};
+  const decisionRevision = nonNegativeInteger(decision.revision);
+  const emailDocument = decisionRevision > 0
+    ? await adminDb.collection(EMAIL_OUTBOX).doc(decisionEmailId(applicationId, decisionRevision)).get()
+    : null;
+  const latestEmail = emailDocument?.data();
+  const decisionEmail = summarizeDecisionEmail(
+    latestEmail?.kind === "DECISION" && latestEmail.source_id === applicationId &&
+      latestEmail.revision === decisionRevision && latestEmail.decision === application.admin_decision
+      ? latestEmail : undefined,
+    Boolean(getEmailConfig()),
+    application.state !== "WITHDRAWN" && application.state !== "DELETED",
+  );
   const consent = consentDocument.data() ?? {};
   const operations = operationsDocument.data() ?? {};
   const participationConsent =
@@ -356,8 +373,8 @@ export async function getAdminRegistrationDetail(
     ),
     emailVerified: booleanValue(application.email_verified),
     updatedAt: timestampIso(application.updated_at),
-    decisionRevision:
-      nonNegativeInteger(decision.revision),
+    decisionRevision,
+    decisionEmail,
     operationsRevision: nonNegativeInteger(operations.revision),
     consentGranted: booleanValue(participationConsent.granted),
     consentPolicyVersion: nullableString(participationConsent.policy_version),

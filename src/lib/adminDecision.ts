@@ -13,6 +13,7 @@ export type ActionableAdminDecision = Extract<
 export interface AdminDecisionInput {
   decision: ActionableAdminDecision;
   expectedDecision: AdminDecision;
+  expectedRevision?: number;
   reason: string | null;
 }
 
@@ -56,6 +57,15 @@ export function parseAdminDecisionInput(
     return { ok: false, error: "Choose a different decision." };
   }
 
+  if (
+    (candidate.expectedDecision !== "PENDING" || candidate.expectedRevision !== undefined) &&
+    (typeof candidate.expectedRevision !== "number" ||
+      !Number.isSafeInteger(candidate.expectedRevision) ||
+      candidate.expectedRevision < 0)
+  ) {
+    return { ok: false, error: "Refresh this registration before changing its decision." };
+  }
+
   const reason = normalizeReason(candidate.reason);
   if (reason.length > ADMIN_DECISION_REASON_MAX_LENGTH) {
     return {
@@ -82,6 +92,9 @@ export function parseAdminDecisionInput(
     value: {
       decision: candidate.decision,
       expectedDecision: candidate.expectedDecision,
+      ...(candidate.expectedRevision !== undefined
+        ? { expectedRevision: candidate.expectedRevision as number }
+        : {}),
       reason: reason || null,
     },
   };

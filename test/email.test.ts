@@ -44,6 +44,29 @@ describe("email configuration and templates", () => {
     const message = buildEmailMessage({ ...emailJob("DECISION", "candidate"), decision, revision: 1 }, { reference: "ASC-TEST" }, "https://ascent.amshq.in");
     expect(message.text).toContain("ASC-TEST"); expect(message.subject).toContain("update");
     expect(message.text).not.toContain("qualification_reason");
+    expect(message.text).not.toContain("replaces our earlier");
+  });
+  it.each([
+    ["REJECTED", "APPROVED", "rejection", "is now approved", "Competition instructions will be shared separately."],
+    ["REJECTED", "WAITLISTED", "rejection", "is now on the waitlist", "A place is not confirmed."],
+    ["WAITLISTED", "APPROVED", "waitlist", "is now approved", "Competition instructions will be shared separately."],
+    ["WAITLISTED", "REJECTED", "waitlist", "has not been approved", "Reply with your reference"],
+    ["APPROVED", "WAITLISTED", "approval", "is now on the waitlist", "A place is not confirmed."],
+    ["APPROVED", "REJECTED", "approval", "is no longer approved", "Reply with your reference"],
+  ] as const)("explains a correction from %s to %s with the latest next steps", (previous_decision, decision, previousLabel, announcement, nextStep) => {
+    const message = buildEmailMessage({ ...emailJob("DECISION", "candidate"), previous_decision, decision, revision: 2 }, { reference: "ASC-TEST" }, "https://ascent.amshq.in");
+    expect(message.subject).toBe("Ascent ’26 corrected registration decision: ASC-TEST");
+    expect(message.text).toContain(`Following a further review, your Ascent ’26 registration ${announcement}.`);
+    expect(message.text).toContain(`This replaces our earlier ${previousLabel} decision. We apologise for the confusion.`);
+    expect(message.text).toContain(nextStep);
+    expect(message.text).toContain("Your reference: ASC-TEST");
+    expect(message.text).toContain("https://ascent.amshq.in/register/status");
+    expect(message.text.includes("Your earlier place confirmation and any joining instructions no longer apply.")).toBe(previous_decision === "APPROVED");
+  });
+  it("does not describe an unchanged decision as a correction", () => {
+    const message = buildEmailMessage({ ...emailJob("DECISION", "candidate"), previous_decision: "APPROVED", decision: "APPROVED", revision: 2 }, { reference: "ASC-TEST" }, "https://ascent.amshq.in");
+    expect(message.subject).toContain("registration update");
+    expect(message.text).not.toContain("replaces our earlier");
   });
   it("uses one job per confirmation and one per decision revision", () => {
     expect(confirmationEmailId("a")).toBe(confirmationEmailId("a"));

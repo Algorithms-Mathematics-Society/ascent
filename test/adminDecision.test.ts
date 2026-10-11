@@ -69,6 +69,7 @@ describe("admin decision validation", () => {
       parseAdminDecisionInput({
         decision: "APPROVED",
         expectedDecision: "REJECTED",
+        expectedRevision: 2,
         reason: "",
       }),
     ).toMatchObject({ ok: false });
@@ -76,6 +77,7 @@ describe("admin decision validation", () => {
       parseAdminDecisionInput({
         decision: "APPROVED",
         expectedDecision: "REJECTED",
+        expectedRevision: 2,
         reason: "Eligibility evidence was verified on review.",
       }),
     ).toMatchObject({
@@ -111,6 +113,25 @@ describe("admin decision validation", () => {
         reason: "a".repeat(ADMIN_DECISION_REASON_MAX_LENGTH + 1),
       }),
     ).toMatchObject({ ok: false });
+  });
+
+  it.each([undefined, null, -1, 1.5, "2", Number.MAX_SAFE_INTEGER + 1])(
+    "rejects corrections with invalid revision %s", (expectedRevision) => {
+      expect(parseAdminDecisionInput({
+        decision: "APPROVED", expectedDecision: "REJECTED", expectedRevision,
+        reason: "Eligibility evidence was verified on review.",
+      })).toMatchObject({ ok: false });
+    },
+  );
+
+  it("accepts legacy correction revision zero and rejects invalid initial revisions", () => {
+    expect(parseAdminDecisionInput({
+      decision: "APPROVED", expectedDecision: "REJECTED", expectedRevision: 0,
+      reason: "Eligibility evidence was verified on review.",
+    })).toMatchObject({ ok: true, value: { expectedRevision: 0 } });
+    expect(parseAdminDecisionInput({
+      decision: "APPROVED", expectedDecision: "PENDING", expectedRevision: -1,
+    })).toMatchObject({ ok: false });
   });
 
   it("accepts only Firestore-safe application identifiers", () => {

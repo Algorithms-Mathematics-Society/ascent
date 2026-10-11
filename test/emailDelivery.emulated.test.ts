@@ -152,6 +152,61 @@ describe("durable email delivery with real Firestore and mocked Resend", () => {
     expect(send).toHaveBeenCalledTimes(1);
   });
 
+  it("delivers a correction once and keeps its payload identical after an ambiguous attempt", async () => {
+    await confirmation();
+    const id = decisionEmailId("student", 2);
+    await jobRef(id).set({ ...emailJob("DECISION", "student"), previous_decision: "REJECTED", decision: "APPROVED", revision: 2 });
+    await adminDb.collection("admin_registration_decisions").doc("student").set({ decision: "APPROVED", revision: 2, reason: "PRIVATE REVIEW NOTE" });
+    send.mockRejectedValueOnce(new Error("provider_timeout"));
+    expect(await deliverEmail(id)).toBe("RETRY");
+    const firstCall = send.mock.calls[0];
+    expect(firstCall[0].subject).toContain("corrected registration decision");
+    expect(firstCall[0].text).toContain("This replaces our earlier rejection decision.");
+    expect(firstCall[0].text).not.toContain("PRIVATE REVIEW NOTE");
+    // A template input changing after an uncertain send must not change the
+    // payload under the same provider idempotency key.
+    await adminDb.collection("applications").doc("student").update({ reference: "ASC-CHANGED" });
+    await jobRef(id).update({ due_at: 0 });
+    expect(await deliverEmail(id)).toBe("SENT");
+    expect(send.mock.calls[1]).toEqual(firstCall);
+    expect(await deliverEmail(id)).toBe("SKIPPED");
+    expect(send).toHaveBeenCalledTimes(2);
+  });
+
+  it("sends only the latest revision after repeated reversals back to the original outcome", async () => {
+    await confirmation();
+    const decisions = [
+      { decision: "REJECTED", revision: 1 },
+      { previous_decision: "REJECTED", decision: "APPROVED", revision: 2 },
+      { previous_decision: "APPROVED", decision: "REJECTED", revision: 3 },
+    ];
+    for (const decision of decisions) {
+      await jobRef(decisionEmailId("student", decision.revision)).set({ ...emailJob("DECISION", "student"), ...decision });
+    }
+    await adminDb.collection("admin_registration_decisions").doc("student").set({ decision: "REJECTED", revision: 3 });
+    expect(await deliverEmail(decisionEmailId("student", 1))).toBe("SKIPPED");
+    expect(await deliverEmail(decisionEmailId("student", 2))).toBe("SKIPPED");
+    expect(await deliverEmail(decisionEmailId("student", 3))).toBe("SENT");
+    expect(send).toHaveBeenCalledTimes(1);
+    expect(send.mock.calls[0][0].text).toContain("This replaces our earlier approval decision.");
+    expect(send.mock.calls[0][0].text).toContain("Your earlier place confirmation and any joining instructions no longer apply.");
+  });
+
+  it("suppresses a definitely rejected stale attempt without marking its delivery uncertain", async () => {
+    await confirmation();
+    const id = decisionEmailId("student", 1);
+    await jobRef(id).set({ ...emailJob("DECISION", "student"), decision: "REJECTED", revision: 1 });
+    const latest = adminDb.collection("admin_registration_decisions").doc("student");
+    await latest.set({ decision: "REJECTED", revision: 1 });
+    send.mockResolvedValueOnce({ data: null, error: { name: "rate_limit_exceeded", statusCode: 429 } });
+    expect(await deliverEmail(id)).toBe("RETRY");
+    await latest.set({ decision: "APPROVED", revision: 2 });
+    await jobRef(id).update({ due_at: 0 });
+    expect(await deliverEmail(id)).toBe("SKIPPED");
+    expect((await jobRef(id).get()).data()).toMatchObject({ status: "SKIPPED", uncertain: false, last_error: "Superseded by a newer decision." });
+    expect(send).toHaveBeenCalledTimes(1);
+  });
+
   it.each(["DELETED", "WITHDRAWN", "missing application", "missing pii"])("does not reuse frozen recipient data after %s", async state => {
     const id = await confirmation();
     send.mockResolvedValueOnce({ data: null, error: { name: "application_error", statusCode: 500 } });

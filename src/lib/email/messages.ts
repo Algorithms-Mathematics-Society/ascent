@@ -7,6 +7,7 @@ export type EmailJob = {
   kind: EmailKind;
   source_id: string;
   decision?: EmailDecision;
+  previous_decision?: EmailDecision;
   revision?: number;
   status: string;
   queued_at: number;
@@ -63,6 +64,21 @@ export function buildEmailMessage(job: EmailJob, data: {
       ? "Your registration is on the waitlist. A place is not confirmed. We will email you if the decision changes."
       : "Your registration has not been approved. Reply with your reference if you have a question about this decision.";
   const label = decision === "APPROVED" ? "Approved" : decision === "WAITLISTED" ? "Waitlisted" : "Not approved";
+  if (job.previous_decision && job.previous_decision !== decision) {
+    const previous = job.previous_decision === "APPROVED" ? "approval"
+      : job.previous_decision === "WAITLISTED" ? "waitlist" : "rejection";
+    const outcome = decision === "APPROVED" ? "now approved"
+      : decision === "WAITLISTED" ? "now on the waitlist" : "no longer approved";
+    const announcement = decision === "REJECTED" && job.previous_decision !== "APPROVED"
+      ? "has not been approved" : `is ${outcome}`;
+    const priorInstructions = job.previous_decision === "APPROVED"
+      ? "\n\nYour earlier place confirmation and any joining instructions no longer apply."
+      : "";
+    return {
+      subject: `Ascent ’26 corrected registration decision: ${reference}`,
+      text: `Your reference: ${reference}\nStatus: ${label}\n\nFollowing a further review, your Ascent ’26 registration ${announcement}. This replaces our earlier ${previous} decision. We apologise for the confusion.\n\n${detail}${priorInstructions}\n\nCheck your current entry status: ${siteUrl}/register/status\n\n${footer}`,
+    };
+  }
   return { subject: `Ascent ’26 registration update: ${reference}`,
     text: `Your reference: ${reference}\nStatus: ${label}\n\n${detail}\n\nCheck your current entry status: ${siteUrl}/register/status\n\n${footer}` };
 }

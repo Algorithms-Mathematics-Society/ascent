@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 const guards = vi.hoisted(() => ({ requireAdminSession: vi.fn(async () => { throw new Error("Login required"); }), read: vi.fn() }));
+vi.mock("@/lib/email/resend", () => ({ getEmailConfig: () => null }));
 vi.mock("@/lib/adminAuth", () => ({ requireAdminSession: guards.requireAdminSession }));
 vi.mock("@/lib/adminRegistrations", () => ({ getAdminRegistrationStats: guards.read, getAllAdminRegistrations: guards.read, getAdminRegistrationDetail: guards.read }));
 vi.mock("@/lib/adminAnalyticsData", () => ({ getAdminAnalyticsDataset: guards.read }));

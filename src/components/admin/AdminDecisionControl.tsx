@@ -1,14 +1,16 @@
 "use client";
 
-import { useId, useState } from "react";
+import { useId, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
+  isAdminDecision,
   ADMIN_DECISION_REASON_MAX_LENGTH,
   ADMIN_REJECTION_REASON_MIN_LENGTH,
   type ActionableAdminDecision,
 } from "@/lib/adminDecision";
 import type { AdminDecision } from "@/lib/adminRegistrationView";
 import { Button, Spinner } from "@/components/ui";
+import { useAdminDecisionFeedback } from "@/components/admin/AdminDecisionFeedback";
 import AdminRegistrationStatus from "@/components/admin/AdminRegistrationStatus";
 
 interface AdminDecisionControlProps {
@@ -40,6 +42,12 @@ export default function AdminDecisionControl({
   decidedBy,
 }: AdminDecisionControlProps) {
   const router = useRouter();
+  const feedback = useAdminDecisionFeedback();
+  const saving = useRef(false);
+  // Fresh server props take precedence once the queue refresh catches up.
+  const confirmed = decision === "PENDING" ? feedback.confirmed[applicationId] : undefined;
+  const displayedDecision = confirmed?.decision ?? decision;
+  const displayedReason = confirmed ? confirmed.reason : decisionReason;
   const panelId = useId();
   const [selected, setSelected] = useState<ActionableAdminDecision | null>(
     null,
@@ -66,7 +74,7 @@ export default function AdminDecisionControl({
 
   async function submitDecision(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!selected || submitting) return;
+    if (!selected || saving.current || displayedDecision !== "PENDING") return;
 
     const normalizedReason = reason.trim().replace(/\s+/g, " ");
     if (
@@ -79,6 +87,7 @@ export default function AdminDecisionControl({
       return;
     }
 
+    saving.current = true;
     setSubmitting(true);
     setError(undefined);
     setNotice(undefined);
@@ -113,6 +122,7 @@ export default function AdminDecisionControl({
         success?: boolean;
         error?: string;
         message?: string;
+        currentDecision?: unknown;
       };
 
       if (response.status === 401) {
@@ -120,6 +130,9 @@ export default function AdminDecisionControl({
         return;
       }
       if (response.status === 409) {
+        if (isAdminDecision(payload.currentDecision) && payload.currentDecision !== "PENDING") {
+          feedback.record([applicationId], { decision: payload.currentDecision, reason: null });
+        }
         setNotice(payload.error || "This registration was already decided.");
         setSelected(null);
         router.refresh();
@@ -129,6 +142,7 @@ export default function AdminDecisionControl({
         throw new Error(payload.error || "Decision could not be saved.");
       }
 
+      feedback.record([applicationId], { decision: selected, reason: normalizedReason || null });
       setNotice(payload.message || "Decision saved.");
       setSelected(null);
       setReason("");
@@ -140,15 +154,16 @@ export default function AdminDecisionControl({
           : "Decision could not be saved. Nothing was changed.",
       );
     } finally {
+      saving.current = false;
       setSubmitting(false);
     }
   }
 
-  if (decision !== "PENDING") {
+  if (displayedDecision !== "PENDING") {
     return (
       <div className="min-w-[13rem]">
-        <AdminRegistrationStatus decision={decision} />
-        {decidedTime || decidedBy ? (
+        <AdminRegistrationStatus decision={displayedDecision} />
+        {!confirmed && (decidedTime || decidedBy) ? (
           <p className="mt-2 text-xs leading-5 text-ascent-muted">
             {decidedTime ? `${decidedTime} IST` : "Decision recorded"}
             {decidedBy ? (
@@ -159,13 +174,18 @@ export default function AdminDecisionControl({
             ) : null}
           </p>
         ) : null}
-        {decisionReason ? (
+        {confirmed && notice ? (
+          <p className="mt-2 text-xs leading-5 text-ascent-success" role="status" aria-live="polite">
+            {notice}
+          </p>
+        ) : null}
+        {displayedReason ? (
           <details className="mt-2 text-xs">
             <summary className="cursor-pointer font-semibold text-ascent-brand underline underline-offset-4">
               View internal note
             </summary>
             <p className="mt-2 max-w-xs leading-5 text-ascent-muted">
-              {decisionReason}
+              {displayedReason}
             </p>
           </details>
         ) : null}
@@ -175,7 +195,7 @@ export default function AdminDecisionControl({
 
   return (
     <div className="min-w-[15rem]">
-      <AdminRegistrationStatus decision={decision} />
+      <AdminRegistrationStatus decision={displayedDecision} />
       {!selected ? (
         <div className="mt-3 flex flex-wrap gap-2">
           <Button

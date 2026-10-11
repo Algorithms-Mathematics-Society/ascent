@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useAdminDecisionFeedback } from "@/components/admin/AdminDecisionFeedback";
 import { Button, Spinner } from "@/components/ui";
 import {
   ADMIN_BULK_MAX_APPLICATIONS,
@@ -22,7 +23,10 @@ export default function AdminBulkReview({
   rows: AdminBulkReviewRow[];
 }) {
   const router = useRouter();
-  const availableRows = rows.slice(0, ADMIN_BULK_MAX_APPLICATIONS);
+  const feedback = useAdminDecisionFeedback();
+  const saving = useRef(false);
+  const pendingRows = rows.filter((row) => !feedback.confirmed[row.id]);
+  const availableRows = pendingRows.slice(0, ADMIN_BULK_MAX_APPLICATIONS);
   const [open, setOpen] = useState(false);
   const [selected, setSelected] = useState<string[]>([]);
   const [decision, setDecision] = useState<AdminBulkDecision>("APPROVED");
@@ -41,7 +45,15 @@ export default function AdminBulkReview({
   }
 
   async function submitBatch() {
-    if (!confirmed || submitting || !selected.length) return;
+    if (!confirmed || saving.current || !selected.length) return;
+    if (selectedRows.length !== selected.length) {
+      setError("The selection changed. Review the remaining pending registrations again.");
+      setSelected(selectedRows.map((row) => row.id));
+      setReviewing(false);
+      setConfirmed(false);
+      return;
+    }
+    saving.current = true;
     setSubmitting(true);
     setError(undefined);
     setNotice(undefined);
@@ -84,6 +96,7 @@ export default function AdminBulkReview({
       if (!response.ok || !payload.success) {
         throw new Error(payload.error || "Batch decision could not be saved.");
       }
+      feedback.record(selected, { decision, reason: reason.trim().replace(/\s+/g, " ") });
       setNotice(payload.message || `${selected.length} registrations updated.`);
       setSelected([]);
       setReason("");
@@ -98,11 +111,12 @@ export default function AdminBulkReview({
           : "Batch decision could not be saved. Nothing was changed.",
       );
     } finally {
+      saving.current = false;
       setSubmitting(false);
     }
   }
 
-  if (!rows.length && !notice) return null;
+  if (!pendingRows.length && !notice) return null;
 
   return (
     <section className="border-b border-ascent-border bg-ascent-canvas/45">
@@ -119,7 +133,7 @@ export default function AdminBulkReview({
               Approve or waitlist up to {ADMIN_BULK_MAX_APPLICATIONS} reviewed entries. Rejections stay individual.
             </p>
           </div>
-          {rows.length ? (
+          {pendingRows.length ? (
             <Button
               type="button"
               variant="secondary"
@@ -129,7 +143,7 @@ export default function AdminBulkReview({
                 setNotice(undefined);
               }}
             >
-              {open ? "Close batch review" : `Review ${rows.length} pending`}
+              {open ? "Close batch review" : `Review ${pendingRows.length} pending`}
             </Button>
           ) : null}
         </div>
@@ -191,7 +205,7 @@ export default function AdminBulkReview({
                       </label>
                     ))}
                   </div>
-                  {rows.length > ADMIN_BULK_MAX_APPLICATIONS ? (
+                  {pendingRows.length > ADMIN_BULK_MAX_APPLICATIONS ? (
                     <p className="mt-3 text-xs text-ascent-muted">
                       Showing the first {ADMIN_BULK_MAX_APPLICATIONS} pending entries in this view.
                     </p>

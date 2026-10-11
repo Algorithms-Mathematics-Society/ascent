@@ -1,5 +1,6 @@
 import { EMAIL_OUTBOX, decisionEmailId, emailJob } from "@/lib/email/messages";
 import { tryDeliverEmail } from "@/lib/email/delivery";
+import { waitUntil } from "@vercel/functions";
 import { readBoundedJson } from "@/lib/requestBody";
 import { randomUUID } from "node:crypto";
 import { revalidatePath } from "next/cache";
@@ -175,7 +176,9 @@ export async function PATCH(
       );
     }
 
-    await tryDeliverEmail(result.mailId);
+    // The decision and durable email job are committed. Keep delivery alive
+    // after the response without making the administrator wait for the provider.
+    waitUntil(tryDeliverEmail(result.mailId));
     revalidatePath("/admin");
     revalidatePath(`/admin/registrations/${params.id}`);
     return noStoreJson({

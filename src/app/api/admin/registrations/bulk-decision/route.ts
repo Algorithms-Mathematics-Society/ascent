@@ -1,5 +1,6 @@
 import { EMAIL_OUTBOX, decisionEmailId, emailJob } from "@/lib/email/messages";
 import { tryDeliverEmail } from "@/lib/email/delivery";
+import { waitUntil } from "@vercel/functions";
 import { readBoundedJson } from "@/lib/requestBody";
 import { randomUUID } from "node:crypto";
 import { revalidatePath } from "next/cache";
@@ -184,13 +185,17 @@ export async function PATCH(request: NextRequest) {
       );
     }
 
-    const deliveryDeadline = Date.now() + 8000;
-    for (const id of result.mailIds) {
-      if (Date.now() >= deliveryDeadline) break;
-      const outcome = await tryDeliverEmail(id);
-      if (outcome === "DISABLED" || outcome === "RETRY") break;
-      await new Promise((resolve) => setTimeout(resolve, 600));
-    }
+    // Preserve provider pacing and the durable outbox, but do not hold the
+    // saved batch response open while delivering its notifications.
+    waitUntil((async () => {
+      const deliveryDeadline = Date.now() + 8000;
+      for (const id of result.mailIds) {
+        if (Date.now() >= deliveryDeadline) break;
+        const outcome = await tryDeliverEmail(id);
+        if (outcome === "DISABLED" || outcome === "RETRY") break;
+        await new Promise((resolve) => setTimeout(resolve, 600));
+      }
+    })());
     revalidatePath("/admin");
     for (const applicationId of parsed.value.applicationIds) {
       revalidatePath(`/admin/registrations/${applicationId}`);

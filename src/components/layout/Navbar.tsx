@@ -4,7 +4,7 @@ import type { AnchorHTMLAttributes } from "react";
 import { Button } from "@/components/ui";
 
 interface NavbarProps {
-  page?: "home" | "registration" | "syllabus" | "legal";
+  page?: "home" | "registration" | "syllabus" | "eligibility" | "legal";
 }
 
 const PUBLIC_LINKS = [
@@ -12,6 +12,7 @@ const PUBLIC_LINKS = [
   { label: "Format", href: "#tracks" },
   { label: "Timeline", href: "#timeline" },
   { label: "FAQ", href: "#faq" },
+  { label: "Eligibility", href: "/eligibility" },
   { label: "Syllabus", href: "/syllabus" },
 ] as const;
 
@@ -25,6 +26,11 @@ function NavigationLink(props: AnchorHTMLAttributes<HTMLAnchorElement> & { href:
 export default function Navbar({ page = "home" }: NavbarProps) {
   const isRegistration = page === "registration";
   const isHome = page === "home";
+
+  function isCurrent(href: string) {
+    return (page === "syllabus" && href === "/syllabus") ||
+      (page === "eligibility" && href === "/eligibility");
+  }
 
   function resolveHref(href: string) {
     return !isHome && href.startsWith("#") ? `/${href}` : href;
@@ -62,18 +68,18 @@ export default function Navbar({ page = "home" }: NavbarProps) {
           </NavigationLink>
 
           {!isRegistration ? (
-            <div className="hidden items-center gap-6 md:flex">
+            <div className="hidden items-center gap-6 lg:flex">
               {PUBLIC_LINKS.map((link) => (
                 <NavigationLink
                   key={link.href}
                   href={resolveHref(link.href)}
                   aria-current={
-                    page === "syllabus" && link.href === "/syllabus"
+                    isCurrent(link.href)
                       ? "page"
                       : undefined
                   }
                   className={`-mx-2.5 inline-flex min-h-11 items-center border-b-2 px-2.5 text-sm font-medium hover:text-ascent-brand ${
-                    page === "syllabus" && link.href === "/syllabus"
+                    isCurrent(link.href)
                       ? "border-ascent-brand text-ascent-ink"
                       : "border-transparent text-ascent-muted"
                   }`}
@@ -96,15 +102,23 @@ export default function Navbar({ page = "home" }: NavbarProps) {
           </div>
         ) : (
           <div className="flex items-center gap-3">
-            <Link
-              href="/syllabus"
-              aria-current={page === "syllabus" ? "page" : undefined}
-              className={`inline-flex min-h-11 items-center text-sm font-medium md:hidden ${
-                page === "syllabus" ? "text-ascent-ink" : "text-ascent-muted"
-              }`}
-            >
-              Syllabus
-            </Link>
+            <details className="group relative lg:hidden">
+              <summary className="flex min-h-11 cursor-pointer list-none items-center gap-2 text-sm font-medium text-ascent-ink [&::-webkit-details-marker]:hidden">
+                Explore <span aria-hidden="true" className="text-xs group-open:rotate-180">⌄</span>
+              </summary>
+              <div className="absolute right-0 top-full mt-2 w-48 border border-ascent-border bg-ascent-surface p-2 shadow-lg">
+                {PUBLIC_LINKS.map((link) => (
+                  <NavigationLink
+                    key={link.href}
+                    href={resolveHref(link.href)}
+                    aria-current={isCurrent(link.href) ? "page" : undefined}
+                    className={`flex min-h-11 items-center px-3 text-sm hover:bg-ascent-brand-tint ${isCurrent(link.href) ? "font-semibold text-ascent-brand" : "text-ascent-ink"}`}
+                  >
+                    {link.label}
+                  </NavigationLink>
+                ))}
+              </div>
+            </details>
             <Button href="/register" size="sm">
               Register
             </Button>

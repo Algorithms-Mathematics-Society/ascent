@@ -23,6 +23,7 @@ const FOOTER_LINKS = [
   { label: "Format", href: "/#tracks" },
   { label: "Timeline", href: "/#timeline" },
   { label: "FAQ", href: "/#faq" },
+  { label: "Eligibility", href: "/eligibility" },
   { label: "Syllabus", href: "/syllabus" },
   { label: "Register", href: "/register" },
 ] as const;

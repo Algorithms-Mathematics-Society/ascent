@@ -7,6 +7,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const updated = new Date("2026-09-24T06:00:00+05:30");
   return [
     { url: `${SITE_ORIGIN}/`, lastModified: updated, changeFrequency: "weekly", priority: 1 },
+    { url: `${SITE_ORIGIN}/eligibility`, lastModified: new Date("2026-10-11T00:00:00+05:30"), changeFrequency: "monthly", priority: 0.8 },
     { url: `${SITE_ORIGIN}/syllabus`, lastModified: updated, changeFrequency: "monthly", priority: 0.8 },
     { url: `${SITE_ORIGIN}/privacy`, lastModified: updated, changeFrequency: "yearly", priority: 0.3 },
     { url: `${SITE_ORIGIN}/privacy/${PRIVACY_VERSION}`, lastModified: updated, changeFrequency: "yearly", priority: 0.2 },

@@ -35,9 +35,15 @@ export const site = {
    * with timezone offset, e.g. "2026-07-20T18:30:00+05:30") to switch on the
    * countdown. While null, the countdown renders nothing.
    */
+  community: {
+    whatsappUrl: "https://chat.whatsapp.com/IJGBXxIxFQN5AqtiEx3Jno",
+  },
+
   registration: {
     // Organizer-confirmed milestone; static copy adds no Firestore reads.
     countLabel: "Over 1,000 registrations. Add yours." as string | null,
+    // Organizer-confirmed final count, shown once registration is closed.
+    closedCount: "1,500+",
     closeISO: null as string | null,
   },
 };

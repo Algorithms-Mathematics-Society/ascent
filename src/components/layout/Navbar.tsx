@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import type { AnchorHTMLAttributes } from "react";
 import { Button } from "@/components/ui";
+import { REGISTRATION_CLOSED } from "@/lib/registrationLaunch";
 
 interface NavbarProps {
   page?: "home" | "registration" | "syllabus" | "eligibility" | "legal";
@@ -119,9 +120,15 @@ export default function Navbar({ page = "home" }: NavbarProps) {
                 ))}
               </div>
             </details>
-            <Button href="/register" size="sm">
-              Register
-            </Button>
+            {REGISTRATION_CLOSED ? (
+              <Button href="/register/status" size="sm">
+                Entry status
+              </Button>
+            ) : (
+              <Button href="/register" size="sm">
+                Register
+              </Button>
+            )}
           </div>
         )}
       </nav>

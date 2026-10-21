@@ -1,6 +1,7 @@
 // src/components/sections/Timeline.tsx
 import { Container, Section, SectionHeading } from "@/components/ui";
 import RegistrationReminder from "@/components/register/RegistrationReminder";
+import { REGISTRATION_CLOSED } from "@/lib/registrationLaunch";
 import { TIMELINE } from "@/content/sections";
 
 // The tentative marker lives in the content layer, so this note tracks it
@@ -55,7 +56,7 @@ export default function Timeline() {
                   <p className="mt-3 max-w-2xl text-sm leading-6 text-ascent-muted">
                     {item.body}
                   </p>
-                  {index === 0 ? <RegistrationReminder /> : null}
+                  {index === 0 && !REGISTRATION_CLOSED ? <RegistrationReminder /> : null}
                 </div>
               </li>
             ))}

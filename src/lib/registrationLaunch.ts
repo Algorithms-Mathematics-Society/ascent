@@ -62,6 +62,14 @@ export function registrationOpensAtLabel(): string {
 
 export const REGISTRATION_OPENING_MESSAGE = `Registration opens on ${registrationOpensAtLabel()}.`;
 
+// Hard close for this edition. While true, the entry form is replaced by the
+// closed page and the API refuses new submissions, whatever the admin toggle
+// says. Set it to false to hand control back to the admin settings.
+export const REGISTRATION_CLOSED = true;
+
+export const REGISTRATION_CLOSED_MESSAGE =
+  "Registration for Ascent ’26 is closed.";
+
 export function registrationHasOpened(now = Date.now()): boolean {
   return now >= REGISTRATION_OPENS_AT_MS;
 }

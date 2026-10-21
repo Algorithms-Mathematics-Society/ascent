@@ -2,11 +2,12 @@
 import { Button } from "@/components/ui";
 import { HERO_STATS } from "@/content/sections";
 import { site } from "@/content/site";
+import { REGISTRATION_CLOSED } from "@/lib/registrationLaunch";
 import Countdown from "./Countdown";
 import DeferredHeroCacheField from "./DeferredHeroCacheField";
 
 export default function Hero() {
-  const { proof, registration } = site;
+  const { community, proof, registration } = site;
 
   return (
     <section
@@ -35,10 +36,25 @@ export default function Hero() {
               individual qualifier to a final round working on a real codebase.
             </p>
 
-            <div className="mt-7 flex flex-wrap items-center gap-3 sm:mt-8">
-              <Button href="/register" size="lg" className="w-full sm:w-64">
-                Register for Ascent
-              </Button>
+            {REGISTRATION_CLOSED ? (
+              <p className="mt-7 inline-flex items-center gap-2.5 rounded-control border border-ascent-border bg-ascent-surface px-3 py-2 text-sm text-ascent-brand sm:mt-8">
+                <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-ascent-gold" aria-hidden="true" />
+                <span className="font-semibold tabular-nums">
+                  Registration closed · {registration.closedCount} registered
+                </span>
+              </p>
+            ) : null}
+
+            <div className={`${REGISTRATION_CLOSED ? "mt-4" : "mt-7 sm:mt-8"} flex flex-wrap items-center gap-3`}>
+              {REGISTRATION_CLOSED ? (
+                <Button href="/register/status" size="lg" className="w-full sm:w-64">
+                  Check entry status
+                </Button>
+              ) : (
+                <Button href="/register" size="lg" className="w-full sm:w-64">
+                  Register for Ascent
+                </Button>
+              )}
               <Button
                 href="#tracks"
                 variant="secondary"
@@ -48,7 +64,7 @@ export default function Hero() {
                 See the three rounds
               </Button>
               <Button
-                href="https://chat.whatsapp.com/IJGBXxIxFQN5AqtiEx3Jno"
+                href={community.whatsappUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 variant="secondary"

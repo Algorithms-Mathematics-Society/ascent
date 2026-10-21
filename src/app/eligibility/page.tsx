@@ -5,6 +5,7 @@ import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { Button } from "@/components/ui";
 import { ELIGIBLE_INSTITUTIONS } from "@/content/institutions";
+import { REGISTRATION_CLOSED } from "@/lib/registrationLaunch";
 
 const garamond = localFont({
   src: "../../../node_modules/@fontsource/eb-garamond/files/eb-garamond-latin-600-normal.woff2",
@@ -126,7 +127,11 @@ export default function EligibilityPage() {
               <p className="mt-3">You can check your latest decision on the <Link href="/register/status" className="font-semibold text-ascent-brand underline underline-offset-4">entry status page</Link>. Both entry routes lead to the same Round 1; advancement after that depends on your competition results.</p>
             </div>
             <div className="mt-10 flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:gap-6">
-              <Button href="/register">Register for Ascent</Button>
+              {REGISTRATION_CLOSED ? (
+                <Button href="/register/status">Check entry status</Button>
+              ) : (
+                <Button href="/register">Register for Ascent</Button>
+              )}
               <Link href="/syllabus" className="inline-flex min-h-11 items-center text-sm font-semibold text-ascent-brand underline underline-offset-4">Read the Round 1 syllabus →</Link>
             </div>
           </div>

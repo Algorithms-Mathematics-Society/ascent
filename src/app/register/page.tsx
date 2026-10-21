@@ -1,7 +1,9 @@
 import RegistrationShell from "@/components/register/RegistrationShell";
+import RegistrationClosed from "@/components/register/RegistrationClosed";
 import RegistrationForm from "@/components/register/RegistrationForm";
 import { Button } from "@/components/ui";
-import { registrationHasOpened } from "@/lib/registrationLaunch";
+import { site } from "@/content/site";
+import { REGISTRATION_CLOSED, registrationHasOpened } from "@/lib/registrationLaunch";
 import { getCachedRegistrationAvailability } from "@/lib/registrationSettingsData";
 
 export const dynamic = "force-dynamic";
@@ -47,5 +49,15 @@ async function RegistrationContent() {
 }
 
 export default function RegisterPage() {
+  if (REGISTRATION_CLOSED) {
+    return (
+      <RegistrationShell
+        title="Registration is closed."
+        description={`${site.registration.closedCount} people registered for Ascent ’26. The field for Round 1 is set.`}
+      >
+        <RegistrationClosed />
+      </RegistrationShell>
+    );
+  }
   return <RegistrationShell><RegistrationContent /></RegistrationShell>;
 }

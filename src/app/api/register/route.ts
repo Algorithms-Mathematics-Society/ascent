@@ -19,6 +19,8 @@ import logger, { genReqId, maskEmail } from "@/lib/logger";
 import { determinePath } from "@/lib/qualificationEngine";
 import { checkSlidingWindow, sha256 } from "@/lib/rateLimit";
 import {
+  REGISTRATION_CLOSED,
+  REGISTRATION_CLOSED_MESSAGE,
   REGISTRATION_OPENING_MESSAGE,
   registrationHasOpened,
 } from "@/lib/registrationLaunch";
@@ -278,6 +280,10 @@ export async function POST(req: NextRequest) {
 
   if (!registrationHasOpened()) {
     return fieldError("registration", REGISTRATION_OPENING_MESSAGE, 423);
+  }
+
+  if (REGISTRATION_CLOSED) {
+    return fieldError("registration", REGISTRATION_CLOSED_MESSAGE, 423);
   }
 
   try {

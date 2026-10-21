@@ -13,6 +13,7 @@ const mocks = vi.hoisted(() => ({
   deliverEmail: vi.fn(),
   transactionSet: vi.fn(),
   transactionCreate: vi.fn(),
+  registrationClosed: false,
 }));
 
 // The route runs against inert references and explicit mocks. It never imports
@@ -33,6 +34,8 @@ vi.mock("@/lib/rateLimit", async (importOriginal) => ({
 vi.mock("@/lib/registrationLaunch", async (importOriginal) => ({
   ...(await importOriginal<typeof import("../src/lib/registrationLaunch")>()),
   registrationHasOpened: () => true,
+  // The open path stays covered while the edition's hard close is on.
+  get REGISTRATION_CLOSED() { return mocks.registrationClosed; },
 }));
 vi.mock("@/lib/email/delivery", () => ({ tryDeliverEmail: mocks.deliverEmail }));
 vi.mock("@vercel/functions", () => ({ waitUntil: vi.fn() }));
@@ -79,6 +82,7 @@ function registration(overrides: Record<string, string> = {}) {
 
 beforeEach(() => {
   vi.resetAllMocks();
+  mocks.registrationClosed = false;
   vi.stubGlobal("fetch", vi.fn(() => { throw new Error("Unexpected external request in isolated route test"); }));
   mocks.verifyBot.mockResolvedValue({ ok: true });
   mocks.receiptGet.mockResolvedValue(emptySnapshot());
@@ -117,6 +121,15 @@ describe("registration failure outcome before any entry transaction", () => {
     await expectNotCreated(await POST(registration()), 500);
     expect(mocks.receiptGet).toHaveBeenCalledOnce();
     expect(mocks.collection).toHaveBeenCalledWith("registration_submissions");
+    expect(mocks.availability).not.toHaveBeenCalled();
+  });
+
+  it("refuses a new entry while the edition is hard closed", async () => {
+    mocks.registrationClosed = true;
+    const response = await POST(registration());
+    expect(response.status).toBe(423);
+    expect(await response.clone().json()).toMatchObject({ field: "registration", error: "Registration for Ascent ’26 is closed." });
+    await expectNotCreated(response, 423);
     expect(mocks.availability).not.toHaveBeenCalled();
   });
 

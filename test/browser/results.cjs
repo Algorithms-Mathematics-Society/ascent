@@ -49,7 +49,7 @@ const artifactDir = '/tmp/ascent-results-qa';
     await open();
     assert.equal(await page.locator('body').innerText().then(text => text.includes(entries[0].username)), false);
     const introText = await page.locator('main').innerText();
-    assert.match(introText, /1,500\+/); assert.match(introText, /600\+/);
+    assert.match(introText, /1,500\+/); assert.doesNotMatch(introText, /600\+|Attended the contest/);
     assert.match(introText, /133/); assert.equal(introText.includes('1,326'), false);
     await page.screenshot({ path: `${artifactDir}/lookup-desktop.png`, fullPage: true });
     await reveal(0, `  ${entries[0].username.toUpperCase()}  `);

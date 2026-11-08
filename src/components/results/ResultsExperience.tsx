@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { ArrowRight, ArrowUpRight, Check, CheckCircle2, Download, Loader2, Mountain, Search, Trophy } from "lucide-react";
 import { hasRecordedSubmission, isResultResponse, normalizeResultUsername, type ResultResponse } from "@/lib/results";
-import { ROUND_ONE_ATTENDEES, ROUND_ONE_REGISTRANTS } from "@/content/results";
+import { ROUND_ONE_REGISTRANTS } from "@/content/results";
 import styles from "./results.module.css";
 import dynamic from "next/dynamic";
 
@@ -83,7 +83,6 @@ export default function ResultsExperience({ selectionCount }: { selectionCount: 
         <p>Round 1 is complete. Your result, and what comes next, is ready.</p>
         <dl className={styles.roundStats} aria-label="Round 1 summary">
           <div><dt>Registrants</dt><dd>{ROUND_ONE_REGISTRANTS}</dd></div>
-          <div><dt>Attended the contest</dt><dd>{ROUND_ONE_ATTENDEES}</dd></div>
           <div><dt>Selected for Round 2</dt><dd>{selectionCount}</dd></div>
         </dl>
       </div>

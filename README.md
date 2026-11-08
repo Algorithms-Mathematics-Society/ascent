@@ -121,8 +121,8 @@ partnership enquiries use **partners@amshq.in**.
 ## Round 1 results
 
 `/results` lets participants enter the exact AMS Access contest username from Round 1.
-The edition summary uses organizer-supplied figures: 1,500+ registrants, 600+
-attended the contest, and 133 selected for Round 2. The 1,326 CSV rows are
+The edition summary shows 1,500+ registrants and 133 selected for Round 2.
+The earlier attendance claim has been withdrawn; no attendance total is published. The 1,326 CSV rows are
 standings entries, not an attendance count. Results and sharing show the published
 rank without an attendee denominator. Accounts with no recorded submissions
 show a dedicated notice with no rank or score summary. Zero-credit submissions

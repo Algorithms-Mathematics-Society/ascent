@@ -1,4 +1,4 @@
-export const ROUND_ONE_SELECTION_COUNT = 150;
+export const ROUND_ONE_SELECTION_COUNT = 133;
 export const PROBLEM_IDS = ["A", "B", "C", "D"] as const;
 
 export type ProblemResult = {

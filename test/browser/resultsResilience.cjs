@@ -31,9 +31,9 @@ function chunkFor(suffix) {
   }
   try {
     if (!scenario || scenario === 'identity') await withPage(async page => {
-      await page.route('**/api/results', route => route.fulfill({ json: { result: entries[0], totalParticipants: entries.length, selectionCount: 150 } }));
+      await page.route('**/api/results', route => route.fulfill({ json: { result: entries[0], totalParticipants: entries.length, selectionCount: 133 } }));
       // A valid selected result for somebody else must never be shown.
-      await submit(page, 150);
+      await submit(page, 133);
       await page.locator('#result-error').waitFor();
       assert.equal(await page.locator('#result-title').count(), 0);
       assert.equal(await page.getByRole('button', { name: 'Reveal my result', exact: true }).isEnabled(), true);

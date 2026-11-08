@@ -11,26 +11,28 @@ const source = readFileSync("leaderboard/standings-ams-ascent-round-1.csv", "utf
 const standings = [...parseStandings(source).values()];
 const header = "rank,name,username,solved,partial_credit,penalty_minutes,A,B,C,D";
 function fixture(change?: (fields: string[], index: number) => string[]) {
-  return [header, ...Array.from({ length: 151 }, (_, index) => {
+  return [header, ...Array.from({ length: 134 }, (_, index) => {
     const fields = [String(index + 1), '"Example, ""Participant"""', `person-${index + 1}`, "0", "0.000", "0", "-", "-", "-", "-"];
     return (change ? change(fields, index) : fields).join(",");
   })].join("\r\n");
 }
 
 describe("published Round 1 standings", () => {
-  it("loads all 1,326 participants and selects exactly the published top 150", () => {
+  it("loads all 1,326 participants and selects exactly the published top 133", () => {
     expect(standings).toHaveLength(1326);
-    expect(standings.filter(result => result.selected)).toHaveLength(150);
+    expect(standings.filter(result => result.selected)).toHaveLength(133);
     expect(standings[0]).toMatchObject({ rank: 1, selected: true, solved: 4, penaltyMinutes: 163 });
-    expect(standings[149]).toMatchObject({ rank: 150, selected: true });
-    expect(standings[150]).toMatchObject({ rank: 151, selected: false });
+    expect(standings[132]).toMatchObject({ rank: 133, selected: true });
+    expect(standings[133]).toMatchObject({ rank: 134, selected: false });
     expect(standings[1325]).toMatchObject({ rank: 1326, selected: false });
   });
   it("preserves the supplied ordering when score fields are tied at the selection boundary", () => {
-    expect(standings[149].solved).toBe(standings[150].solved);
-    expect(standings[149].partialCredit).toBe(standings[150].partialCredit);
-    expect(standings[149].penaltyMinutes).toBe(standings[150].penaltyMinutes);
-    expect(standings[149].selected).not.toBe(standings[150].selected);
+    const tied = [...parseStandings(fixture()).values()];
+    expect(tied[132].solved).toBe(tied[133].solved);
+    expect(tied[132].partialCredit).toBe(tied[133].partialCredit);
+    expect(tied[132].penaltyMinutes).toBe(tied[133].penaltyMinutes);
+    expect(tied[132].selected).toBe(true);
+    expect(tied[133].selected).toBe(false);
   });
   it("matches whole usernames case-insensitively with surrounding whitespace ignored", async () => {
     expect((await findRoundOneResult(`  ${standings[0].username.toUpperCase()}  `))?.result.rank).toBe(1);
@@ -41,7 +43,7 @@ describe("published Round 1 standings", () => {
     expect(Object.keys(standings[0]).sort()).toEqual(["username", "rank", "selected", "solved", "partialCredit", "penaltyMinutes", "problems"].sort());
   });
   it("handles CSV quoting, CRLF, BOM and quoted newlines", () => {
-    expect(parseStandings(`\uFEFF${fixture().replace('"Example, ""Participant"""', '"Example\nParticipant"')}\r\n`).size).toBe(151);
+    expect(parseStandings(`\uFEFF${fixture().replace('"Example, ""Participant"""', '"Example\nParticipant"')}\r\n`).size).toBe(134);
   });
   it("rejects duplicate usernames instead of silently showing another participant's result", () => {
     expect(() => parseStandings(fixture((fields, i) => { if (i === 1) fields[2] = "PERSON-1"; return fields; }))).toThrow(/duplicate/);
@@ -82,16 +84,16 @@ function request(body: unknown, headers: Record<string, string> = {}) {
 
 describe("result lookup endpoint", () => {
   it("returns only the requested result, with no-store and noindex headers", async () => {
-    const response = await POST(request({ username: standings[149].username }));
+    const response = await POST(request({ username: standings[132].username }));
     expect(response.status).toBe(200);
     expect(response.headers.get("cache-control")).toBe("private, no-store");
     expect(response.headers.get("x-robots-tag")).toBe("noindex, nofollow");
     const body = await response.json();
-    expect(body).toMatchObject({ totalParticipants: 1326, selectionCount: 150, result: { rank: 150, selected: true } });
+    expect(body).toMatchObject({ totalParticipants: 1326, selectionCount: 133, result: { rank: 133, selected: true } });
     expect(Object.keys(body)).toEqual(["result", "totalParticipants", "selectionCount"]);
   });
-  it("does not select rank 151", async () => {
-    const response = await POST(request({ username: standings[150].username }));
+  it("does not select rank 134", async () => {
+    const response = await POST(request({ username: standings[133].username }));
     expect((await response.json()).result.selected).toBe(false);
   });
   it("returns not found without suggestions or other participants", async () => {

@@ -123,7 +123,7 @@ partnership enquiries use **partners@amshq.in**.
 `/results` lets participants enter the exact contest username from Round 1.
 Matching ignores capitalization and surrounding spaces. The page shows rank,
 selection, solved count, partial credit, penalty and the A–D breakdown, with a
-print layout for saving a result as PDF. Published ranks 1–150 advance to Round 2;
+print layout for saving a result as PDF. Published ranks 1–133 advance to Round 2;
 the CSV rank is authoritative even where score fields are tied.
 
 The source is `leaderboard/standings-ams-ascent-round-1.csv`. It stays outside
@@ -147,7 +147,7 @@ the standings. Concurrent first requests share one asynchronous read and parse;
 subsequent lookups use the in-memory map. Failed imports can retry. Keep the CSV
 out of `public/`.
 
-Run `npx vitest run test/results.test.ts` for import validation and the 150/151
+Run `npx vitest run test/results.test.ts` for import validation and the 133/134
 cutoff. `test/browser/results.cjs` checks the production page, error recovery,
 printing, narrow screens and reduced motion against a local server; set
 `PLAYWRIGHT_MODULE` and optionally `CHROMIUM_EXECUTABLE_PATH` to existing browser

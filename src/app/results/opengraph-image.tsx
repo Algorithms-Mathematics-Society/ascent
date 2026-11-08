@@ -1,7 +1,7 @@
 import { ImageResponse } from "next/og";
 import { ROUND_ONE_SELECTION_COUNT } from "@/lib/results";
 
-export const alt = "Ascent 2026 Round 1 results. The top 150 advance to Round 2.";
+export const alt = `Ascent 2026 Round 1 results. The top ${ROUND_ONE_SELECTION_COUNT} advance to Round 2.`;
 export const size = { width: 1200, height: 627 };
 export const contentType = "image/png";
 export const dynamic = "force-static";

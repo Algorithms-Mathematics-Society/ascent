@@ -5,6 +5,7 @@ const { spawn } = require('node:child_process');
 const { readFileSync, writeFileSync } = require('node:fs');
 const { gzipSync } = require('node:zlib');
 const { setTimeout: delay } = require('node:timers/promises');
+const { ROUND_ONE_SELECTION_COUNT } = require('../src/lib/results.ts');
 const { parseStandings } = require('../src/lib/resultsStandings.ts');
 const entries = [...parseStandings(readFileSync('leaderboard/standings-ams-ascent-round-1.csv', 'utf8')).values()];
 const base = 'http://127.0.0.1:3111';
@@ -20,7 +21,7 @@ async function lookup(index) {
   });
   const text = await response.text();
   const body = JSON.parse(text);
-  if (response.status !== 200 || body.result?.username !== expected.username || body.result?.rank !== expected.rank || body.result?.selected !== (expected.rank <= 150)) {
+  if (response.status !== 200 || body.result?.username !== expected.username || body.result?.rank !== expected.rank || body.result?.selected !== (expected.rank <= ROUND_ONE_SELECTION_COUNT)) {
     throw new Error(`Incorrect result/status at request ${index}`);
   }
   return { latency: performance.now() - start, bytes: Buffer.byteLength(text) };

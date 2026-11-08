@@ -25,6 +25,11 @@ export type ResultResponse = {
   selectionCount: number;
 };
 
+/** Submission evidence, not attendance: zero-credit attempts still count. */
+export function hasRecordedSubmission(result: Pick<RoundOneResult, "problems">): boolean {
+  return result.problems.some(problem => problem.attempts > 0);
+}
+
 export function normalizeResultUsername(value: unknown): string | null {
   if (typeof value !== "string") return null;
   const username = value.trim().toLowerCase();

@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it, vi } from "vitest";
-import { normalizeResultUsername, parseProblemResult } from "@/lib/results";
+import { hasRecordedSubmission, normalizeResultUsername, parseProblemResult } from "@/lib/results";
 import { parseStandings } from "@/lib/resultsStandings";
 
 vi.mock("server-only", () => ({}));
@@ -33,6 +33,15 @@ describe("published Round 1 standings", () => {
     expect(tied[132].penaltyMinutes).toBe(tied[133].penaltyMinutes);
     expect(tied[132].selected).toBe(true);
     expect(tied[133].selected).toBe(false);
+  });
+  it("distinguishes submission records from listed accounts without treating zero credit as absence", () => {
+    expect(standings.filter(hasRecordedSubmission)).toHaveLength(161);
+    expect(standings.filter(entry => !hasRecordedSubmission(entry))).toHaveLength(1165);
+    expect(hasRecordedSubmission(standings[203])).toBe(false);
+    expect(standings.filter(entry => entry.solved > 0).map(entry => entry.rank)).toEqual(Array.from({ length: 133 }, (_, i) => i + 1));
+    const zeroCredit = standings.find(entry => entry.solved === 0 && entry.partialCredit === 0 && entry.problems.some(problem => problem.attempts > 0));
+    expect(zeroCredit).toBeDefined();
+    expect(hasRecordedSubmission(zeroCredit!)).toBe(true);
   });
   it("matches whole usernames case-insensitively with surrounding whitespace ignored", async () => {
     expect((await findRoundOneResult(`  ${standings[0].username.toUpperCase()}  `))?.result.rank).toBe(1);

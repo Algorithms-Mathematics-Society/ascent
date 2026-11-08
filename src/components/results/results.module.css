@@ -111,3 +111,5 @@
   .intro, .lookup, .help, .actions, .sharePanel { display: none !important; }
   .experience { max-width: none; padding: 0; }.receipt { animation: none; border-color: #a6b7be; box-shadow: none; break-inside: avoid; }.resultHero { background: white !important; color: #14283a; padding: 20px; }.selected .resultHero { border-top: 0; }.resultTop, .resultMessage, .resultBadge, .selected .resultBadge, .username, .rankSeal, .selected .rankSeal, .rankSeal > span:last-child { color: #14283a; }.rankSeal, .selected .rankSeal, .resultTop, .selected .resultBadge { border-color: #a6b7be; }.resultHeadline { grid-template-columns: 1fr 140px; }.resultHeadline h2 { font-size: 38px; }.rankSeal, .selected .rankSeal { min-height: 150px; width: auto; justify-content: center; padding: 12px; flex-direction: column; }.rankSeal > span:last-child { display: block; }.resultBody { padding: 0 20px 20px; }.nextStep { margin-top: 16px; padding: 14px; }.metrics { margin-top: 16px; padding: 16px 0; }.problems { grid-template-columns: repeat(4, minmax(0, 1fr)); }.problem { padding: 12px; }
 }
+
+.noSubmissionHeadline { grid-template-columns: 1fr; }

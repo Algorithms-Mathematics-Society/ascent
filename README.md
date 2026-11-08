@@ -124,7 +124,9 @@ partnership enquiries use **partners@amshq.in**.
 The edition summary uses organizer-supplied figures: 1,500+ registrants, 600+
 attended the contest, and 133 selected for Round 2. The 1,326 CSV rows are
 standings entries, not an attendance count. Results and sharing show the published
-rank without an attendee denominator.
+rank without an attendee denominator. Accounts with no recorded submissions
+show a dedicated notice with no rank or score summary. Zero-credit submissions
+still receive their published result; submission records do not establish attendance.
 Matching ignores capitalization and surrounding spaces. The page shows rank,
 selection, solved count, partial credit, penalty and the A–D breakdown, with a
 print layout for saving a result as PDF. Published ranks 1–133 advance to Round 2;

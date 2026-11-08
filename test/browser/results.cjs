@@ -24,10 +24,19 @@ const artifactDir = '/tmp/ascent-results-qa';
     await page.getByLabel('AMS Access username', { exact: true }).fill(username);
     await page.getByRole('button', { name: 'Reveal my result', exact: true }).click();
     await page.locator('#result-title').waitFor();
-    assert.equal(await page.locator('#result-title').textContent(), index < 133 ? 'You’re through.' : 'Thank you for taking on Ascent.');
+    const submitted = entries[index].problems.some(problem => problem.attempts > 0);
+    const title = index < 133 ? 'You’re through.' : submitted ? 'Thank you for taking on Ascent.' : 'No submission recorded.';
+    assert.equal(await page.locator('#result-title').textContent(), title);
     assert.equal(await page.locator('#result-title').evaluate(el => el === document.activeElement), true);
-    const card = page.getByRole('region', { name: index < 133 ? 'You’re through.' : 'Thank you for taking on Ascent.' });
-    assert.match(await card.innerText(), new RegExp(`#${index + 1}\\b`));
+    const card = page.getByRole('region', { name: title });
+    if (submitted) assert.match(await card.innerText(), new RegExp(`#${index + 1}\\b`));
+    else {
+      assert.equal(await card.locator('[class*="rankSeal"]').count(), 0);
+      assert.equal(await card.getByText('Problems solved', { exact: true }).count(), 0);
+      assert.equal(await card.getByRole('button', { name: 'Download share card' }).count(), 0);
+      assert.equal(await page.locator('canvas[data-result-celebration]').count(), 0);
+      assert.match(await card.innerText(), /does not establish whether you attended/);
+    }
     assert.equal(new URL(page.url()).search, '');
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), true);
   }
@@ -112,7 +121,12 @@ const artifactDir = '/tmp/ascent-results-qa';
     assert.equal(await page.locator('canvas[data-result-celebration]').count(), 0);
     await reset();
     await reveal(1325);
-    console.log('PASS: rank 1, exact 133/134 boundary, last rank, case/whitespace handling, focus, reset and printable result');
+    for (const index of [138, 202, 203, 204]) { await reset(); await reveal(index); }
+    const zeroCreditIndex = entries.findIndex(entry => entry.solved === 0 && entry.partialCredit === 0 && entry.problems.some(problem => problem.attempts > 0));
+    assert.ok(zeroCreditIndex >= 0);
+    await reset(); await reveal(zeroCreditIndex);
+    assert.equal(await page.getByRole('button', { name: 'Download share card' }).count(), 0);
+    console.log('PASS: 133/134 cutoff, no-submission accounts including listed positions 203–205 hide ranks, zero-credit submissions retain results');
 
     await reset();
     await page.getByLabel('AMS Access username', { exact: true }).fill('not-a-real-contest-username');

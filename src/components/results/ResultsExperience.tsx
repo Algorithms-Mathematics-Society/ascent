@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { ArrowRight, ArrowUpRight, Check, CheckCircle2, Download, Loader2, Mountain, Search, Trophy } from "lucide-react";
-import { isResultResponse, normalizeResultUsername, type ResultResponse } from "@/lib/results";
+import { hasRecordedSubmission, isResultResponse, normalizeResultUsername, type ResultResponse } from "@/lib/results";
 import { ROUND_ONE_ATTENDEES, ROUND_ONE_REGISTRANTS } from "@/content/results";
 import styles from "./results.module.css";
 import dynamic from "next/dynamic";
@@ -73,6 +73,7 @@ export default function ResultsExperience({ selectionCount }: { selectionCount: 
   }
 
   const entry = result?.result;
+  const hasSubmission = entry ? hasRecordedSubmission(entry) : false;
 
   return (
     <div className={styles.experience}>
@@ -125,32 +126,32 @@ export default function ResultsExperience({ selectionCount }: { selectionCount: 
           <div className={styles.resultHero}>
             {entry.selected ? <ResultCelebration key={celebration} /> : null}
             <div className={styles.resultTop}><span>ASCENT / 2026</span><span>ROUND 01 · RESULT</span></div>
-            <div className={styles.resultHeadline}>
+            <div className={`${styles.resultHeadline} ${hasSubmission ? "" : styles.noSubmissionHeadline}`}>
               <div>
-                <p className={styles.resultBadge}>{entry.selected ? <><CheckCircle2 size={16} aria-hidden="true" /> SELECTED FOR ROUND 2</> : "NOT SELECTED FOR ROUND 2"}</p>
+                <p className={styles.resultBadge}>{entry.selected ? <><CheckCircle2 size={16} aria-hidden="true" /> SELECTED FOR ROUND 2</> : hasSubmission ? "NOT SELECTED FOR ROUND 2" : "ROUND 1 RECORD"}</p>
                 <p className={styles.username}>{entry.username}</p>
-                <h2 ref={heading} tabIndex={-1} id="result-title">{entry.selected ? "You’re through." : "Thank you for taking on Ascent."}</h2>
-                <p className={styles.resultMessage}>{entry.selected ? `You’re one of ${result.selectionCount} selected for Round 2. Take a moment. You earned this.` : `You haven’t been selected for Round 2. The top ${result.selectionCount} in the published standings advance. Thank you for the time and effort you put into this round.`}</p>
+                <h2 ref={heading} tabIndex={-1} id="result-title">{entry.selected ? "You’re through." : hasSubmission ? "Thank you for taking on Ascent." : "No submission recorded."}</h2>
+                <p className={styles.resultMessage}>{entry.selected ? `You’re one of ${result.selectionCount} selected for Round 2. Take a moment. You earned this.` : hasSubmission ? `You haven’t been selected for Round 2. The top ${result.selectionCount} in the published standings advance. Thank you for the time and effort you put into this round.` : "No submissions are recorded for this account in Round 1, so a result rank is not shown."}</p>
               </div>
-              <div className={styles.rankSeal}>
+              {hasSubmission ? <div className={styles.rankSeal}>
                 {entry.selected ? <Trophy size={24} strokeWidth={1.4} aria-hidden="true" /> : <Mountain size={24} strokeWidth={1.4} aria-hidden="true" />}
                 <span>PUBLISHED RANK</span><strong><small>#</small>{entry.rank}</strong><span>ROUND 1 STANDINGS</span>
-              </div>
+              </div> : null}
             </div>
           </div>
 
           <div className={styles.resultBody}>
             <div className={styles.nextStep}>
               <div className={styles.nextIcon}>{entry.selected ? <ArrowUpRight size={22} aria-hidden="true" /> : <Mountain size={22} aria-hidden="true" />}</div>
-              <div><h3>{entry.selected ? "Next stop: Round 2." : "Questions about your result?"}</h3><p>{entry.selected ? "Keep an eye on your registered email for Round 2 instructions from the Ascent team." : "The Ascent team can help. Contact us from your registered email address using the link below."}</p></div>
+              <div><h3>{entry.selected ? "Next stop: Round 2." : "Questions about your result?"}</h3><p>{entry.selected ? "Keep an eye on your registered email for Round 2 instructions from the Ascent team." : hasSubmission ? "The Ascent team can help. Contact us from your registered email address using the link below." : "If you submitted a solution, contact the Ascent team from your registered email address so we can check your record."}</p></div>
             </div>
             {entry.selected ? <ResultShare result={result} onCelebrate={() => setCelebration(value => value + 1)} /> : null}
-            <dl className={styles.metrics}>
+            {hasSubmission ? <dl className={styles.metrics}>
               <div><dt>Problems solved</dt><dd>{entry.solved}<small> / 4</small></dd></div>
               <div><dt>Partial credit</dt><dd>{entry.partialCredit.toFixed(3)}</dd></div>
               <div><dt>Penalty</dt><dd>{entry.penaltyMinutes}<small> min</small></dd></div>
-            </dl>
-            <div className={styles.breakdownHeading}><h3>Your round, problem by problem.</h3><span>A — D</span></div>
+            </dl> : null}
+            <div className={styles.breakdownHeading}><h3>{hasSubmission ? "Your round, problem by problem." : "Your submission record."}</h3><span>A — D</span></div>
             <div className={styles.problems}>
               {entry.problems.map(problem => (
                 <div key={problem.id} className={`${styles.problem} ${problem.status === "accepted" ? styles.accepted : ""}`}>
@@ -160,7 +161,7 @@ export default function ResultsExperience({ selectionCount }: { selectionCount: 
                 </div>
               ))}
             </div>
-            <p className={styles.rankNote}>Ranks 1–{result.selectionCount} in the published Round 1 standings advance. Your rank is shown exactly as published.</p>
+            <p className={styles.rankNote}>{hasSubmission ? `Ranks 1–${result.selectionCount} in the published Round 1 standings advance. Your rank is shown exactly as published.` : "No recorded submission does not establish whether you attended the contest. No result rank is displayed for this record."}</p>
             <div className={styles.actions}>
               <button type="button" className={styles.saveButton} onClick={() => window.print()}><Download size={16} aria-hidden="true" /> Print / save result</button>
               <button type="button" className={styles.resetButton} onClick={reset}>Check another username <ArrowRight size={16} aria-hidden="true" /></button>

@@ -18,10 +18,10 @@ const artifactDir = '/tmp/ascent-results-qa';
   page.setDefaultTimeout(10000);
   async function open() {
     await page.goto(`${base}/results`);
-    await page.getByLabel('Contest username', { exact: true }).waitFor();
+    await page.getByLabel('AMS Access username', { exact: true }).waitFor();
   }
   async function reveal(index, username = entries[index].username) {
-    await page.getByLabel('Contest username', { exact: true }).fill(username);
+    await page.getByLabel('AMS Access username', { exact: true }).fill(username);
     await page.getByRole('button', { name: 'Reveal my result', exact: true }).click();
     await page.locator('#result-title').waitFor();
     assert.equal(await page.locator('#result-title').textContent(), index < 133 ? 'You’re through.' : 'Thank you for taking on Ascent.');
@@ -33,12 +33,15 @@ const artifactDir = '/tmp/ascent-results-qa';
   }
   async function reset() {
     await page.getByRole('button', { name: 'Check another username' }).click();
-    await page.getByLabel('Contest username', { exact: true }).waitFor();
-    assert.equal(await page.getByLabel('Contest username', { exact: true }).inputValue(), '');
+    await page.getByLabel('AMS Access username', { exact: true }).waitFor();
+    assert.equal(await page.getByLabel('AMS Access username', { exact: true }).inputValue(), '');
   }
   try {
     await open();
     assert.equal(await page.locator('body').innerText().then(text => text.includes(entries[0].username)), false);
+    const introText = await page.locator('main').innerText();
+    assert.match(introText, /1,500\+/); assert.match(introText, /600\+/);
+    assert.match(introText, /133/); assert.equal(introText.includes('1,326'), false);
     await page.screenshot({ path: `${artifactDir}/lookup-desktop.png`, fullPage: true });
     await reveal(0, `  ${entries[0].username.toUpperCase()}  `);
     await page.locator('canvas[data-result-celebration]').waitFor();
@@ -60,7 +63,7 @@ const artifactDir = '/tmp/ascent-results-qa';
 
     await page.evaluate(() => Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText: async text => { window.copiedResultCaption = text; } } }));
     await page.getByRole('button', { name: 'Copy caption', exact: true }).click();
-    assert.match(await page.evaluate(() => window.copiedResultCaption), /#1 out of 1,326/);
+    assert.match(await page.evaluate(() => window.copiedResultCaption), /published Round 1 rank of #1/);
     await page.getByText('Edit your caption', { exact: true }).click();
     await page.getByLabel('Your LinkedIn caption').fill('My own words about reaching Round 2.');
     await page.getByRole('button', { name: 'Copy caption', exact: true }).click();
@@ -112,12 +115,12 @@ const artifactDir = '/tmp/ascent-results-qa';
     console.log('PASS: rank 1, exact 133/134 boundary, last rank, case/whitespace handling, focus, reset and printable result');
 
     await reset();
-    await page.getByLabel('Contest username', { exact: true }).fill('not-a-real-contest-username');
+    await page.getByLabel('AMS Access username', { exact: true }).fill('not-a-real-contest-username');
     await page.getByRole('button', { name: 'Reveal my result', exact: true }).click();
     await page.locator('#result-error').waitFor();
     assert.equal(await page.locator('#result-title').count(), 0);
     await page.route('**/api/results', route => route.abort('failed'));
-    await page.getByLabel('Contest username', { exact: true }).fill(entries[0].username);
+    await page.getByLabel('AMS Access username', { exact: true }).fill(entries[0].username);
     await page.getByRole('button', { name: 'Reveal my result', exact: true }).click();
     await page.locator('#result-error').waitFor();
     assert.equal(await page.getByRole('button', { name: 'Reveal my result', exact: true }).isEnabled(), true);
@@ -126,7 +129,7 @@ const artifactDir = '/tmp/ascent-results-qa';
     console.log('PASS: unknown username and network failure recover without displaying a stale result');
     await reset();
     await page.route('**/api/results', route => route.fulfill({ json: { result: { rank: 134, selected: true, problems: [] } } }));
-    await page.getByLabel('Contest username', { exact: true }).fill(entries[133].username);
+    await page.getByLabel('AMS Access username', { exact: true }).fill(entries[133].username);
     await page.getByRole('button', { name: 'Reveal my result', exact: true }).click();
     await page.locator('#result-error').waitFor();
     assert.equal(await page.locator('#result-title').count(), 0);
@@ -141,7 +144,7 @@ const artifactDir = '/tmp/ascent-results-qa';
       await new Promise(resolve => { release = resolve; });
       await route.continue();
     });
-    await page.getByLabel('Contest username', { exact: true }).fill(entries[0].username);
+    await page.getByLabel('AMS Access username', { exact: true }).fill(entries[0].username);
     await page.getByRole('button', { name: 'Reveal my result', exact: true }).click();
     await page.getByRole('button', { name: 'Opening your result…' }).waitFor();
     await page.locator('form').evaluate(form => {
@@ -159,6 +162,7 @@ const artifactDir = '/tmp/ascent-results-qa';
       await page.setViewportSize({ width, height: 900 });
       await open();
       assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), true, `lookup overflow at ${width}`);
+      if (width === 390) await page.screenshot({ path: `${artifactDir}/lookup-mobile.png`, fullPage: true });
       await reveal(132);
       await page.getByRole('button', { name: 'Celebrate again' }).waitFor();
       await page.locator('canvas[data-result-celebration]').waitFor({ state: 'detached' });

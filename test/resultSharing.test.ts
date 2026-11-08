@@ -10,7 +10,8 @@ const response = (index: number): ResultResponse => ({ result: structuredClone(e
 describe("share content", () => {
   it("includes the correct rank and selection in the participant-controlled caption", () => {
     const caption = resultCaption(response(132));
-    expect(caption).toContain("#133 out of 1,326");
+    expect(caption).toContain("published Round 1 rank of #133");
+    expect(caption).not.toMatch(/1,326|out of|participants/);
     expect(caption).toContain("through to Round 2");
     expect(caption).toContain("top 133");
     expect(caption).not.toContain(entries[132].username);

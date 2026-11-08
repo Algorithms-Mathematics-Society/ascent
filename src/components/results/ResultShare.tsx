@@ -51,9 +51,9 @@ export default function ResultShare({ result, onCelebrate }: { result: ResultRes
       <div><p className={styles.smallLabel}>A MILESTONE WORTH SHARING</p><h3 id="share-title">Take this moment with you.</h3></div>
       <button type="button" className={styles.celebrateButton} onClick={onCelebrate}><PartyPopper size={18} aria-hidden="true" /> Celebrate again</button>
     </div>
-    <div className={styles.sharePreview} role="img" aria-label={`Share card: Ascent 2026, selected for Round 2, ${result.result.username}, rank ${result.result.rank} of ${result.totalParticipants}`}>
+    <div className={styles.sharePreview} role="img" aria-label={`Share card: Ascent 2026, selected for Round 2, ${result.result.username}, published Round 1 rank ${result.result.rank}, one of ${result.selectionCount} selected`}>
       <div><span>ASCENT / 2026</span><strong>The ascent<br />continues.</strong><small>{result.result.username}</small></div>
-      <div className={styles.sharePreviewRank}><span>ROUND 2 · SELECTED</span><strong>#{result.result.rank}</strong><small>OF {result.totalParticipants.toLocaleString("en-IN")}</small></div>
+      <div className={styles.sharePreviewRank}><span>ROUND 2 · SELECTED</span><strong>#{result.result.rank}</strong><small>ONE OF {result.selectionCount} SELECTED</small></div>
     </div>
     <p className={styles.shareHint}>Download your card and copy the caption. On LinkedIn, attach the PNG and paste or edit your caption before posting.</p>
     <div className={styles.shareActions}>

@@ -1,7 +1,7 @@
 import type { ResultResponse } from "./results";
 
 /** Imported only on download. Drawing happens on the participant's device. */
-export async function createResultShareCard({ result, totalParticipants, selectionCount }: ResultResponse): Promise<Blob> {
+export async function createResultShareCard({ result, selectionCount }: ResultResponse): Promise<Blob> {
   if (!result.selected || result.rank < 1 || result.rank > selectionCount) throw new Error("A selected result is required.");
   const canvas = document.createElement("canvas");
   canvas.width = 1200; canvas.height = 627;
@@ -42,9 +42,9 @@ export async function createResultShareCard({ result, totalParticipants, selecti
   ctx.strokeStyle = "#e7d3a470"; ctx.lineWidth = 1.5;
   ctx.beginPath(); ctx.roundRect(825, 190, 285, 292, [140, 140, 16, 16]); ctx.stroke();
   ctx.textAlign = "center";
-  text("OVERALL RANK", 967, 288, 15, gold, 600);
+  text("PUBLISHED RANK", 967, 288, 15, gold, 600);
   text(`#${result.rank}`, 967, 382, 88, gold, 600);
-  text(`OF ${totalParticipants.toLocaleString("en-IN")} PARTICIPANTS`, 967, 427, 14, muted);
+  text("ROUND 1 STANDINGS", 967, 427, 14, muted);
   ctx.textAlign = "left";
   ctx.strokeStyle = "#ffffff25"; ctx.beginPath(); ctx.moveTo(65, 522); ctx.lineTo(1135, 522); ctx.stroke();
   text("ROUND 1  /  QUALIFIED", 65, 566, 15, gold, 600);

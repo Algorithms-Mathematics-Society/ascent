@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { ArrowRight, ArrowUpRight, Check, CheckCircle2, Download, Loader2, Mountain, Search, Trophy } from "lucide-react";
 import { isResultResponse, normalizeResultUsername, type ResultResponse } from "@/lib/results";
+import { ROUND_ONE_ATTENDEES, ROUND_ONE_REGISTRANTS } from "@/content/results";
 import styles from "./results.module.css";
 import dynamic from "next/dynamic";
 
@@ -18,7 +19,7 @@ const ResultShare = dynamic<{ result: ResultResponse; onCelebrate: () => void }>
   () => import("./ResultShare").catch(() => ({ default: SharingUnavailable })),
 );
 
-export default function ResultsExperience({ totalParticipants, selectionCount }: { totalParticipants: number; selectionCount: number }) {
+export default function ResultsExperience({ selectionCount }: { selectionCount: number }) {
   const [username, setUsername] = useState("");
   const [result, setResult] = useState<ResultResponse | null>(null);
   const [error, setError] = useState("");
@@ -79,40 +80,45 @@ export default function ResultsExperience({ totalParticipants, selectionCount }:
         <p className={styles.eyebrow}><span className={styles.liveDot} /> Ascent 2026 · Round 1 results</p>
         <h1>Your effort.<br /><span>Your next chapter.</span></h1>
         <p>Round 1 is complete. Your result, and what comes next, is ready.</p>
-        <div className={styles.roundStats} aria-label="Round 1 summary">
-          <span><strong>{totalParticipants.toLocaleString("en-IN")}</strong> participants</span>
-          <span><strong>{selectionCount}</strong> selected for Round 2</span>
-        </div>
+        <dl className={styles.roundStats} aria-label="Round 1 summary">
+          <div><dt>Registrants</dt><dd>{ROUND_ONE_REGISTRANTS}</dd></div>
+          <div><dt>Attended the contest</dt><dd>{ROUND_ONE_ATTENDEES}</dd></div>
+          <div><dt>Selected for Round 2</dt><dd>{selectionCount}</dd></div>
+        </dl>
       </div>
 
       {!entry ? (
         <section className={styles.lookup} aria-labelledby="lookup-title">
-          <div className={styles.art} aria-hidden="true">
-            <div className={styles.artLabel}>THE ASCENT CONTINUES</div>
-            <div className={styles.steps}><i /><i /><i /><i /><i /><span><ArrowUpRight size={40} strokeWidth={1.2} /></span></div>
-            <div className={styles.artFooter}><Mountain size={22} strokeWidth={1.3} /><span>Built on every attempt.</span></div>
-          </div>
           <div className={styles.lookupBody}>
-            <p className={styles.smallLabel}>THE MOMENT IS YOURS</p>
+            <p className={styles.smallLabel}>YOUR ROUND 1 RESULT</p>
             <h2 id="lookup-title">Open your result.</h2>
-            <p>Use the contest username you used to sign in for Round 1.</p>
+            <p>Your standing. Your next step. All in one place.</p>
             <form onSubmit={reveal} aria-busy={busy}>
-              <label htmlFor="result-username">Contest username</label>
+              <label htmlFor="result-username">AMS Access username</label>
               <div className={styles.inputWrap}>
                 <Search size={19} aria-hidden="true" />
                 <input ref={input} id="result-username" name="username" value={username} onChange={event => { setUsername(event.target.value); if (error) setError(""); }}
                   required maxLength={128} autoCapitalize="none" autoCorrect="off" spellCheck={false} autoComplete="off"
-                  placeholder="Your Round 1 username" disabled={busy} aria-invalid={error ? true : undefined} aria-describedby={`username-help${error ? " result-error" : ""}`} />
+                  placeholder="Your AMS Access username" disabled={busy} aria-invalid={error ? true : undefined} aria-describedby={`username-help${error ? " result-error" : ""}`} />
               </div>
-              <p id="username-help" className={styles.fieldHint}>Use your contest username, not your email. Capitalization doesn’t matter.</p>
+              <p id="username-help" className={styles.fieldHint}>Use your AMS Access username from Round 1. Capitalization doesn’t matter.</p>
               {error ? <p id="result-error" role="alert" className={styles.error}>{error}</p> : null}
               <button className={styles.revealButton} type="submit" disabled={busy}>
                 {busy ? <><Loader2 size={18} className={styles.spinner} aria-hidden="true" /> Opening your result…</> : <>Reveal my result <ArrowRight size={18} aria-hidden="true" /></>}
               </button>
               <span className={styles.srOnly} role="status">{busy ? "Looking up your Round 1 result." : ""}</span>
             </form>
-            <p className={styles.lookupNote}>Result lookup uses a contest username. Anyone who knows a username can look up its result.</p>
+            <p className={styles.lookupNote}>This is a public result lookup. Anyone who knows a contest username can view its result.</p>
           </div>
+          <aside className={styles.art} aria-label="The Ascent journey">
+            <div className={styles.artHeading}>
+              <p className={styles.artLabel}><span /> ROUND 1 · COMPLETE</p>
+              <h3>Every attempt.<br /><span>A step forward.</span></h3>
+              <p>Thank you for bringing your curiosity, code, and determination to Ascent.</p>
+            </div>
+            <div className={styles.steps} aria-hidden="true"><i /><i /><i /><i /><i /><span><ArrowUpRight size={32} strokeWidth={1.4} /></span></div>
+            <div className={styles.artFooter}><span>01 <Check size={14} aria-hidden="true" /> Round 1 complete</span><ArrowRight size={16} aria-hidden="true" /><span>02 <span>The next chapter</span></span></div>
+          </aside>
         </section>
       ) : result ? (
         <section className={`${styles.receipt} ${entry.selected ? styles.selected : ""}`} aria-labelledby="result-title">
@@ -121,19 +127,24 @@ export default function ResultsExperience({ totalParticipants, selectionCount }:
             <div className={styles.resultTop}><span>ASCENT / 2026</span><span>ROUND 01 · RESULT</span></div>
             <div className={styles.resultHeadline}>
               <div>
-                <p className={styles.resultBadge}>{entry.selected ? <><CheckCircle2 size={16} aria-hidden="true" /> SELECTED FOR ROUND 2</> : "ROUND 1 COMPLETE"}</p>
-                <h2 ref={heading} tabIndex={-1} id="result-title">{entry.selected ? "You’re through." : "Thank you for taking on Ascent."}</h2>
-                <p className={styles.resultMessage}>{entry.selected ? `You’ve earned your place among the top ${result.selectionCount}. Take a moment. This one is yours.` : `You haven’t been selected for Round 2. The top ${result.selectionCount} in the published standings advance. Thank you for the time and effort you put into this round.`}</p>
+                <p className={styles.resultBadge}>{entry.selected ? <><CheckCircle2 size={16} aria-hidden="true" /> SELECTED FOR ROUND 2</> : "NOT SELECTED FOR ROUND 2"}</p>
                 <p className={styles.username}>{entry.username}</p>
+                <h2 ref={heading} tabIndex={-1} id="result-title">{entry.selected ? "You’re through." : "Thank you for taking on Ascent."}</h2>
+                <p className={styles.resultMessage}>{entry.selected ? `You’re one of ${result.selectionCount} selected for Round 2. Take a moment. You earned this.` : `You haven’t been selected for Round 2. The top ${result.selectionCount} in the published standings advance. Thank you for the time and effort you put into this round.`}</p>
               </div>
               <div className={styles.rankSeal}>
                 {entry.selected ? <Trophy size={24} strokeWidth={1.4} aria-hidden="true" /> : <Mountain size={24} strokeWidth={1.4} aria-hidden="true" />}
-                <span>OVERALL RANK</span><strong><small>#</small>{entry.rank}</strong><span>OF {result.totalParticipants.toLocaleString("en-IN")}</span>
+                <span>PUBLISHED RANK</span><strong><small>#</small>{entry.rank}</strong><span>ROUND 1 STANDINGS</span>
               </div>
             </div>
           </div>
 
           <div className={styles.resultBody}>
+            <div className={styles.nextStep}>
+              <div className={styles.nextIcon}>{entry.selected ? <ArrowUpRight size={22} aria-hidden="true" /> : <Mountain size={22} aria-hidden="true" />}</div>
+              <div><h3>{entry.selected ? "Next stop: Round 2." : "Questions about your result?"}</h3><p>{entry.selected ? "Keep an eye on your registered email for Round 2 instructions from the Ascent team." : "The Ascent team can help. Contact us from your registered email address using the link below."}</p></div>
+            </div>
+            {entry.selected ? <ResultShare result={result} onCelebrate={() => setCelebration(value => value + 1)} /> : null}
             <dl className={styles.metrics}>
               <div><dt>Problems solved</dt><dd>{entry.solved}<small> / 4</small></dd></div>
               <div><dt>Partial credit</dt><dd>{entry.partialCredit.toFixed(3)}</dd></div>
@@ -149,12 +160,7 @@ export default function ResultsExperience({ totalParticipants, selectionCount }:
                 </div>
               ))}
             </div>
-            <div className={styles.nextStep}>
-              <div className={styles.nextIcon}>{entry.selected ? <ArrowUpRight size={22} aria-hidden="true" /> : <Mountain size={22} aria-hidden="true" />}</div>
-              <div><h3>{entry.selected ? "Next stop: Round 2." : "There’s more ahead of you."}</h3><p>{entry.selected ? "Keep an eye on your registered email for Round 2 instructions from the Ascent team." : "Keep building, keep solving. If you have a question about your result, the Ascent team can help."}</p></div>
-            </div>
-            {entry.selected ? <ResultShare result={result} onCelebrate={() => setCelebration(value => value + 1)} /> : null}
-            <p className={styles.rankNote}>Selection follows the published Round 1 rank. Ranks 1–{result.selectionCount} advance; equal score fields do not change the published order.</p>
+            <p className={styles.rankNote}>Ranks 1–{result.selectionCount} in the published Round 1 standings advance. Your rank is shown exactly as published.</p>
             <div className={styles.actions}>
               <button type="button" className={styles.saveButton} onClick={() => window.print()}><Download size={16} aria-hidden="true" /> Print / save result</button>
               <button type="button" className={styles.resetButton} onClick={reset}>Check another username <ArrowRight size={16} aria-hidden="true" /></button>

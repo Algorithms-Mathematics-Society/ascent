@@ -120,7 +120,11 @@ partnership enquiries use **partners@amshq.in**.
 
 ## Round 1 results
 
-`/results` lets participants enter the exact contest username from Round 1.
+`/results` lets participants enter the exact AMS Access contest username from Round 1.
+The edition summary uses organizer-supplied figures: 1,500+ registrants, 600+
+attended the contest, and 133 selected for Round 2. The 1,326 CSV rows are
+standings entries, not an attendance count. Results and sharing show the published
+rank without an attendee denominator.
 Matching ignores capitalization and surrounding spaces. The page shows rank,
 selection, solved count, partial credit, penalty and the A–D breakdown, with a
 print layout for saving a result as PDF. Published ranks 1–133 advance to Round 2;

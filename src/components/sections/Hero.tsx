@@ -5,6 +5,7 @@ import { site } from "@/content/site";
 import { REGISTRATION_CLOSED } from "@/lib/registrationLaunch";
 import Countdown from "./Countdown";
 import { ROUND_ONE_SELECTION_COUNT } from "@/lib/results";
+import { ROUND_ONE_ATTENDEES, ROUND_ONE_REGISTRANTS } from "@/content/results";
 import DeferredHeroCacheField from "./DeferredHeroCacheField";
 
 export default function Hero() {
@@ -45,6 +46,8 @@ export default function Hero() {
                 </span>
               </p>
             ) : null}
+
+            {REGISTRATION_CLOSED ? <p className="mt-3 text-sm leading-6 text-ascent-muted">{ROUND_ONE_REGISTRANTS} registrants · {ROUND_ONE_ATTENDEES} attended the contest · {ROUND_ONE_SELECTION_COUNT} selected for Round 2</p> : null}
 
             <div className={`${REGISTRATION_CLOSED ? "mt-4" : "mt-7 sm:mt-8"} flex flex-wrap items-center gap-3`}>
               {REGISTRATION_CLOSED ? (

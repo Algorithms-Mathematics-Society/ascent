@@ -26,7 +26,7 @@ function chunkFor(suffix) {
   }
   async function submit(page, index) {
     await page.goto(`${base}/results`);
-    await page.getByLabel('Contest username', { exact: true }).fill(entries[index].username);
+    await page.getByLabel('AMS Access username', { exact: true }).fill(entries[index].username);
     await page.getByRole('button', { name: 'Reveal my result', exact: true }).click();
   }
   try {
@@ -59,7 +59,7 @@ function chunkFor(suffix) {
         assert.equal(await page.getByRole('button', { name: 'Print / save result' }).isVisible(), true);
         assert.deepEqual(errors, []);
         await page.getByRole('button', { name: 'Check another username' }).click();
-        await page.getByLabel('Contest username', { exact: true }).waitFor();
+        await page.getByLabel('AMS Access username', { exact: true }).waitFor();
         console.log(`PASS: failed ${name} chunk preserves the result, printing and another lookup`);
       });
     }

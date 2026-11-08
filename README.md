@@ -117,3 +117,51 @@ See [trust and access setup](docs/trust-setup.md) for environment values,
 publication checks, security behavior and support procedures. Candidate help,
 privacy requests and general questions use **team@amshq.in**. Sponsorship and
 partnership enquiries use **partners@amshq.in**.
+
+## Round 1 results
+
+`/results` lets participants enter the exact contest username from Round 1.
+Matching ignores capitalization and surrounding spaces. The page shows rank,
+selection, solved count, partial credit, penalty and the A–D breakdown, with a
+print layout for saving a result as PDF. Published ranks 1–150 advance to Round 2;
+the CSV rank is authoritative even where score fields are tied.
+
+The source is `leaderboard/standings-ams-ascent-round-1.csv`. It stays outside
+`public/` and client bundles. `POST /api/results` returns one exact match and
+omits names and contact details. This is a public username lookup, not identity
+verification: anyone with a contest username can retrieve its result. Email
+lookup requires a verified contest-username-to-email mapping and is not enabled.
+
+Selected participants also get a short party-popper burst, an optional replay,
+a downloadable 1200×627 PNG, an editable/copyable caption and a LinkedIn share
+button. The button opens LinkedIn with the public results URL; participants
+attach their downloaded image and review/publish their own post. The link
+preview is generated at build time. No LinkedIn SDK, OAuth, auto-posting, or
+server-side participant-image generation is involved.
+
+The parser rejects malformed rows, missing/nonsequential ranks, duplicate
+usernames and inconsistent solved counts. Next explicitly traces the CSV into
+the deployment. Include the CSV with the release; changes require a new build
+and deployment because the page is prerendered and each server instance caches
+the standings. Concurrent first requests share one asynchronous read and parse;
+subsequent lookups use the in-memory map. Failed imports can retry. Keep the CSV
+out of `public/`.
+
+Run `npx vitest run test/results.test.ts` for import validation and the 150/151
+cutoff. `test/browser/results.cjs` checks the production page, error recovery,
+printing, narrow screens and reduced motion against a local server; set
+`PLAYWRIGHT_MODULE` and optionally `CHROMIUM_EXECUTABLE_PATH` to existing browser
+tooling. The default server URL is `http://127.0.0.1:3100`.
+
+Performance regression: after `npm run build`, run
+`node scripts/benchmark-results.cjs /tmp/results-benchmark.json`. The script
+starts an isolated local production server, verifies 1,000 lookups at concurrency
+50 and a 500-concurrent burst, reports latency/response size/process memory, then
+stops its server. Add `--cold-burst` to hit a fresh instance with 500 requests
+before any lookup. It never targets the production site. See
+[the results review](docs/audits/2026-11-08-results.md) for measured limits.
+
+`test/browser/resultsResilience.cjs` additionally verifies that wrong-user
+responses are rejected, unavailable optional celebration/sharing chunks preserve
+the result, and a failed image download can be retried. It uses the same local
+server and Playwright environment variables as the main browser checks.

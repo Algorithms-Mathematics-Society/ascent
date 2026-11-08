@@ -11,6 +11,10 @@ const nextConfig = {
   },
   experimental: {
     serverComponentsExternalPackages: ["@google-cloud/firestore"],
+    outputFileTracingIncludes: {
+      "/api/results": ["./leaderboard/standings-ams-ascent-round-1.csv"],
+      "/results": ["./leaderboard/standings-ams-ascent-round-1.csv"],
+    },
   },
 };
 

@@ -4,6 +4,7 @@ import { HERO_STATS } from "@/content/sections";
 import { site } from "@/content/site";
 import { REGISTRATION_CLOSED } from "@/lib/registrationLaunch";
 import Countdown from "./Countdown";
+import { ROUND_ONE_SELECTION_COUNT } from "@/lib/results";
 import DeferredHeroCacheField from "./DeferredHeroCacheField";
 
 export default function Hero() {
@@ -40,15 +41,15 @@ export default function Hero() {
               <p className="mt-7 inline-flex items-center gap-2.5 rounded-control border border-ascent-border bg-ascent-surface px-3 py-2 text-sm text-ascent-brand sm:mt-8">
                 <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-ascent-gold" aria-hidden="true" />
                 <span className="font-semibold tabular-nums">
-                  Registration closed · {registration.closedCount} registered
+                  Round 1 results are out · Top {ROUND_ONE_SELECTION_COUNT} advance
                 </span>
               </p>
             ) : null}
 
             <div className={`${REGISTRATION_CLOSED ? "mt-4" : "mt-7 sm:mt-8"} flex flex-wrap items-center gap-3`}>
               {REGISTRATION_CLOSED ? (
-                <Button href="/register/status" size="lg" className="w-full sm:w-64">
-                  Check entry status
+                <Button href="/results" size="lg" className="w-full sm:w-64">
+                  Reveal my result
                 </Button>
               ) : (
                 <Button href="/register" size="lg" className="w-full sm:w-64">

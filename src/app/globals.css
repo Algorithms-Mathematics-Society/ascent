@@ -322,3 +322,14 @@
     scroll-behavior: auto !important;
   }
 }
+
+/* Print only the result card when saving a Round 1 result. */
+@media print {
+  body:has(.ascent-results) > header,
+  body:has(.ascent-results) > footer { display: none !important; }
+  body:has(.ascent-results) { background: white; }
+}
+
+@media print, (prefers-reduced-motion: reduce) {
+  [data-result-celebration] { display: none !important; }
+}

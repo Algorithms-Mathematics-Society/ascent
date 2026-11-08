@@ -5,7 +5,7 @@ import { Button } from "@/components/ui";
 import { REGISTRATION_CLOSED } from "@/lib/registrationLaunch";
 
 interface NavbarProps {
-  page?: "home" | "registration" | "syllabus" | "eligibility" | "legal";
+  page?: "home" | "registration" | "syllabus" | "eligibility" | "legal" | "results";
 }
 
 const PUBLIC_LINKS = [
@@ -15,6 +15,7 @@ const PUBLIC_LINKS = [
   { label: "FAQ", href: "#faq" },
   { label: "Eligibility", href: "/eligibility" },
   { label: "Syllabus", href: "/syllabus" },
+  { label: "Results", href: "/results" },
 ] as const;
 
 function NavigationLink(props: AnchorHTMLAttributes<HTMLAnchorElement> & { href: string }) {
@@ -30,7 +31,8 @@ export default function Navbar({ page = "home" }: NavbarProps) {
 
   function isCurrent(href: string) {
     return (page === "syllabus" && href === "/syllabus") ||
-      (page === "eligibility" && href === "/eligibility");
+      (page === "eligibility" && href === "/eligibility") ||
+      (page === "results" && href === "/results");
   }
 
   function resolveHref(href: string) {
@@ -121,8 +123,8 @@ export default function Navbar({ page = "home" }: NavbarProps) {
               </div>
             </details>
             {REGISTRATION_CLOSED ? (
-              <Button href="/register/status" size="sm">
-                Entry status
+              <Button href="/results" size="sm">
+                Round 1 results
               </Button>
             ) : (
               <Button href="/register" size="sm">

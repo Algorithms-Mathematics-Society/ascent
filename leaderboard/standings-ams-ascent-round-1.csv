@@ -1,0 +1,1327 @@
+rank,name,username,solved,partial_credit,penalty_minutes,A,B,C,D
+1,Arsh Goyal,arsh-goyal,4,0.000,163,AC@15m/1,AC@22m/1,AC@41m/1,AC@65m/2
+2,Karyampudi Meghana Sai,karyampudi-meghana-sai,4,0.000,169,AC@22m/1,AC@30m/1,AC@50m/1,AC@67m/1
+3,Kingshuk Patra,kingshuk-patra,4,0.000,225,AC@20m/1,AC@33m/1,AC@70m/1,AC@102m/1
+4,Karyampudi Komal,karyampudi-komal,4,0.000,232,AC@19m/1,AC@30m/1,AC@69m/1,AC@114m/1
+5,Akshit Chhabra,akshit-chhabra,4,0.000,269,AC@17m/1,AC@30m/2,AC@66m/1,AC@116m/2
+6,Bhavishy Agrawal,bhavishy-agrawal,4,0.000,286,AC@22m/1,AC@37m/1,AC@89m/1,AC@118m/2
+7,Samyak Jain,samyak-jain,4,0.000,288,AC@42m/1,AC@54m/1,AC@80m/1,AC@112m/1
+8,Rahul Kumar Sahoo,rahul-kumar-sahoo,4,0.000,344,AC@33m/1,AC@57m/3,AC@79m/1,AC@115m/2
+9,Anshumaan Mishra,anshumaan-mishra,3,0.345,165,AC@20m/1,AC@31m/1,34%/1,AC@114m/1
+10,Revanth,revanth,3,0.103,207,AC@33m/1,AC@61m/1,10%/1,AC@113m/1
+11,Ajayendra Kumar Bansod,ajayendra-kumar-bansod,3,0.000,158,AC@32m/1,AC@44m/1,-,AC@82m/1
+12,Damiya Gondha,damiya-gondha,3,0.000,179,AC@37m/1,AC@52m/1,-,AC@90m/1
+13,Mayank Arya,mayank-arya,3,0.000,234,AC@47m/1,AC@17m/1,-,AC@110m/4
+14,Soham Mukherjee,soham-mukherjee,2,1.579,108,AC@22m/1,84%/5,74%/1,AC@86m/1
+15,Rishit Garg,rishit-garg,3,0.173,137,AC@24m/1,AC@38m/1,AC@75m/1,17%/1
+16,Pratyush Kumar Sethy,pratyush-kumar-sethy,3,0.000,146,AC@18m/1,AC@29m/1,AC@59m/3,0%/3
+17,Heet Panchal,heet-panchal,3,0.000,151,AC@34m/1,AC@44m/1,AC@73m/1,-
+18,Krishna Ishwar Deshmukh,krishna-ishwar-deshmukh,3,0.000,153,AC@30m/1,AC@41m/2,AC@62m/1,-
+19,Prayas Dey,prayas-dey,3,0.000,155,AC@33m/1,AC@47m/1,AC@75m/1,0%/2
+20,Harshul Desai,harshul-desai,3,0.000,164,AC@23m/1,AC@40m/2,AC@81m/1,-
+21,Tamaghna Chattopadhyay,tamaghna-chattopadhyay,3,0.000,169,AC@32m/1,AC@47m/1,AC@90m/1,-
+22,Tanmay Gupta,tanmay-gupta,3,0.000,175,AC@25m/1,AC@45m/1,AC@105m/1,0%/1
+23,G Jayagiri,g-jayagiri,3,0.000,186,AC@31m/1,AC@50m/2,AC@85m/1,-
+24,ANKAN DEY,ankan-dey,3,0.000,190,AC@37m/1,AC@53m/1,AC@100m/1,-
+25,Deeptam Bhar,deeptam-bhar,3,0.000,190,AC@24m/1,AC@50m/2,AC@96m/1,0%/1
+26,Aiyaan Mahajan,aiyaan-mahajan,3,0.000,191,AC@45m/1,AC@58m/1,AC@88m/1,0%/1
+27,Praval Venkata Shiv Sai Jiddu,praval-venkata-shiv-sai-jiddu,3,0.000,196,AC@35m/1,AC@49m/1,AC@112m/1,-
+28,Sourav Sharma,sourav-sharma,3,0.000,196,AC@44m/1,AC@58m/1,AC@94m/1,-
+29,Arham Bhansali,arham-bhansali,3,0.000,197,AC@26m/1,AC@47m/2,AC@104m/1,-
+30,ARITRA MAJI,aritra-maji,3,0.000,197,AC@26m/1,AC@70m/1,AC@101m/1,-
+31,Shubhi Mittal,shubhi-mittal,3,0.000,201,AC@32m/1,AC@52m/2,AC@97m/1,-
+32,Suchir Kalra,suchir-kalra,3,0.000,201,AC@30m/2,AC@40m/2,AC@91m/1,-
+33,Prerak Jain,prerak-jain,3,0.000,202,AC@32m/1,AC@59m/1,AC@111m/1,-
+34,Harsh Jain,harsh-jain,3,0.000,217,AC@35m/1,AC@48m/1,AC@94m/3,-
+35,Hem Viramgama,hem-viramgama,3,0.000,225,AC@36m/1,AC@58m/2,AC@111m/1,-
+36,Varun Batra,varun-batra,3,0.000,236,AC@49m/1,AC@73m/1,AC@114m/1,-
+37,Arnab Maiti,arnab-maiti,3,0.000,256,AC@47m/2,AC@66m/2,AC@103m/1,-
+38,Archit Kotalwar,archit-kotalwar,3,0.000,265,AC@55m/1,AC@71m/1,AC@119m/2,-
+39,Siddhanth Panwar,siddhanth-panwar,1,0.000,119,-,-,-,AC@79m/3
+40,Vishnupriya,vishnupriya,2,0.828,108,AC@34m/2,AC@54m/1,83%/2,-
+41,Himadri Himadri,himadri-himadri,2,0.776,131,AC@59m/1,AC@72m/1,78%/1,0%/1
+42,Vanshika Garg,vanshika-garg,2,0.596,124,AC@17m/1,AC@47m/4,0%/2,60%/1
+43,Shreyans Jain,shreyans-jain,2,0.404,71,AC@25m/1,AC@46m/1,-,40%/1
+44,Deepit Gupta,deepit-gupta,2,0.155,69,AC@49m/1,AC@20m/1,16%/6,0%/1
+45,Aatish Hari,aatish-hari,2,0.155,160,AC@68m/1,AC@92m/1,16%/1,-
+46,Aayush Prasad,aayush-prasad,2,0.155,245,AC@109m/5,AC@56m/1,16%/6,-
+47,Shikhar Mittal,shikhar-mittal,2,0.103,112,AC@32m/1,AC@60m/2,10%/1,0%/3
+48,Aditya Kumar,aditya-kumar-2,2,0.103,143,AC@58m/1,AC@85m/1,10%/1,-
+49,Tanmay P Singh,tanmay-p-singh,2,0.000,58,AC@22m/1,AC@36m/1,-,-
+50,Harsh Negi,harsh-negi,2,0.000,61,AC@13m/1,AC@28m/2,0%/1,-
+51,Harsh Kumar Sah,harsh-kumar-sah,2,0.000,62,AC@21m/1,AC@41m/1,0%/2,0%/1
+52,Dhruv Punekar,dhruv-punekar,2,0.000,71,AC@28m/1,AC@43m/1,0%/3,-
+53,Dhairya Jain,dhairya-jain,2,0.000,73,AC@28m/1,AC@45m/1,-,-
+54,Aditya Garg,aditya-garg-3,2,0.000,87,AC@37m/1,AC@50m/1,-,-
+55,Nidhi Pal,nidhi-pal,2,0.000,91,AC@37m/1,AC@54m/1,-,-
+56,Kartik Chilkoti,kartik-chilkoti,2,0.000,98,AC@42m/1,AC@56m/1,-,-
+57,Jayansh Khandelwal,jayansh-khandelwal,2,0.000,109,AC@18m/1,AC@51m/3,-,-
+58,Anish Kumar Pal,anish-kumar-pal,2,0.000,118,AC@98m/1,AC@20m/1,-,0%/1
+59,Arnav Laddha,arnav-laddha,2,0.000,123,AC@43m/1,AC@60m/2,-,0%/1
+60,Gurkirpa Singh,gurkirpa-singh,2,0.000,127,AC@85m/1,AC@42m/1,-,-
+61,Saurabh Kumar,saurabh-kumar,2,0.000,130,AC@49m/1,AC@81m/1,-,-
+62,Ghruank Kothare,ghruank-kothare,2,0.000,147,AC@44m/3,AC@63m/1,-,-
+63,Ranbeer Singh,ranbeer-singh,2,0.000,147,AC@62m/1,AC@85m/1,-,-
+64,Rasesh Udayakumar Shetty,rasesh-udayakumar-shetty,2,0.000,147,AC@56m/2,AC@31m/3,-,-
+65,Abhay Upadhyay,abhay-upadhyay,2,0.000,149,AC@85m/1,AC@64m/1,-,-
+66,Naresh Biradar,naresh-biradar,2,0.000,151,AC@110m/1,AC@41m/1,0%/1,-
+67,Samarth Gupta,samarth-gupta,2,0.000,162,AC@38m/2,AC@64m/3,-,-
+68,Hriday Mehta,hriday-mehta,2,0.000,171,AC@79m/1,AC@52m/3,-,-
+69,Vansh Kalra,vansh-kalra,2,0.000,176,AC@52m/2,AC@84m/2,-,-
+70,Naitik Agrawal,naitik-agrawal-2,2,0.000,181,AC@75m/3,AC@66m/1,0%/1,-
+71,Kartik Patil,kartik-patil,2,0.000,188,AC@60m/2,AC@88m/2,-,-
+72,Aditya Mishra,aditya-mishra,2,0.000,191,AC@74m/2,AC@97m/1,-,-
+73,Vansh Jain,vansh-jain,2,0.000,192,AC@77m/2,AC@95m/1,-,-
+74,Ayush Mishra,ayush-mishra,2,0.000,195,AC@86m/2,AC@89m/1,-,0%/1
+75,Gururaj Subhas Sajjan,gururaj-subhas-sajjan,2,0.000,203,AC@81m/2,AC@102m/1,-,-
+76,Arpit Kumar Ranjan,arpit-kumar-ranjan,2,0.000,207,AC@74m/1,AC@113m/2,-,-
+77,Mohd Mustafa,mohd-mustafa,2,0.000,214,AC@96m/1,AC@118m/1,-,-
+78,Parishkriti Sharma,parishkriti-sharma,2,0.000,219,AC@117m/2,AC@82m/1,-,-
+79,Soumyaditya Masanta,soumyaditya-masanta,2,0.000,232,AC@70m/3,AC@102m/2,-,-
+80,Kaustav Bhowal,kaustav-bhowal,2,0.000,242,AC@87m/5,AC@75m/1,-,-
+81,shivang dixit,shivang-dixit,2,0.000,242,AC@105m/2,AC@117m/1,-,-
+82,Aaditya Joil,aaditya-joil,2,0.000,252,AC@115m/1,AC@117m/2,-,-
+83,Daksh Garg,daksh-garg,2,0.000,262,AC@83m/2,AC@119m/3,-,-
+84,Ayush Upadhyay,ayush-upadhyay,2,0.000,275,AC@85m/3,AC@90m/4,0%/1,-
+85,Garvit singhal,garvit-singhal,2,0.000,289,AC@66m/6,AC@83m/3,-,-
+86,Awwab Sajid Wadekar,awwab-sajid-wadekar,2,0.000,309,AC@81m/6,AC@108m/2,-,-
+87,Bandi Siddu Kumar Reddy,bandi-siddu-kumar-reddy,1,0.767,86,AC@66m/2,77%/1,-,-
+88,Pulkit Singh,pulkit-singh,1,0.600,51,AC@51m/1,60%/1,0%/1,-
+89,DANAPANA RAHUL REDDY,danapana-rahul-reddy,1,0.000,67,AC@47m/2,0%/1,-,-
+90,Aayush Agrawal,aayush-agrawal,1,0.000,89,AC@89m/1,0%/1,-,-
+91,Ayush Kumar Tiwari,ayush-kumar-tiwari,1,0.000,96,AC@96m/1,0%/1,-,-
+92,Devansh Mhatre,devansh-mhatre,1,0.000,119,AC@119m/1,-,-,-
+93,Tushar Jatiwal,tushar-jatiwal,1,0.000,191,AC@111m/5,-,-,-
+94,Rudrajeet Pal,rudrajeet-pal,1,1.000,66,100%/2,AC@66m/1,-,-
+95,Shubham Mate,shubham-mate,1,0.881,133,88%/3,AC@113m/2,-,-
+96,Sahil Kumar,sahil-kumar,1,0.828,219,-,AC@119m/6,83%/3,-
+97,Shriya Tripathi,shriya-tripathi,1,0.762,76,76%/2,AC@76m/1,-,-
+98,Lakshya,lakshya,1,0.103,73,-,AC@53m/2,10%/1,-
+99,Keshav Bansal,keshav.b-tfyqx,1,0.000,19,-,AC@19m/1,-,-
+100,Kaustav Bose Chowdhury,kaustav-bose-chowdhury,1,0.000,49,0%/1,AC@49m/1,-,-
+101,Shreyas Kumar Jaiswal,shreyas-kumar-jaiswal,1,0.000,51,-,AC@51m/1,-,-
+102,Sujal Patnaik,sujal-patnaik,1,0.000,51,-,AC@51m/1,-,-
+103,Nirbhik Kumawat,nirbhik-kumawat,1,0.000,53,0%/1,AC@53m/1,-,-
+104,Samarth Shashikumar,samarth-shashikumar,1,0.000,54,-,AC@34m/2,-,0%/1
+105,Kushagra Kishore,kushagra-kishore,1,0.000,57,0%/1,AC@37m/2,-,-
+106,Krishna Sai Shishir Vuppala,krishna-sai-shishir-vuppala,1,0.000,59,-,AC@39m/2,0%/1,-
+107,Singh Ayushkumar Jairam,singh-ayushkumar-jairam,1,0.000,59,-,AC@59m/1,-,-
+108,Vishvanathan K,vishvanathan-k,1,0.000,61,0%/1,AC@41m/2,-,-
+109,Vismay Godhani,vismay-godhani,1,0.000,64,-,AC@44m/2,-,-
+110,Amritesh Jagannathan,amritesh-jagannathan,1,0.000,67,-,AC@67m/1,-,-
+111,Sree Devesh,sree-devesh,1,0.000,71,-,AC@71m/1,-,-
+112,Srishti Somya,srishti-somya,1,0.000,73,-,AC@73m/1,-,-
+113,Kushal kumar Putti,kushal-kumar-putti,1,0.000,76,0%/5,AC@56m/2,-,-
+114,Shrey Shah,shrey-shah,1,0.000,78,0%/1,AC@78m/1,-,-
+115,Prasenjit Ghosh,prasenjit-ghosh,1,0.000,81,-,AC@81m/1,0%/1,-
+116,Satvik Rajput,satvik-rajput,1,0.000,84,-,AC@64m/2,-,-
+117,Shreyas Singh Paliwal,shreyas-singh-paliwal,1,0.000,85,0%/2,AC@85m/1,-,-
+118,Naman Agarwal,naman-agarwal,1,0.000,88,0%/1,AC@88m/1,-,-
+119,Pratham Garg,pratham-garg,1,0.000,88,-,AC@88m/1,-,-
+120,Atul Kumar Pandey,atul-kumar-pandey,1,0.000,105,0%/2,AC@85m/2,-,-
+121,Varalika Agarwal,varalika-agarwal,1,0.000,108,-,AC@108m/1,-,-
+122,Ayush Bothra,ayush-bothra,1,0.000,110,0%/1,AC@90m/2,-,-
+123,Tejas Agarwal,tejas-agarwal,1,0.000,111,-,AC@51m/4,-,0%/1
+124,Abir Roy,abir-roy,1,0.000,112,0%/3,AC@72m/3,-,-
+125,Divyansh Goel,divyansh-goel,1,0.000,117,0%/4,AC@97m/2,-,-
+126,Manish Paul,manish-paul,1,0.000,118,0%/1,AC@118m/1,-,-
+127,Nimit Jain,nimit-jain,1,0.000,120,0%/3,AC@80m/3,-,-
+128,Keshav Baheti,keshav-baheti,1,0.000,123,-,AC@83m/3,-,-
+129,HARSH VERMA,harsh-verma,1,0.000,126,-,AC@86m/3,-,-
+130,Parth Patil,parth-patil,1,0.000,130,0%/1,AC@70m/4,0%/1,-
+131,Ryan Rajesh,ryan-rajesh,1,0.000,135,-,AC@75m/4,-,-
+132,Shrey Gupta,shrey-gupta,1,0.000,145,-,AC@65m/5,-,-
+133,Shridhar Sharma,shridhar-sharma,1,0.000,145,-,AC@65m/5,-,-
+134,Pranshu Agrawal,pranshu-agrawal,0,0.767,0,-,77%/2,-,-
+135,Saatvik Rai,saatvik.r-whchh,0,0.535,0,0%/2,53%/1,-,-
+136,Rahul Singh,rahul-singh,0,0.256,0,-,26%/1,-,-
+137,Om Ji Gupta,om-ji-gupta,0,0.103,0,0%/1,0%/1,10%/1,0%/1
+138,Tanmay Agrawal,tanmay-agrawal,0,0.103,0,0%/1,0%/1,10%/1,0%/1
+139,Aadit Siroya,aadit-siroya,0,0.000,0,-,-,-,-
+140,Aaditya Agarwal,aaditya-agarwal,0,0.000,0,-,-,-,-
+141,Aaditya Kumar,aaditya-kumar,0,0.000,0,-,-,-,-
+142,Aaditya Rohilla,aaditya-rohilla,0,0.000,0,-,-,-,-
+143,Aaditya Saxena,aaditya-saxena,0,0.000,0,-,-,-,-
+144,Aadyyot Raaj,aadyyot-raaj,0,0.000,0,-,-,-,-
+145,Aakash Tarang,aakash-tarang,0,0.000,0,-,-,-,-
+146,aakshaj,aakshaj,0,0.000,0,-,-,-,-
+147,Aaradhya Nikam,aaradhya-nikam,0,0.000,0,-,-,-,-
+148,Aarav Agrawal,aarav-agrawal,0,0.000,0,-,-,-,-
+149,Aarav Arya,aarav-arya,0,0.000,0,-,-,-,-
+150,Aarav singh,aarav-singh,0,0.000,0,-,-,-,-
+151,Aarna S,aarna-s,0,0.000,0,-,-,-,-
+152,Aarshiya Mittal,aarshiya-mittal,0,0.000,0,-,-,-,-
+153,AARUSH DUBEY,aarush-dubey,0,0.000,0,-,-,-,-
+154,Aaryan Agrawal,aaryan-agrawal,0,0.000,0,-,-,-,-
+155,Aaryan Bhattad,aaryan-bhattad,0,0.000,0,-,-,-,-
+156,Aaryan Johri,aaryan-johri,0,0.000,0,-,-,-,-
+157,Aaryav Bansal,aaryav-bansal,0,0.000,0,-,-,-,-
+158,Aashi Asmita,aashi-asmita,0,0.000,0,-,-,-,-
+159,Aashish Kumar,aashish-kumar,0,0.000,0,-,-,-,-
+160,AASHRAY TANDON,aashray-tandon,0,0.000,0,-,-,-,-
+161,Aavishkar kanani,aavishkar-kanani,0,0.000,0,-,-,-,-
+162,Aayush Borkar,aayush-borkar,0,0.000,0,-,-,-,-
+163,Aayush Gupta,aayush-gupta,0,0.000,0,-,-,-,-
+164,Aayush Kolte,aayush-kolte,0,0.000,0,-,-,-,-
+165,Aayush Kumar,aayush-kumar,0,0.000,0,-,-,-,-
+166,Aayush Mainali,aayush-mainali,0,0.000,0,-,-,-,-
+167,Aayush Sachan,aayush-sachan,0,0.000,0,-,-,-,-
+168,Abdullah Danish,abdullah-danish,0,0.000,0,-,-,-,-
+169,Abdullah Haque,abdullah-haque,0,0.000,0,-,-,-,-
+170,Abhay pandey,abhay-pandey,0,0.000,0,-,-,-,-
+171,Abhay Shaw,abhay-shaw,0,0.000,0,-,-,-,-
+172,Abhay Singh,abhay-singh,0,0.000,0,-,-,-,-
+173,Abhi Tanwar,abhi-tanwar,0,0.000,0,-,-,-,-
+174,Abhigyan Sinha,abhigyan-sinha,0,0.000,0,-,-,-,-
+175,Abhijeet Singh,abhijeet-singh,0,0.000,0,-,-,-,-
+176,Abhijeet Singh,abhijeet-singh-2,0,0.000,0,-,-,-,-
+177,abhijeet tanay,abhijeet-tanay,0,0.000,0,-,-,-,-
+178,Abhijith Dayadi,abhijith-dayadi,0,0.000,0,-,-,-,-
+179,Abhinav,abhinav,0,0.000,0,-,-,-,-
+180,Abhinav Choudhary,abhinav-choudhary,0,0.000,0,-,-,-,-
+181,Abhinav Kumar Jha,abhinav-kumar-jha,0,0.000,0,-,-,-,-
+182,Abhinav P J,abhinav-p-j,0,0.000,0,-,-,-,-
+183,Abhinav Sandilya,abhinav-sandilya,0,0.000,0,-,-,-,-
+184,Abhinav Saxena,abhinav-saxena,0,0.000,0,-,-,-,-
+185,Abhinav Tiwari,abhinav-tiwari,0,0.000,0,-,-,-,-
+186,Abhiram Siripuru,abhiram-siripuru,0,0.000,0,-,-,-,-
+187,abhishek agarwal,abhishek-agarwal,0,0.000,0,-,-,-,-
+188,Abhishek Girish,abhishek-girish,0,0.000,0,0%/2,-,-,-
+189,Abhishek Jha,abhishek-jha,0,0.000,0,-,-,-,-
+190,ABHISHEK KUMAR,abhishek-kumar,0,0.000,0,-,-,-,-
+191,Abhishek Meena,abhishek-meena,0,0.000,0,-,-,-,-
+192,Abhishek Yasraj,abhishek-yasraj,0,0.000,0,-,-,-,-
+193,Abhishriya Singh,abhishriya-singh,0,0.000,0,-,-,-,-
+194,Abhisoumya Kapoor,abhisoumya-kapoor,0,0.000,0,-,-,-,-
+195,Abubakar Siddique,abubakar-siddique,0,0.000,0,-,-,-,-
+196,Achal Jain,achal-jain,0,0.000,0,-,-,-,-
+197,Adarsh Choudhary,adarsh-choudhary,0,0.000,0,-,-,-,-
+198,Adarsh Jha,adarsh-jha,0,0.000,0,-,-,-,-
+199,Adarsh Kumar,adarsh-kumar,0,0.000,0,-,-,-,-
+200,Adarsh Tiwari,adarsh-tiwari,0,0.000,0,-,-,-,-
+201,Adhithya Ragavan,adhithya-ragavan,0,0.000,0,-,-,-,-
+202,Adhyayan Saha,adhyayan-saha,0,0.000,0,-,-,-,-
+203,Adit Prabhu,adit-prabhu,0,0.000,0,-,-,-,-
+204,Aditeya Goyal,aditeya-goyal,0,0.000,0,-,-,-,-
+205,Adith Shetty,adith-shetty,0,0.000,0,-,-,-,-
+206,Aditi Gupta,aditi-gupta,0,0.000,0,-,-,-,-
+207,Aditi Malav,aditi-malav,0,0.000,0,-,-,-,-
+208,Aditi Pal,aditi-pal,0,0.000,0,-,-,-,-
+209,Aditi Ranjan,aditi-ranjan,0,0.000,0,-,-,-,-
+210,Aditya Adhana,aditya-adhana,0,0.000,0,-,-,-,-
+211,Aditya Arsh,aditya-arsh,0,0.000,0,-,-,-,-
+212,Aditya Atloye,aditya-atloye,0,0.000,0,-,-,-,-
+213,Aditya Dhananjay Singh,aditya-dhananjay-singh,0,0.000,0,-,-,-,-
+214,Aditya Garg,aditya-garg,0,0.000,0,-,-,-,-
+215,Aditya Garg,aditya-garg-2,0,0.000,0,0%/2,-,-,-
+216,Aditya Goyal,aditya-goyal,0,0.000,0,-,-,-,-
+217,Aditya Goyal,aditya-goyal-2,0,0.000,0,-,-,-,-
+218,Aditya Gupta,aditya-gupta,0,0.000,0,0%/1,-,-,-
+219,Aditya Jain,aditya-jain,0,0.000,0,-,-,-,-
+220,Aditya Joshi,aditya-joshi,0,0.000,0,-,-,-,-
+221,Aditya Kumar,aditya-kumar,0,0.000,0,-,-,-,-
+222,Aditya Kumar,aditya-kumar-3,0,0.000,0,-,-,-,-
+223,Aditya Kumar Singh,aditya-kumar-singh,0,0.000,0,-,-,-,-
+224,Aditya Raj Soni,aditya-raj-soni,0,0.000,0,-,-,-,-
+225,Aditya Shashikant Jagtap,aditya-shashikant-jagtap,0,0.000,0,-,-,-,-
+226,Aditya Shukla,aditya-shukla,0,0.000,0,-,-,-,-
+227,Aditya Singh,aditya-singh,0,0.000,0,-,-,-,-
+228,Aditya Singh,aditya-singh-2,0,0.000,0,-,-,-,-
+229,Aditya Singhal,aditya-singhal,0,0.000,0,-,-,-,-
+230,Aditya Thakkar,aditya-thakkar,0,0.000,0,-,-,-,-
+231,ADNAN AHMAD,adnan-ahmad,0,0.000,0,-,-,-,-
+232,Advait Gupta,advait-gupta,0,0.000,0,-,-,-,-
+233,Advay Vinod Gujar,advay-vinod-gujar,0,0.000,0,-,-,-,-
+234,Agrim Gupta,agrim-gupta,0,0.000,0,-,-,-,-
+235,Ahan Halder,ahan-halder,0,0.000,0,-,-,-,-
+236,Ahan Porwal,ahan-porwal,0,0.000,0,-,-,-,-
+237,Ahana Kar,ahana-kar,0,0.000,0,-,-,-,-
+238,Ahmik Virani,ahmik-virani,0,0.000,0,-,-,-,-
+239,Aishik Biswas,aishik-biswas,0,0.000,0,-,-,-,-
+240,Aishwarya Naidu,aishwarya-naidu,0,0.000,0,-,-,-,-
+241,Ajitesh Irij,ajitesh-irij,0,0.000,0,-,-,-,-
+242,Ajitesh Srivastava,ajitesh-srivastava,0,0.000,0,-,-,-,-
+243,Akaalkirat Singh,akaalkirat-singh,0,0.000,0,-,-,-,-
+244,Akarshan Katiyar,akarshan-katiyar,0,0.000,0,-,-,-,-
+245,Akhilesh Deshmukh,akhilesh-deshmukh,0,0.000,0,-,-,-,-
+246,AKSH GOGI,aksh-gogi,0,0.000,0,-,-,-,-
+247,Akshansh Jain,akshansh-jain,0,0.000,0,-,-,-,-
+248,Akshat Goyal,akshat-goyal,0,0.000,0,-,-,-,-
+249,Akshat Sathiya Narayanan,akshat-sathiya-narayanan,0,0.000,0,-,-,-,-
+250,Akshit Gupta,akshit-gupta,0,0.000,0,-,-,-,-
+251,Akshita Sharma,akshita-sharma,0,0.000,0,-,-,-,-
+252,Alice Patel,alice-patel,0,0.000,0,-,-,-,-
+253,Amal Verma,amal-verma,0,0.000,0,-,-,-,-
+254,Aman Anand,aman-anand,0,0.000,0,-,-,-,-
+255,Aman Dixit,aman-dixit,0,0.000,0,-,-,-,-
+256,Aman pratap singh,aman-pratap-singh,0,0.000,0,-,-,-,-
+257,Aman Raj,aman-raj,0,0.000,0,-,-,-,-
+258,Ameya Ajit Walekar,ameya-ajit-walekar,0,0.000,0,-,-,-,-
+259,Ameya Tripathi,ameya-tripathi,0,0.000,0,-,-,-,-
+260,Amirishetty Sai Vignesh,amirishetty-sai-vignesh,0,0.000,0,-,-,-,-
+261,Amit Ranjan,amit-ranjan,0,0.000,0,-,-,-,-
+262,AMITESH MITRA,amitesh-mitra,0,0.000,0,-,-,-,-
+263,Ammar Khan,ammar-khan,0,0.000,0,-,-,-,-
+264,Amritansha Sinha,amritansha-sinha,0,0.000,0,-,-,-,-
+265,Anant Pratap Singh,anant-pratap-singh,0,0.000,0,-,-,-,-
+266,Ananya Kulashreshtha,ananya-kulashreshtha,0,0.000,0,-,-,-,-
+267,Ananya Nitin Gawade,ananya-nitin-gawade,0,0.000,0,-,-,-,-
+268,Ananya Sahu,ananya-sahu,0,0.000,0,-,-,-,-
+269,ANGAD SINGH,angad-singh,0,0.000,0,-,-,-,-
+270,Angadi Charan Umesh,angadi-charan-umesh,0,0.000,0,-,-,-,-
+271,ANIKET GUPTA,aniket-gupta,0,0.000,0,-,-,-,-
+272,Aniket Kumar,aniket-kumar,0,0.000,0,-,-,-,-
+273,Aniket Mandal,aniket-mandal,0,0.000,0,-,-,-,-
+274,Anirudh Gupta,anirudh-gupta,0,0.000,0,-,-,-,-
+275,Anirudh Kant Garg,anirudh-kant-garg,0,0.000,0,-,-,-,-
+276,Anirudh Rathore,anirudh-rathore,0,0.000,0,-,-,-,-
+277,Anish Aryan,anish-aryan,0,0.000,0,-,-,-,-
+278,Anisha Dash,anisha-dash,0,0.000,0,-,-,-,-
+279,Anisha Majumder,anisha-majumder,0,0.000,0,-,-,-,-
+280,Anisha Sadhukhan,anisha-sadhukhan,0,0.000,0,-,-,-,-
+281,Ankit Garg,ankit-garg,0,0.000,0,-,-,-,-
+282,Ankit Kumar,ankit-kumar,0,0.000,0,-,-,-,-
+283,Ankit Kumar,ankit-kumar-2,0,0.000,0,-,-,-,-
+284,Ankita Kumari,ankita-kumari,0,0.000,0,-,-,-,-
+285,ANKUR GHOSH,ankur-ghosh,0,0.000,0,-,-,-,-
+286,Ankush,ankush,0,0.000,0,-,-,-,-
+287,Anomitra Santra,anomitra-santra,0,0.000,0,-,-,-,-
+288,Ansh Bansal,ansh-bansal,0,0.000,0,-,-,-,-
+289,Anshika jain,anshika-jain,0,0.000,0,-,-,-,-
+290,Anshul Choudhary,anshul-choudhary,0,0.000,0,-,-,-,-
+291,Anshul jain,anshul-jain,0,0.000,0,-,-,-,-
+292,Anshuman Devulapalli,anshuman-devulapalli,0,0.000,0,-,-,-,-
+293,Anubhav Gupta,anubhav-gupta,0,0.000,0,-,-,-,-
+294,Anuj Pavan Sharma,anuj-pavan-sharma,0,0.000,0,-,-,-,-
+295,Anup Kumar,anup-kumar,0,0.000,0,-,-,-,-
+296,Anupam Gupta,anupam-gupta,0,0.000,0,-,-,-,-
+297,Anurag Gupta,anurag-gupta,0,0.000,0,-,-,-,-
+298,Anurag Priyam Sahay,anurag-priyam-sahay,0,0.000,0,-,-,-,-
+299,Anushka Aggarwal,anushka-aggarwal,0,0.000,0,-,-,-,-
+300,Anvit Aggarwal,anvit-aggarwal,0,0.000,0,-,-,-,-
+301,Apratim Tewari,apratim-tewari,0,0.000,0,0%/1,-,-,-
+302,Archisman Nandy,archisman-nandy,0,0.000,0,-,-,-,-
+303,Archit Kumar Gupta,archit-kumar-gupta,0,0.000,0,-,-,-,-
+304,Archit Singal,archit-singal,0,0.000,0,-,-,-,-
+305,Arham Bakliwal,arham-bakliwal,0,0.000,0,-,-,-,-
+306,Arihaan Aggarwal,arihaan-aggarwal,0,0.000,0,-,-,-,-
+307,Arihant Jain,arihant-jain,0,0.000,0,-,-,-,-
+308,Arihant Kumar,arihant-kumar,0,0.000,0,-,-,-,-
+309,Arijit Paul,arijit-paul,0,0.000,0,-,-,-,-
+310,Aritra Biswas,aritra-biswas,0,0.000,0,-,-,-,-
+311,Aritra Das,aritra-das,0,0.000,0,-,-,-,-
+312,Arjun Deshmukh,arjun-deshmukh,0,0.000,0,-,-,-,-
+313,Arjun Gupta,arjun-gupta,0,0.000,0,-,-,-,-
+314,Arjun Kumar Tomar,arjun-kumar-tomar,0,0.000,0,-,-,-,-
+315,Arjun Pathak,arjun-pathak,0,0.000,0,-,-,-,-
+316,Arka Banerjee,arka-banerjee,0,0.000,0,-,-,-,-
+317,Arkapravo Sen,arkapravo-sen,0,0.000,0,-,-,-,-
+318,Armaan Sinha,armaan-sinha,0,0.000,0,-,-,-,-
+319,Arnav Anand Tiwari,arnav-anand-tiwari,0,0.000,0,-,-,-,-
+320,Arnav Baranwal,arnav-baranwal,0,0.000,0,-,-,-,-
+321,Arnav Gangwar,arnav-gangwar,0,0.000,0,-,-,-,-
+322,Arnav Garg,arnav-garg,0,0.000,0,-,-,-,-
+323,Arnav Mishra,arnav-mishra,0,0.000,0,-,-,-,-
+324,Arnav Nigam,arnav-nigam,0,0.000,0,-,-,-,-
+325,Arnav Pahuja,arnav-pahuja,0,0.000,0,-,-,-,-
+326,arnav raghuvanshi,arnav-raghuvanshi,0,0.000,0,-,-,-,-
+327,Arnav Singh,arnav-singh,0,0.000,0,-,-,-,-
+328,Arnav Yavte,arnav-yavte,0,0.000,0,-,-,-,-
+329,Arpan Bhattacharyya,arpan-bhattacharyya,0,0.000,0,-,-,-,-
+330,Arpit Gupta,arpit-gupta,0,0.000,0,-,-,-,-
+331,Arpit Kumar,arpit-kumar,0,0.000,0,-,-,-,-
+332,Arpit Kumar,arpit-kumar-2,0,0.000,0,-,-,-,-
+333,Arpit Kumar Gupta,arpit-kumar-gupta,0,0.000,0,-,-,-,-
+334,ARPIT SHRINGI,arpit-shringi,0,0.000,0,-,-,-,-
+335,Arpit Singh,arpit-singh,0,0.000,0,-,-,-,-
+336,Arun Ramesh,arun-ramesh,0,0.000,0,-,-,-,-
+337,Arunesh Gadia,arunesh-gadia,0,0.000,0,-,-,-,-
+338,Arya Agrawal,arya-agrawal,0,0.000,0,-,-,-,-
+339,Arya Karanjkar,arya-karanjkar,0,0.000,0,-,-,-,-
+340,Arya Suwalka,arya-suwalka,0,0.000,0,-,-,-,-
+341,Aryan,aryan,0,0.000,0,-,-,-,-
+342,Aryan Basra,aryan-basra,0,0.000,0,-,-,-,-
+343,Aryan Chakravorty,aryan-chakravorty,0,0.000,0,-,-,-,-
+344,Aryan kumar,aryan-kumar,0,0.000,0,-,-,-,-
+345,Aryan Kumar,aryan-kumar-2,0,0.000,0,-,-,-,-
+346,Aryan Mathur,aryan-mathur,0,0.000,0,-,-,-,-
+347,Aryan Mishra,aryan-mishra,0,0.000,0,-,-,-,-
+348,Aryan Moorthy,aryan-moorthy,0,0.000,0,-,-,-,-
+349,Aryan Parekh,aryan-parekh,0,0.000,0,-,-,-,-
+350,Aryan Patel,aryan-patel,0,0.000,0,-,-,-,-
+351,Aryan Sharad Raut,aryan-sharad-raut,0,0.000,0,-,-,-,-
+352,Aryan Singh,aryan-singh,0,0.000,0,-,-,-,-
+353,Aryan vilas kadam,aryan-vilas-kadam,0,0.000,0,-,-,-,-
+354,Aryan Vivek,aryan-vivek,0,0.000,0,-,-,-,-
+355,Aryansingh Sonaye,aryansingh-sonaye,0,0.000,0,-,-,-,-
+356,Aryash Mullick,aryash-mullick,0,0.000,0,-,-,-,-
+357,Aryashi Tripathi,aryashi-tripathi,0,0.000,0,-,-,-,-
+358,Ashay Gupta,ashay-gupta,0,0.000,0,-,-,-,-
+359,Ashdeep Singh,ashdeep-singh,0,0.000,0,-,-,-,-
+360,Ashish Kumar,ashish-kumar,0,0.000,0,-,-,-,-
+361,Ashish Kumar,ashish-kumar-2,0,0.000,0,-,-,-,-
+362,Ashmi Hooda,ashmi-hooda,0,0.000,0,-,-,-,-
+363,Ashutosh Desai,ashutosh-desai,0,0.000,0,-,-,-,-
+364,Ashutosh Kumar,ashutosh-kumar,0,0.000,0,-,-,-,-
+365,Ashvanth V,ashvanth-v,0,0.000,0,-,-,-,-
+366,Asif Hoda,asif-hoda,0,0.000,0,-,-,-,-
+367,Asija Anand,asija-anand,0,0.000,0,0%/1,-,-,-
+368,Asmit Kumar,asmit-kumar,0,0.000,0,-,-,-,-
+369,Atharv Agarwal,atharv-agarwal,0,0.000,0,-,-,-,-
+370,Atharv Shinde,atharv-shinde,0,0.000,0,-,-,-,-
+371,Atharv Sunil Pandav,atharv-sunil-pandav,0,0.000,0,-,-,-,-
+372,Atharva Atul Penkar,atharva-atul-penkar,0,0.000,0,-,-,-,-
+373,Atharva Gupta,atharva-gupta,0,0.000,0,-,-,-,-
+374,Atharva Mahajan,atharva-mahajan,0,0.000,0,-,-,-,-
+375,Atharva Potdar,atharva-potdar,0,0.000,0,-,-,-,-
+376,Atharva Rai,atharva-rai,0,0.000,0,-,-,-,-
+377,Atharva Singh Bhadauria,atharva-singh-bhadauria,0,0.000,0,-,-,-,-
+378,Atin Gupta,atin-gupta,0,0.000,0,-,-,-,-
+379,Atreya Bordoloi,atreya-bordoloi,0,0.000,0,-,-,-,-
+380,ATRIJO PAL,atrijo-pal,0,0.000,0,-,-,-,-
+381,Austin Shijo,austin-shijo,0,0.000,0,-,-,-,-
+382,Avadhoot Kulkarni,avadhoot-kulkarni,0,0.000,0,-,-,-,-
+383,Avi Jain,avi-jain,0,0.000,0,0%/1,0%/1,-,-
+384,Avinandan Sharma,avinandan-sharma,0,0.000,0,-,-,-,-
+385,Avinash Choudhary,avinash-choudhary,0,0.000,0,-,-,-,-
+386,Aviral Shukla,aviral-shukla,0,0.000,0,-,-,-,-
+387,Avishi Agrawal,avishi-agrawal,0,0.000,0,-,-,-,-
+388,Avni Goel,avni-goel,0,0.000,0,-,-,-,-
+389,Avni Jhalani,avni-jhalani,0,0.000,0,-,-,-,-
+390,Avnish Singh,avnish-singh,0,0.000,0,-,-,-,-
+391,Avtansh Gargya,avtansh-gargya,0,0.000,0,-,-,-,-
+392,Avtansh Gargya,avtansh-gargya-2,0,0.000,0,-,-,-,-
+393,Ayaan Maan,ayaan-maan,0,0.000,0,-,-,-,-
+394,Ayan Ghosh,ayan-ghosh,0,0.000,0,-,-,-,-
+395,ayush,ayush,0,0.000,0,-,-,-,-
+396,Ayush Ajinath Fand,ayush-ajinath-fand,0,0.000,0,-,-,-,-
+397,Ayush Chaudhary,ayush-chaudhary,0,0.000,0,-,-,-,-
+398,Ayush Dutta,ayush-dutta,0,0.000,0,-,-,-,-
+399,Ayush Ganesh Sawant,ayush-ganesh-sawant,0,0.000,0,-,-,-,-
+400,Ayush Katariya,ayush-katariya,0,0.000,0,-,-,-,-
+401,Ayush Kumar,ayush-kumar,0,0.000,0,-,-,-,-
+402,Ayush Kumar,ayush-kumar-2,0,0.000,0,-,-,-,-
+403,Ayush Mishra A,ayush-mishra-a,0,0.000,0,-,-,-,-
+404,Ayush Sharma,ayush-sharma,0,0.000,0,-,-,-,-
+405,Ayush Sharma,ayush-sharma-2,0,0.000,0,-,-,-,-
+406,Ayush Shukla,ayush-shukla,0,0.000,0,-,-,-,-
+407,B Bhavana,b-bhavana,0,0.000,0,-,-,-,-
+408,B.V.Dhanush,b-v-dhanush,0,0.000,0,-,-,-,-
+409,Badri Bishal Das,badri-bishal-das,0,0.000,0,-,-,-,-
+410,Baibhaw Kumar,baibhaw-kumar,0,0.000,0,-,-,-,-
+411,Banaj Mahajan,banaj-mahajan,0,0.000,0,-,-,-,-
+412,Banavath Srikanth,banavath-srikanth,0,0.000,0,-,-,-,-
+413,Banavath Srikanth,banavath-srikanth-2,0,0.000,0,-,-,-,-
+414,Bejawada Shekhar,bejawada-shekhar,0,0.000,0,-,-,-,-
+415,Bhanu Manideep,bhanu-manideep,0,0.000,0,-,-,-,-
+416,Bhanu Praharsha Kasaraneni,bhanu-praharsha-kasaraneni,0,0.000,0,-,-,-,-
+417,Bharat Agrawal,bharat-agrawal,0,0.000,0,-,-,-,-
+418,Bhargav Makam Balaji,bhargav-makam-balaji,0,0.000,0,-,-,-,-
+419,Bhavay Goyal,bhavay-goyal,0,0.000,0,-,-,-,-
+420,Bhavik,bhavik,0,0.000,0,-,-,-,-
+421,Bhavik Ostwal,bhavik-ostwal,0,0.000,0,-,-,-,-
+422,Bhavish Garg,bhavish-garg,0,0.000,0,-,-,-,-
+423,Bhavya Abbet,bhavya-abbet,0,0.000,0,-,-,-,-
+424,Bhavya Bhavya,bhavya-bhavya,0,0.000,0,-,-,-,-
+425,BHAVYA JETHANANDANI,bhavya-jethanandani,0,0.000,0,-,-,-,-
+426,Bhavya Modi,bhavya-modi,0,0.000,0,-,-,-,-
+427,bhavya pawar,bhavya-pawar,0,0.000,0,-,-,-,-
+428,Billa Abhinav,billa-abhinav,0,0.000,0,-,-,-,-
+429,Biswajeet Kar,biswajeet-kar,0,0.000,0,-,-,-,-
+430,Biswajeet Lenka,biswajeet-lenka,0,0.000,0,-,-,-,-
+431,BOMMU HARINI,bommu-harini,0,0.000,0,-,-,-,-
+432,Bornel Harshit Kumar,bornel-harshit-kumar,0,0.000,0,-,-,-,-
+433,C BHARADWAJA,c-bharadwaja,0,0.000,0,-,-,-,-
+434,Chaitanya Jain,chaitanya-jain,0,0.000,0,-,-,-,-
+435,Chaitanya Mittal,chaitanya-mittal,0,0.000,0,-,-,-,-
+436,Chaitanya Vishwas Bramhapurikar,chaitanya-vishwas-bramhapurikar,0,0.000,0,-,-,-,-
+437,Chaitanyaa Vyas,chaitanyaa-vyas,0,0.000,0,-,-,-,-
+438,Chaitya Dhandhara,chaitya-dhandhara,0,0.000,0,-,-,-,-
+439,CHANDAN GOWDA V,chandan-gowda-v,0,0.000,0,-,-,-,-
+440,Charan tej Chevula,charan-tej-chevula,0,0.000,0,-,-,-,-
+441,Charishma Varala,charishma-varala,0,0.000,0,-,-,-,-
+442,Charu Agarwal,charu.a-zotnb,0,0.000,0,-,-,-,-
+443,Charul,charul,0,0.000,0,-,-,-,-
+444,Charvit Tejas Rajani,charvit-tejas-rajani,0,0.000,0,-,-,-,-
+445,Chetan luna,chetan-luna,0,0.000,0,-,-,-,-
+446,Chinmai DJ,chinmai-dj,0,0.000,0,-,-,-,-
+447,Chiraag K V,chiraag-k-v,0,0.000,0,-,-,-,-
+448,Chirag BH,chirag-bh,0,0.000,0,-,-,-,-
+449,Chirag Jindal,chirag-jindal,0,0.000,0,-,-,-,-
+450,Choudary Srinivas Srikar,choudary-srinivas-srikar,0,0.000,0,-,-,-,-
+451,Contestant 1,contestant1,0,0.000,0,-,-,-,-
+452,Contestant 2,contestant2,0,0.000,0,-,-,-,-
+453,Contestant 3,contestant3,0,0.000,0,-,-,-,-
+454,Daksh Agarwal,daksh-agarwal,0,0.000,0,-,-,-,-
+455,Daksh Desai,daksh-desai,0,0.000,0,-,-,-,-
+456,Daksh Sikri,daksh-sikri,0,0.000,0,-,-,-,-
+457,Darshbir Singh,darshbir-singh,0,0.000,0,-,-,-,-
+458,Darshit Mittal,darshit-mittal,0,0.000,0,-,-,-,-
+459,Darshit Singh,darshit-singh,0,0.000,0,-,-,-,-
+460,Davda James,davda-james,0,0.000,0,-,-,-,-
+461,Debarghya Das,debarghya-das,0,0.000,0,-,-,-,-
+462,Debarghya Ghosh,debarghya-ghosh,0,0.000,0,-,-,-,-
+463,Debarghya Paik,debarghya-paik,0,0.000,0,-,-,-,-
+464,Debashish Nayak,debashish-nayak,0,0.000,0,-,-,-,-
+465,Deekshant Sharma,deekshant-sharma,0,0.000,0,-,-,-,-
+466,Deepak dhakad,deepak-dhakad,0,0.000,0,-,-,-,-
+467,Deepak Kumar,deepak-kumar,0,0.000,0,-,-,-,-
+468,Deepak Kumar Chauhan,deepak-kumar-chauhan,0,0.000,0,-,-,-,-
+469,Deepak Swami,deepak-swami,0,0.000,0,-,-,-,-
+470,Deepak Vishwakarma,deepak-vishwakarma,0,0.000,0,-,-,-,-
+471,Deepank Singh,deepank-singh,0,0.000,0,-,-,-,-
+472,Deepanshu,deepanshu,0,0.000,0,-,-,-,-
+473,Deeptanshu Kranti Ray,deeptanshu-kranti-ray,0,0.000,0,-,-,-,-
+474,Dev Kankaani,dev-kankaani,0,0.000,0,-,-,-,-
+475,Dev Kaurav,dev-kaurav,0,0.000,0,-,-,-,-
+476,Dev Kotecha,dev-kotecha,0,0.000,0,-,-,-,-
+477,Dev Mor,dev-mor,0,0.000,0,0%/1,-,-,-
+478,Dev Sharma,dev-sharma,0,0.000,0,-,-,-,-
+479,Dev Patel,dev.p-kghom,0,0.000,0,-,-,-,-
+480,Deva Narayana Babu,deva-narayana-babu,0,0.000,0,-,-,-,-
+481,Devam Gangar,devam-gangar,0,0.000,0,-,-,-,-
+482,devansh agarwal,devansh-agarwal,0,0.000,0,-,-,-,-
+483,devansh dengla,devansh-dengla,0,0.000,0,-,-,-,-
+484,Devansh Gupta,devansh-gupta,0,0.000,0,-,-,-,-
+485,Devansh Jangid,devansh-jangid,0,0.000,0,-,-,-,-
+486,Devansh Yadav,devansh-yadav,0,0.000,0,-,-,-,-
+487,Devesh Marya,devesh-marya,0,0.000,0,-,-,-,-
+488,Dhairya Goyal,dhairya-goyal,0,0.000,0,-,-,-,-
+489,Dhairya Sharma,dhairya-sharma,0,0.000,0,-,-,-,-
+490,Dhanunjay C,dhanunjay-c,0,0.000,0,-,-,-,-
+491,Dharun Kaarthick S,dharun-kaarthick-s,0,0.000,0,-,-,-,-
+492,dheer,dheer,0,0.000,0,-,-,-,-
+493,Dhruv Garg,dhruv-garg,0,0.000,0,-,-,-,-
+494,DHRUV GUPTA,dhruv-gupta,0,0.000,0,-,-,-,-
+495,Dhruv Jain,dhruv-jain,0,0.000,0,-,-,-,-
+496,Dhruv Narware,dhruv-narware,0,0.000,0,-,-,-,-
+497,Dhruv Rathour,dhruv-rathour,0,0.000,0,-,-,-,-
+498,Diksha Gangodiya,diksha-gangodiya,0,0.000,0,-,-,-,-
+499,Dilipkumar A,dilipkumar-a,0,0.000,0,-,-,-,-
+500,Dipen Sojitra,dipen-sojitra,0,0.000,0,-,-,-,-
+501,Disha Bhavsar,disha-bhavsar,0,0.000,0,-,-,-,-
+502,Dishant Jha,dishant-jha,0,0.000,0,-,-,-,-
+503,Divesh Khatwani,divesh-khatwani,0,0.000,0,-,-,-,-
+504,Divy Kumar Pandey,divy-kumar-pandey,0,0.000,0,-,-,-,-
+505,Divya Khandelwal,divya-khandelwal,0,0.000,0,-,-,-,-
+506,Divyaansh Pankaj Narkhede,divyaansh-pankaj-narkhede,0,0.000,0,-,-,-,-
+507,Divyam Jain,divyam-jain,0,0.000,0,-,-,-,-
+508,Divyam Nagpal,divyam-nagpal,0,0.000,0,-,-,-,-
+509,Divyansh Goyal,divyansh-goyal,0,0.000,0,-,-,-,-
+510,Divyansh Negi,divyansh-negi,0,0.000,0,-,-,-,-
+511,Divyansh Soni,divyansh-soni,0,0.000,0,-,-,-,-
+512,Divyesh Bansal,divyesh-bansal,0,0.000,0,-,-,-,-
+513,Dnyandeep Kale,dnyandeep-kale,0,0.000,0,-,-,-,-
+514,Dogga Siva Kumar,dogga-siva-kumar,0,0.000,0,-,-,-,-
+515,Drill User,drill-1785577275,0,0.000,0,-,-,-,-
+516,Druva Venkanagouda Hatti,druva-venkanagouda-hatti,0,0.000,0,-,-,-,-
+517,Dwibhashyam S S S Aravind,dwibhashyam-s-s-s-aravind,0,0.000,0,-,-,-,-
+518,Eishita Bordoloi,eishita-bordoloi,0,0.000,0,0%/1,-,-,-
+519,Eklavya Jain,eklavya-jain,0,0.000,0,-,-,-,-
+520,Eluru Sai Venkat,eluru-sai-venkat,0,0.000,0,-,-,-,-
+521,Emaad Arsheed Hakeem,emaad-arsheed-hakeem,0,0.000,0,-,-,-,-
+522,Eranki Venkata Jhanani,eranki-venkata-jhanani,0,0.000,0,-,-,-,-
+523,Farhan Al Zayed,farhan-al-zayed,0,0.000,0,-,-,-,-
+524,Fazal Hayat Khan,fazal-hayat-khan,0,0.000,0,-,-,-,-
+525,Gade V S S R K Tejas Reddy,gade-v-s-s-r-k-tejas-reddy,0,0.000,0,-,-,-,-
+526,Gajendra Sarathe,gajendra-sarathe,0,0.000,0,-,-,-,-
+527,Garima Kalra,garima-kalra,0,0.000,0,-,-,-,-
+528,Garima Singh,garima-singh,0,0.000,0,-,-,-,-
+529,Garv,garv,0,0.000,0,-,-,-,-
+530,Garv Rawat,garv-rawat,0,0.000,0,-,-,-,-
+531,Garvit Agrawal,garvit-agrawal,0,0.000,0,-,-,-,-
+532,Gatik Solanki,gatik-solanki,0,0.000,0,-,-,-,-
+533,Gaurang Bansal,gaurang-bansal,0,0.000,0,-,-,-,-
+534,Gauranga Kumar,gauranga-kumar,0,0.000,0,-,-,-,-
+535,Gaurav Kumar,gaurav-kumar,0,0.000,0,-,-,-,-
+536,Geet Singhi,geet-singhi,0,0.000,0,-,-,-,-
+537,Gnanasagar Subramanyam Vuchi,gnanasagar-subramanyam-vuchi,0,0.000,0,-,-,-,-
+538,Gnaneswara rao Potnuru,gnaneswara-rao-potnuru,0,0.000,0,-,-,-,-
+539,Gulshan Kumar,gulshan-kumar,0,0.000,0,-,-,-,-
+540,Gunjan Kumar,gunjan-kumar,0,0.000,0,-,-,-,-
+541,Guntupalli Venkateswarlu,guntupalli-venkateswarlu,0,0.000,0,-,-,-,-
+542,Gurekamjot Singh,gurekamjot-singh,0,0.000,0,-,-,-,-
+543,Gurman Singh,gurman-singh,0,0.000,0,0%/1,-,-,0%/1
+544,Gurnoor Sohal,gurnoor-sohal,0,0.000,0,-,-,-,-
+545,Gyan Chandra,gyan-chandra,0,0.000,0,-,-,-,-
+546,Hadwik Payidiparthy,hadwik-payidiparthy,0,0.000,0,-,-,-,-
+547,Hamza Najfi,hamza-najfi,0,0.000,0,-,-,-,-
+548,Hans Daruka,hans-daruka,0,0.000,0,-,-,-,-
+549,Hanya Batra,hanya-batra,0,0.000,0,-,-,-,-
+550,Hanya Batra,hanya-batra-2,0,0.000,0,-,-,-,-
+551,Hardik Hazari,hardik-hazari,0,0.000,0,-,-,-,-
+552,Hardik Tiwari,hardik-tiwari,0,0.000,0,-,-,-,-
+553,Hari Shankar Karthik,hari-shankar-karthik,0,0.000,0,-,-,-,-
+554,Hari Sheth,hari-sheth,0,0.000,0,-,-,-,-
+555,Hariom Chandra Tripathi,hariom-chandra-tripathi,0,0.000,0,-,-,-,-
+556,Hariom Gandhile,hariom-gandhile,0,0.000,0,-,-,-,-
+557,HARISH K P,harish-k-p,0,0.000,0,-,-,-,-
+558,Harsh Bhanushali,harsh-bhanushali,0,0.000,0,-,-,-,-
+559,Harsh Kumar,harsh-kumar,0,0.000,0,-,-,-,-
+560,Harsh Kumar Jha,harsh-kumar-jha,0,0.000,0,-,-,-,-
+561,Harsh Pasari,harsh-pasari,0,0.000,0,-,-,-,-
+562,Harsh Singh,harsh-singh,0,0.000,0,-,-,-,-
+563,Harsh Suthar,harsh-suthar,0,0.000,0,-,-,-,-
+564,Harshal Gupta,harshal-gupta,0,0.000,0,-,-,-,-
+565,Harshal Narsaria,harshal-narsaria,0,0.000,0,-,-,-,-
+566,Harshanand,harshanand,0,0.000,0,-,-,-,-
+567,Harshil Chukkala,harshil-chukkala,0,0.000,0,-,-,-,-
+568,Harshil Gupta,harshil-gupta,0,0.000,0,-,-,-,-
+569,Harshit Raj,harshit-raj,0,0.000,0,-,-,-,-
+570,Harshit Tomar,harshit-tomar,0,0.000,0,-,-,-,-
+571,Harshita Jain,harshita-jain,0,0.000,0,-,-,-,-
+572,Harshita Uttam,harshita-uttam,0,0.000,0,-,-,-,-
+573,Harshul Suthar,harshul-suthar,0,0.000,0,-,-,-,-
+574,Harshvardhan Parihar,harshvardhan-parihar,0,0.000,0,-,-,-,-
+575,Harshwardhan Ahlawat,harshwardhan-ahlawat,0,0.000,0,-,-,-,-
+576,Hem Tilva,hem-tilva,0,0.000,0,-,-,-,-
+577,Hemanta Sandeep Manna,hemanta-sandeep-manna,0,0.000,0,-,-,-,-
+578,Himanshu Rohela,himanshu-rohela,0,0.000,0,-,-,-,-
+579,Himanshu Verma,himanshu-verma,0,0.000,0,-,-,-,-
+580,Hiten Aggarwal,hiten-aggarwal,0,0.000,0,-,-,-,-
+581,Hiten Arora,hiten-arora,0,0.000,0,-,-,-,-
+582,Hithav Ambiti,hithav-ambiti,0,0.000,0,-,-,-,-
+583,Hiya Trehan,hiya-trehan,0,0.000,0,-,-,-,-
+584,Hrishikesh Vinay,hrishikesh-vinay,0,0.000,0,-,-,-,-
+585,Hunar Chhabaria,hunar-chhabaria,0,0.000,0,-,-,-,-
+586,Indraneel Ghosh,indraneel-ghosh,0,0.000,0,-,-,-,-
+587,Inesh Aggarwal,inesh-aggarwal,0,0.000,0,-,-,-,-
+588,Ishaan Gupta,ishaan-gupta,0,0.000,0,-,-,-,-
+589,Ishan Chauhan,ishan-chauhan,0,0.000,0,-,-,-,-
+590,Ishan Kumar,ishan-kumar,0,0.000,0,-,-,-,-
+591,Ishant Bansal,ishant-bansal,0,0.000,0,-,-,-,-
+592,Ishant Kumar,ishant-kumar,0,0.000,0,-,-,-,-
+593,Ishant Mohan,ishant-mohan,0,0.000,0,-,-,-,-
+594,Ishat Kumar Jha,ishat-kumar-jha,0,0.000,0,-,-,-,-
+595,Ishika Bhuin,ishika-bhuin,0,0.000,0,-,-,-,-
+596,Ishita,ishita,0,0.000,0,-,-,-,-
+597,ISHWAR KUMAR,ishwar-kumar,0,0.000,0,-,-,-,-
+598,J Mukul,j-mukul,0,0.000,0,-,-,-,-
+599,Jai Agarwal,jai-agarwal,0,0.000,0,-,-,-,-
+600,Jai Sachdev,jai-sachdev,0,0.000,0,-,-,-,-
+601,Jai Sharma,jai-sharma,0,0.000,0,-,-,-,-
+602,Jami Sai Harshit,jami-sai-harshit,0,0.000,0,-,-,-,-
+603,Jane Street,janestreet-amsfirms,0,0.000,0,-,-,-,-
+604,Jashandeep Singh,jashandeep-singh,0,0.000,0,0%/1,-,-,-
+605,Jashnoor Singh,jashnoor-singh,0,0.000,0,-,-,-,-
+606,JASWANTH SAI,jaswanth-sai,0,0.000,0,-,-,-,-
+607,Jathin Reddy Panyam,jathin-reddy-panyam,0,0.000,0,-,-,-,-
+608,Jatin Gupta,jatin-gupta,0,0.000,0,-,-,-,-
+609,Jatin Singh Jadon,jatin-singh-jadon,0,0.000,0,-,-,-,-
+610,Jatin Toshniwal,jatin-toshniwal,0,0.000,0,-,-,-,-
+611,Jay Ameta,jay-ameta,0,0.000,0,-,-,-,-
+612,Jay Gupta,jay-gupta,0,0.000,0,-,-,-,-
+613,Jay Khandelwal,jay-khandelwal,0,0.000,0,-,-,-,-
+614,Jay Nilesh Patil,jay-nilesh-patil,0,0.000,0,-,-,-,-
+615,Jay Parekh,jay-parekh,0,0.000,0,-,-,-,-
+616,Jay Patel,jay-patel,0,0.000,0,-,-,-,-
+617,Jay Thakkar,jay-thakkar,0,0.000,0,-,-,-,-
+618,Jayant Kumar,jayant-kumar,0,0.000,0,-,-,-,-
+619,Jayant Tomar,jayant-tomar,0,0.000,0,-,-,-,-
+620,Jayashivan Hosamani,jayashivan-hosamani,0,0.000,0,-,-,-,-
+621,Jayesh Choudhary,jayesh-choudhary,0,0.000,0,-,-,-,-
+622,Jithin J Joshi,jithin-j-joshi,0,0.000,0,-,-,-,-
+623,Jithin K,jithin-k,0,0.000,0,-,-,-,-
+624,Jivitesh Bansal,jivitesh-bansal,0,0.000,0,-,-,-,-
+625,Joel Bansal,joel-bansal,0,0.000,0,-,-,-,-
+626,Joshua Sunil Dante,joshua-sunil-dante,0,0.000,0,-,-,-,-
+627,Judge Check,judge-check,0,0.000,0,-,-,-,-
+628,K. Vishak,k-vishak,0,0.000,0,-,-,-,-
+629,Kabir Mittal,kabir-mittal,0,0.000,0,-,-,-,-
+630,Kabir S Prakash,kabir-s-prakash,0,0.000,0,-,-,-,-
+631,Kairav Kumar,kairav-kumar,0,0.000,0,-,-,-,-
+632,Kalash Pandey,kalash-pandey,0,0.000,0,-,-,-,-
+633,Kalp Shah,kalp-shah,0,0.000,0,-,-,-,-
+634,Kammili Leela Krishna,kammili-leela-krishna,0,0.000,0,-,-,-,-
+635,Kanad Laxman Kumavat,kanad-laxman-kumavat,0,0.000,0,-,-,-,-
+636,Kanishk Choudhary,kanishk-choudhary,0,0.000,0,-,-,-,-
+637,Kanishk Singh,kanishk-singh,0,0.000,0,-,-,-,-
+638,Karan Yadav,karan-yadav,0,0.000,0,-,-,-,-
+639,Karimi Sai Raj Bhavesh,karimi-sai-raj-bhavesh,0,0.000,0,-,-,-,-
+640,Karmanya Gupta,karmanya-gupta,0,0.000,0,-,-,-,-
+641,Kartavya Agarwal,kartavya-agarwal,0,0.000,0,-,-,-,-
+642,Kartheek Budime,kartheek-budime,0,0.000,0,-,-,-,-
+643,KARTHIC N A,karthic-n-a,0,0.000,0,-,-,-,-
+644,Karthik Challagundla,karthik-challagundla,0,0.000,0,-,-,-,-
+645,Kartik Agrawal,kartik-agrawal,0,0.000,0,-,-,-,-
+646,Kartik Dalvi,kartik-dalvi,0,0.000,0,-,-,-,-
+647,Kartik Dua,kartik-dua,0,0.000,0,-,-,-,-
+648,Kartik Goyal,kartik-goyal,0,0.000,0,-,-,-,-
+649,Kartik Gupta,kartik-gupta,0,0.000,0,-,-,-,-
+650,Kartik Jitendra Tetwar,kartik-jitendra-tetwar,0,0.000,0,-,-,-,-
+651,KARTIK MANOJ AGARWAL,kartik-manoj-agarwal,0,0.000,0,-,-,-,-
+652,Kartikeya Rao,kartikeya-rao,0,0.000,0,-,-,-,-
+653,Kartikya Saini,kartikya-saini,0,0.000,0,-,-,-,-
+654,Kaushtubh Singh,kaushtubh-singh,0,0.000,0,-,-,-,-
+655,Kaustava Karmakar,kaustava-karmakar,0,0.000,0,-,-,-,-
+656,Kaustubh Kaka,kaustubh-kaka,0,0.000,0,-,-,-,-
+657,Kavisha Haswani,kavisha-haswani,0,0.000,0,-,-,-,-
+658,Kavya Kumar Agrawal,kavya-kumar-agrawal,0,0.000,0,-,-,-,-
+659,kavya priyam,kavya-priyam,0,0.000,0,-,-,-,-
+660,Keenan Menezes,keenan-menezes,0,0.000,0,-,-,-,-
+661,Keshab Agarwal,keshab-agarwal,0,0.000,0,-,-,-,-
+662,Keshav Kumar,keshav-kumar,0,0.000,0,-,-,-,-
+663,Keshav Laddha,keshav-laddha,0,0.000,0,-,-,-,-
+664,Keshav Mittal,keshav-mittal,0,0.000,0,-,-,-,-
+665,Keshav Raheja,keshav-raheja,0,0.000,0,-,-,-,-
+666,KETAN REDDY,ketan-reddy,0,0.000,0,-,-,-,-
+667,Kethavath Siddu,kethavath-siddu,0,0.000,0,-,-,-,-
+668,Khaja Aflal,khaja-aflal,0,0.000,0,-,-,-,-
+669,Kharanshu Dash,kharanshu-dash,0,0.000,0,-,-,-,-
+670,Khooshi Asmi,khooshi-asmi,0,0.000,0,-,-,-,-
+671,Khushhal Bansal,khushhal-bansal,0,0.000,0,-,-,-,-
+672,Khushi Garg,khushi-garg,0,0.000,0,-,-,-,-
+673,Koganti Soujanya Ram,koganti-soujanya-ram,0,0.000,0,-,-,-,-
+674,Kona Pavan Sai Subhash,kona-pavan-sai-subhash,0,0.000,0,-,-,-,-
+675,Kondreddy Sai Haneesh Reddy,kondreddy-sai-haneesh-reddy,0,0.000,0,-,-,-,-
+676,Krish,krish,0,0.000,0,-,-,-,-
+677,Krish Bansal,krish-bansal,0,0.000,0,-,-,-,-
+678,Krish Barwar,krish-barwar,0,0.000,0,-,-,-,-
+679,Krish Garg,krish-garg,0,0.000,0,-,-,-,-
+680,Krish Goradia,krish-goradia,0,0.000,0,-,-,-,-
+681,Krish Gupta,krish-gupta,0,0.000,0,-,-,-,-
+682,Krish Narsaria,krish-narsaria,0,0.000,0,-,-,-,-
+683,Krish Nasit,krish-nasit,0,0.000,0,-,-,-,-
+684,Krish Nayak,krish-nayak,0,0.000,0,-,-,-,-
+685,Krish Shah,krish-shah,0,0.000,0,-,-,-,-
+686,Krishiv Mishra,krishiv-mishra,0,0.000,0,-,-,-,-
+687,Krishna Gupta,krishna-gupta,0,0.000,0,-,-,-,-
+688,Krishna Saluja,krishna-saluja,0,0.000,0,-,-,-,-
+689,Kritarth,kritarth,0,0.000,0,-,-,-,-
+690,Kritarth Prasad,kritarth-prasad,0,0.000,0,-,-,-,-
+691,Kritika Naagar,kritika-naagar,0,0.000,0,-,-,-,-
+692,Krritin Keshan,krritin-keshan,0,0.000,0,-,-,-,-
+693,Kshitij Talmale,kshitij-talmale,0,0.000,0,-,-,-,-
+694,Kuldeep Jatav,kuldeep-jatav,0,0.000,0,-,-,-,-
+695,kumar kartik singh,kumar-kartik-singh,0,0.000,0,-,-,-,-
+696,Kumar Rajnish,kumar-rajnish,0,0.000,0,-,-,-,-
+697,Kunal,kunal,0,0.000,0,-,-,-,-
+698,Kunal Kumar,kunal-kumar,0,0.000,0,-,-,-,-
+699,Kunsh Kuvam,kunsh-kuvam,0,0.000,0,-,-,-,-
+700,Kurapaty Satvik,kurapaty-satvik,0,0.000,0,-,-,-,-
+701,Kushagra Agarwal,kushagra-agarwal,0,0.000,0,-,-,-,-
+702,Kushagra Saxena,kushagra-saxena,0,0.000,0,-,-,-,-
+703,Laavanya Rajan,laavanya-rajan,0,0.000,0,-,-,-,-
+704,Lakhan Pal,lakhan-pal,0,0.000,0,-,-,-,-
+705,Lakshya Poonia,lakshya-poonia,0,0.000,0,-,-,-,-
+706,Lakshya Singhal,lakshya-singhal,0,0.000,0,-,-,-,-
+707,Lalithasree B,lalithasree-b,0,0.000,0,-,-,-,-
+708,Laluprasad Ramavath,laluprasad-ramavath,0,0.000,0,-,-,-,-
+709,Larissa Goyal,larissa-goyal,0,0.000,0,-,-,-,-
+710,Lav Garg,lav-garg,0,0.000,0,-,-,-,-
+711,Lavanya Gupta,lavanya-gupta,0,0.000,0,-,-,-,-
+712,Laxmidhar Panda,laxmidhar-panda,0,0.000,0,-,-,-,-
+713,Lokesh Aravapalli,lokesh-aravapalli,0,0.000,0,-,-,-,-
+714,Test Candidate 001,lsbyr,0,0.000,0,-,-,-,-
+715,Lucky Verma,lucky-verma,0,0.000,0,-,-,-,-
+716,Maanas Goel,maanas-goel,0,0.000,0,-,-,-,-
+717,Maanvik Agarwal,maanvik-agarwal,0,0.000,0,-,-,-,-
+718,Machupalli Bhavya,machupalli-bhavya,0,0.000,0,-,-,-,-
+719,Madhav Manu,madhav-manu,0,0.000,0,-,-,-,-
+720,Madhav Thesiya,madhav-thesiya,0,0.000,0,-,-,-,-
+721,Madhavan Saini,madhavan-saini,0,0.000,0,-,-,-,-
+722,Magellan Mukhanov,magellan-mukhanov,0,0.000,0,-,-,-,-
+723,Maharnab Das,maharnab-das,0,0.000,0,-,-,-,-
+724,Mahek Kanani,mahek-kanani,0,0.000,0,-,-,-,-
+725,Mahin Sanklecha,mahin-sanklecha,0,0.000,0,-,-,-,-
+726,Majid Husain,majid-husain,0,0.000,0,-,-,-,-
+727,Manab Sen,manab-sen,0,0.000,0,-,-,-,-
+728,Manant Singhal,manant-singhal,0,0.000,0,-,-,-,-
+729,Manas Choudhary,manas-choudhary,0,0.000,0,-,-,-,-
+730,Manas Gupta,manas-gupta,0,0.000,0,-,-,-,-
+731,MANAS JAGTAP,manas-jagtap,0,0.000,0,-,-,-,-
+732,Manaswi Rane,manaswi-rane,0,0.000,0,-,-,-,-
+733,Manish Choudhary,manish-choudhary,0,0.000,0,-,-,-,-
+734,Manish Jangir,manish-jangir,0,0.000,0,-,-,-,-
+735,Manish Tula,manish-tula,0,0.000,0,-,-,-,-
+736,Manjeet Pathak,manjeet-pathak,0,0.000,0,-,-,-,-
+737,Mann Hiteshkumar Patel,mann-hiteshkumar-patel,0,0.000,0,-,-,-,-
+738,MANNAT KATHURIA,mannat-kathuria,0,0.000,0,-,-,-,-
+739,Manogya Singh,manogya-singh,0,0.000,0,-,-,-,-
+740,Mansoju Vivekananda,mansoju-vivekananda,0,0.000,0,-,-,-,-
+741,Manthankumar Bagade,manthankumar-bagade,0,0.000,0,-,-,-,-
+742,Mathew James,mathew-james,0,0.000,0,-,-,-,-
+743,Mayank,mayank,0,0.000,0,-,-,-,-
+744,Mayank Agarwal,mayank-agarwal,0,0.000,0,0%/1,-,-,-
+745,Mayank Gaurav,mayank-gaurav,0,0.000,0,-,-,-,-
+746,Mayank Gupta,mayank-gupta,0,0.000,0,0%/1,-,-,-
+747,Mayash Nayak,mayash-nayak,0,0.000,0,-,-,-,-
+748,Mayukh Khetan,mayukh-khetan,0,0.000,0,-,-,-,-
+749,Mayur Trambadia,mayur-trambadia,0,0.000,0,-,-,-,-
+750,Md Anas,md-anas,0,0.000,0,-,-,-,-
+751,Md Hasan Raza,md-hasan-raza,0,0.000,0,-,-,-,-
+752,Md Nehal,md-nehal,0,0.000,0,-,-,-,-
+753,Md Waqib Sk,md-waqib-sk,0,0.000,0,-,-,-,-
+754,Medhansh Mehta,medhansh-mehta,0,0.000,0,-,-,-,-
+755,Medhansh Verma,medhansh-verma,0,0.000,0,-,-,-,-
+756,Meenakshi Chandra,meenakshi-chandra,0,0.000,0,-,-,-,-
+757,Meet Agrawal,meet-agrawal,0,0.000,0,-,-,-,-
+758,Meghna Hazari,meghna-hazari,0,0.000,0,-,-,-,-
+759,Melvin Varghese,melvin-varghese,0,0.000,0,-,-,-,-
+760,Mitali Manish Kabra,mitali-manish-kabra,0,0.000,0,-,-,-,-
+761,Mogiligundla Adithya,mogiligundla-adithya,0,0.000,0,-,-,-,-
+762,Mohammad khaja faozan Ahmed,mohammad-khaja-faozan-ahmed,0,0.000,0,-,-,-,-
+763,Mohd Abid Rahin,mohd-abid-rahin,0,0.000,0,-,-,-,-
+764,Mohd Maaz Khan,mohd-maaz-khan,0,0.000,0,-,-,-,-
+765,Mohd Sahal,mohd-sahal,0,0.000,0,-,-,-,-
+766,Mohisha Gupta,mohisha-gupta,0,0.000,0,-,-,-,-
+767,Mohit Gupta,mohit-gupta,0,0.000,0,-,-,-,-
+768,Mohit Kumar,mohit-kumar,0,0.000,0,-,-,-,-
+769,Mohit Kumawat,mohit-kumawat,0,0.000,0,-,-,-,-
+770,Mohit Mohan,mohit-mohan,0,0.000,0,-,-,-,-
+771,Mohit Mohit,mohit-mohit,0,0.000,0,-,-,-,-
+772,Mohit Prajapati,mohit-prajapati,0,0.000,0,-,-,-,-
+773,Mohith Pragallapati,mohith-pragallapati,0,0.000,0,-,-,-,-
+774,Mridul Chhipa,mridul-chhipa,0,0.000,0,-,-,-,-
+775,Mudit Lodha,mudit-lodha,0,0.000,0,-,-,-,-
+776,Muhammed Ehan Yaseer,muhammed-ehan-yaseer,0,0.000,0,-,-,-,-
+777,MUHAMMED SHEHAB,muhammed-shehab,0,0.000,0,-,-,-,-
+778,Mukesh Nikap,mukesh-nikap,0,0.000,0,0%/1,-,-,-
+779,Mukunth Prathish S,mukunth-prathish-s,0,0.000,0,-,-,-,-
+780,Mumuksh Patel,mumuksh-patel,0,0.000,0,-,-,-,-
+781,Muragesh Channappa Nyamagoud,muragesh-channappa-nyamagoud,0,0.000,0,-,-,-,-
+782,Muskan,muskan,0,0.000,0,-,-,-,-
+783,Muthu S,muthu-s,0,0.000,0,-,-,-,-
+784,Nadipalli Jaya Sandeep Narasimha Chowdhary,nadipalli-jaya-sandeep-narasimha-chowdha,0,0.000,0,-,-,-,-
+785,Naitik Agrawal,naitik-agrawal,0,0.000,0,-,-,-,-
+786,Naitik Singhal,naitik-singhal,0,0.000,0,-,-,-,-
+787,Naman,naman,0,0.000,0,-,-,-,-
+788,Naman Goyal,naman-goyal,0,0.000,0,-,-,-,-
+789,Naman Sendhwal,naman-sendhwal,0,0.000,0,-,-,-,-
+790,Naman Shah,naman-shah,0,0.000,0,-,-,-,-
+791,Namya Sheth,namya-sheth,0,0.000,0,-,-,-,-
+792,Nanda Kishore,nanda-kishore,0,0.000,0,-,-,-,-
+793,Nandan Nihal Chanda,nandan-nihal-chanda,0,0.000,0,-,-,-,-
+794,Naresh Amitesh Sankaran,naresh-amitesh-sankaran,0,0.000,0,-,-,-,-
+795,NARIKI Om Kiran,nariki-om-kiran,0,0.000,0,-,-,-,-
+796,NARODIA MIT MANISHBHAI,narodia-mit-manishbhai,0,0.000,0,-,-,-,-
+797,Naveen Maurya,naveen-maurya,0,0.000,0,-,-,-,-
+798,Naveen Singh,naveen-singh,0,0.000,0,-,-,-,-
+799,Naveen T S,naveen-t-s,0,0.000,0,-,-,-,-
+800,Navneet Kashyap,navneet-kashyap,0,0.000,0,-,-,-,-
+801,Navneet Kumar,navneet-kumar,0,0.000,0,-,-,-,-
+802,NAY DOSI,nay-dosi,0,0.000,0,-,-,-,-
+803,Nayan Bele,nayan-bele,0,0.000,0,-,-,-,-
+804,Neelatmajam Dwivedi,neelatmajam-dwivedi,0,0.000,0,-,-,-,-
+805,Neharika Garg,neharika-garg,0,0.000,0,-,-,-,-
+806,Nikhil Narayan Sahoo,nikhil-narayan-sahoo,0,0.000,0,-,-,-,-
+807,Nilavra Sinha,nilavra-sinha,0,0.000,0,-,-,-,-
+808,Nilay Deepak Chheda,nilay-deepak-chheda,0,0.000,0,-,-,-,-
+809,Nilendu Adhikary,nilendu-adhikary,0,0.000,0,-,-,-,-
+810,Nillanjan Singh,nillanjan-singh,0,0.000,0,-,-,-,-
+811,Nimish Thakur,nimish-thakur,0,0.000,0,-,-,-,-
+812,Nipun Bachu,nipun-bachu,0,0.000,0,-,-,-,-
+813,Nirbhay Singh,nirbhay-singh,0,0.000,0,-,-,-,-
+814,Nirmit Chaurasia,nirmit-chaurasia,0,0.000,0,-,-,-,-
+815,Nirupam,nirupam,0,0.000,0,-,-,-,-
+816,Nishant Jha,nishant-jha,0,0.000,0,-,-,-,-
+817,Nishant Kumar Biswal,nishant-kumar-biswal,0,0.000,0,-,-,-,-
+818,Nishant Singh,nishant-singh,0,0.000,0,-,-,-,-
+819,Nishkarsh Singh,nishkarsh-singh,0,0.000,0,-,-,-,-
+820,Nishtha Doshi,nishtha-doshi,0,0.000,0,-,-,-,-
+821,Nitesh Patel,nitesh-patel,0,0.000,0,-,-,-,-
+822,Nithil Adav A,nithil-adav-a,0,0.000,0,-,-,-,-
+823,Nithin Challa,nithin-challa,0,0.000,0,-,-,-,-
+824,Nitil Poddar,nitil-poddar,0,0.000,0,-,-,-,-
+825,Nitin Pandey,nitin-pandey,0,0.000,0,-,-,-,-
+826,Noor Kamran,noor-kamran,0,0.000,0,-,-,-,-
+827,Ojas Dubey,ojas-dubey,0,0.000,0,-,-,-,-
+828,Ojas Mishra,ojas-mishra,0,0.000,0,-,-,-,-
+829,OJAS RAJESH THETE,ojas-rajesh-thete,0,0.000,0,-,-,-,-
+830,Om Amar,om-amar,0,0.000,0,-,-,-,-
+831,Om Bavishi,om-bavishi,0,0.000,0,-,-,-,-
+832,Om Dadoo,om-dadoo,0,0.000,0,-,-,-,-
+833,Omkaar Nerurkar,omkaar-nerurkar,0,0.000,0,-,-,-,-
+834,omkar gaikwad,omkar-gaikwad,0,0.000,0,-,-,-,-
+835,Palak Raisinghani,palak-raisinghani,0,0.000,0,-,-,-,-
+836,Palash Jhaveri,palash-jhaveri,0,0.000,0,-,-,-,-
+837,PALEM YOGGEISH REDDI,palem-yoggeish-reddi,0,0.000,0,-,-,-,-
+838,Pankaj Agrawal,pankaj-agrawal,0,0.000,0,-,-,-,-
+839,Parav Solanki,parav-solanki,0,0.000,0,-,-,-,-
+840,Pari Khandelwal,pari-khandelwal,0,0.000,0,-,-,-,-
+841,Parikshitsinh Jadeja,parikshitsinh-jadeja,0,0.000,0,-,-,-,-
+842,Parth Koul,parth-koul,0,0.000,0,-,-,-,-
+843,Parth Maheshwary,parth-maheshwary,0,0.000,0,-,-,-,-
+844,PARTH PARIWANDH,parth-pariwandh,0,0.000,0,-,-,-,-
+845,Parth Rane,parth-rane,0,0.000,0,-,-,-,-
+846,Parth Sandeep Maliye,parth-sandeep-maliye,0,0.000,0,-,-,-,-
+847,Parth Sehra,parth-sehra,0,0.000,0,-,-,-,-
+848,Parth Tomar,parth-tomar,0,0.000,0,-,-,-,-
+849,Parth Viraj Vaity,parth-viraj-vaity,0,0.000,0,-,-,-,-
+850,Parthsinh Ranveersinh Thakor,parthsinh-ranveersinh-thakor,0,0.000,0,-,-,-,-
+851,Parwathi Jayaram,parwathi-jayaram,0,0.000,0,-,-,-,-
+852,PEREPU VENKATA SAI KARTHIK,perepu-venkata-sai-karthik,0,0.000,0,-,-,-,-
+853,Piusa Das,piusa-das,0,0.000,0,-,-,-,-
+854,Piyush Falke,piyush-falke,0,0.000,0,-,-,-,-
+855,Piyush Gajanan Katkar,piyush-gajanan-katkar,0,0.000,0,-,-,-,-
+856,Poorvansh Tiwari,poorvansh-tiwari,0,0.000,0,-,-,-,-
+857,Prabhat Kumar Sahu,prabhat-kumar-sahu,0,0.000,0,-,-,-,-
+858,Prabhdeep Singh,prabhdeep-singh,0,0.000,0,-,-,-,-
+859,Prabhnoor,prabhnoor,0,0.000,0,-,-,-,-
+860,Prabhudutta Prusti,prabhudutta-prusti,0,0.000,0,-,-,-,-
+861,Prabhuti Arora,prabhuti-arora,0,0.000,0,-,-,-,-
+862,Prabodh Gupt,prabodh-gupt,0,0.000,0,-,-,-,-
+863,PRACHI JAIN,prachi-jain,0,0.000,0,-,-,-,-
+864,Pradyun Shetty,pradyun-shetty,0,0.000,0,-,-,-,-
+865,Pragun Pudukoli,pragun-pudukoli,0,0.000,0,-,-,-,-
+866,PRAGY BOHRA,pragy-bohra,0,0.000,0,-,-,-,-
+867,Prajwal Jaiswal,prajwal-jaiswal,0,0.000,0,-,-,-,-
+868,Prajwal Patil,prajwal-patil,0,0.000,0,-,-,-,-
+869,Prakhar Agrawal,prakhar-agrawal,0,0.000,0,-,-,-,-
+870,Prakhar Gupta,prakhar-gupta,0,0.000,0,-,-,-,-
+871,Prakhar Jain,prakhar-jain,0,0.000,0,-,-,-,-
+872,Pramod Meena,pramod-meena,0,0.000,0,-,-,-,-
+873,Pranav Arora,pranav-arora,0,0.000,0,-,-,-,-
+874,Pranav Jain,pranav-jain,0,0.000,0,-,-,-,-
+875,Pranav Jaju,pranav-jaju,0,0.000,0,-,-,-,-
+876,Pranav Kirsur,pranav-kirsur,0,0.000,0,-,-,-,-
+877,Pranav Nori,pranav-nori,0,0.000,0,-,-,-,-
+878,Pranav Patil,pranav-patil,0,0.000,0,-,-,-,-
+879,Pranav Prabhu Kumble,pranav-prabhu-kumble,0,0.000,0,-,-,-,-
+880,Pranav Prakash,pranav-prakash,0,0.000,0,-,-,-,-
+881,Pranav Vishal Deshmukh,pranav-vishal-deshmukh,0,0.000,0,-,-,-,-
+882,Pranay Shukla,pranay-shukla,0,0.000,0,-,-,-,-
+883,Praneeth Kodavati,praneeth-kodavati,0,0.000,0,-,-,-,-
+884,Pranjal Dev Choudhary,pranjal-dev-choudhary,0,0.000,0,-,-,-,-
+885,Pranjal Malpani,pranjal-malpani,0,0.000,0,-,-,-,-
+886,Prasanna,prasanna,0,0.000,0,-,-,-,-
+887,Prashant Tak,prashant.t-ugidh,0,0.000,0,-,-,-,-
+888,PRATEEK SAHU,prateek-sahu,0,0.000,0,-,-,-,-
+889,Prateek Singh,prateek-singh,0,0.000,0,-,-,-,-
+890,Prateek Takshak,prateek-takshak,0,0.000,0,-,-,-,-
+891,Prateet Narayan Rath,prateet-narayan-rath,0,0.000,0,-,-,-,-
+892,Pratham Chelaramani,pratham-chelaramani,0,0.000,0,-,-,-,-
+893,Pratham Jain,pratham-jain,0,0.000,0,-,-,-,-
+894,Pratik Chavan,pratik-chavan,0,0.000,0,-,-,-,-
+895,Pratik Ranjan,pratik-ranjan,0,0.000,0,-,-,-,-
+896,Pratyush Anand,pratyush-anand,0,0.000,0,-,-,-,-
+897,Pratyush Dash,pratyush-dash,0,0.000,0,-,-,-,-
+898,Pratyush Kumar Jha,pratyush-kumar-jha,0,0.000,0,-,-,-,-
+899,Pratyush Priyadarshi,pratyush-priyadarshi,0,0.000,0,-,-,-,-
+900,Prayansh Gupta,prayansh-gupta,0,0.000,0,-,-,-,-
+901,Prayansh Sagar Singh,prayansh-sagar-singh,0,0.000,0,-,-,-,-
+902,Prem Kadam,prem-kadam,0,0.000,0,-,-,-,-
+903,Prerit Advani,prerit-advani,0,0.000,0,-,-,-,-
+904,Prince Kumar Singh,prince-kumar-singh,0,0.000,0,-,-,-,-
+905,Priyanka Agarwal,priyanka-agarwal,0,0.000,0,-,-,-,-
+906,Priyansh Saha,priyansh-saha,0,0.000,0,0%/1,-,-,-
+907,Priyanshu Bansal,priyanshu-bansal,0,0.000,0,-,-,-,-
+908,Priyanshu Barnwal,priyanshu-barnwal,0,0.000,0,-,-,-,-
+909,Priyanshu Debnath,priyanshu-debnath,0,0.000,0,-,-,-,-
+910,Priyanshu Kumar,priyanshu-kumar,0,0.000,0,-,-,-,-
+911,Priyanshu Mishra,priyanshu-mishra,0,0.000,0,-,-,-,-
+912,Priyanshu Raj,priyanshu-raj,0,0.000,0,-,-,-,-
+913,Priyanshu Ranjan,priyanshu-ranjan,0,0.000,0,-,-,-,-
+914,Pujan Shetty,pujan-shetty,0,0.000,0,-,-,-,-
+915,Pujit Sharath Shetty,pujit-sharath-shetty,0,0.000,0,-,-,-,-
+916,Purab Agarwal,purab-agarwal,0,0.000,0,-,-,-,-
+917,Purushottam Jha,purushottam-jha,0,0.000,0,-,-,-,-
+918,Pushkar Gupta,pushkar-gupta,0,0.000,0,-,-,-,-
+919,Pushpendra Singh,pushpendra-singh,0,0.000,0,-,-,-,-
+920,Quasar,quasar,0,0.000,0,-,-,-,-
+921,Rabari Krish,rabari-krish,0,0.000,0,-,-,-,-
+922,Rachamadugu Venkata Sai Charan,rachamadugu-venkata-sai-charan,0,0.000,0,-,-,-,-
+923,Rachit Kumar Pandey,rachit-kumar-pandey,0,0.000,0,-,-,-,-
+924,Raghav Bansal,raghav-bansal,0,0.000,0,-,-,-,-
+925,Raghav Garg,raghav-garg,0,0.000,0,-,-,-,-
+926,Raghav Madan,raghav-madan,0,0.000,0,-,-,-,-
+927,Raghuram koppada,raghuram-koppada,0,0.000,0,-,-,-,-
+928,RAHUL JAIN,rahul-jain,0,0.000,0,-,-,-,-
+929,Rahul Jathvani,rahul-jathvani,0,0.000,0,-,-,-,-
+930,Rahul Kariya,rahul-kariya,0,0.000,0,-,-,-,-
+931,RAHUL KUMAR,rahul-kumar,0,0.000,0,-,-,-,-
+932,RAHUL KUMAR SHARMA,rahul-kumar-sharma,0,0.000,0,-,-,-,-
+933,Rahul Meena,rahul-meena,0,0.000,0,-,-,-,-
+934,Rahul R Katarki,rahul-r-katarki,0,0.000,0,-,-,-,-
+935,Rahul Sanklecha,rahul-sanklecha,0,0.000,0,-,-,-,-
+936,Raj Modi,raj-modi,0,0.000,0,-,-,-,-
+937,Rajas Katole,rajas-katole,0,0.000,0,-,-,-,-
+938,Rajas Paunikar,rajas-paunikar,0,0.000,0,-,-,-,-
+939,Rajat Soni,rajat-soni,0,0.000,0,-,-,-,-
+940,Rajiv kumar karn,rajiv-kumar-karn,0,0.000,0,-,-,-,-
+941,Rakshit Singhal,rakshit-singhal,0,0.000,0,-,-,-,-
+942,Ramachandran S,ramachandran-s,0,0.000,0,-,-,-,-
+943,RAMAGIRI SATHWIK,ramagiri-sathwik,0,0.000,0,-,-,-,-
+944,Raman Umesh Agrawal,raman-umesh-agrawal,0,0.000,0,-,-,-,-
+945,Ramit Goyal,ramit-goyal,0,0.000,0,-,-,-,-
+946,Rangraj Chhabra,rangraj-chhabra,0,0.000,0,-,-,-,-
+947,rasesh,rasesh-ams,0,0.000,0,-,-,-,-
+948,Ratan Kokal,ratan-kokal,0,0.000,0,-,-,-,-
+949,Rattandeep Singh Puar,rattandeep-singh-puar,0,0.000,0,-,-,-,-
+950,Ravikant,ravikant,0,0.000,0,-,-,-,-
+951,Rayyan Hussain,rayyan-hussain,0,0.000,0,-,-,-,-
+952,Rehan Sherawat,rehan-sherawat,0,0.000,0,-,-,-,-
+953,Renu Kumari,renu-kumari,0,0.000,0,-,-,-,-
+954,Rhitam Sadhukhan,rhitam-sadhukhan,0,0.000,0,-,-,-,-
+955,Richeeck Ghosh,richeeck-ghosh,0,0.000,0,-,-,-,-
+956,Riddhesh Bendale,riddhesh-bendale,0,0.000,0,-,-,-,-
+957,Riddhima Verma,riddhima-verma,0,0.000,0,-,-,-,-
+958,RIDHI JAGGI,ridhi-jaggi,0,0.000,0,-,-,-,-
+959,Ridhima Chitlangia,ridhima-chitlangia,0,0.000,0,-,-,-,-
+960,Risa Niranjan Chaudhari,risa-niranjan-chaudhari,0,0.000,0,-,-,-,-
+961,Rishabh Kabra,rishabh-kabra,0,0.000,0,-,-,-,-
+962,Rishabh Mishra,rishabh-mishra,0,0.000,0,-,-,-,-
+963,Rishabh Misra,rishabh-misra,0,0.000,0,-,-,-,-
+964,Rishabh Sharma,rishabh-sharma,0,0.000,0,-,-,-,-
+965,Rishabh Shenoy,rishabh-shenoy,0,0.000,0,-,-,-,-
+966,Rishabh Srivastava,rishabh-srivastava,0,0.000,0,-,-,-,-
+967,Rishav Kalani,rishav-kalani,0,0.000,0,-,-,-,-
+968,Rishi Kalra,rishi-kalra,0,0.000,0,-,-,-,-
+969,Rishi Karthick S R,rishi-karthick-s-r,0,0.000,0,-,-,-,-
+970,Rishi Songirkar,rishi-songirkar,0,0.000,0,-,-,-,-
+971,Rishi Vardhan Majji,rishi-vardhan-majji,0,0.000,0,-,-,-,-
+972,Rishit Ojha,rishit-ojha,0,0.000,0,-,-,-,-
+973,Rishit Rai,rishit-rai,0,0.000,0,-,-,-,-
+974,Rishit Verma,rishit-verma,0,0.000,0,-,-,-,-
+975,Rishith Gupta,rishith-gupta,0,0.000,0,-,-,-,-
+976,Rishon Fernandes,rishon-fernandes,0,0.000,0,-,-,-,-
+977,Ritesh Kumar Verma,ritesh-kumar-verma,0,0.000,0,-,-,-,-
+978,Ritik Tiwari,ritik-tiwari,0,0.000,0,-,-,-,-
+979,Ritish Balaji,ritish-balaji,0,0.000,0,-,-,-,-
+980,Ritu Koli,ritu-koli,0,0.000,0,-,-,-,-
+981,Ritvik Suri,ritvik-suri,0,0.000,0,-,-,-,-
+982,Ritwik Aditya Agarwal,ritwik-aditya-agarwal,0,0.000,0,-,-,-,-
+983,Ritwik Viswanathan,ritwik-viswanathan,0,0.000,0,-,-,-,-
+984,Riwaj Adhikari,riwaj-adhikari,0,0.000,0,-,-,-,-
+985,Riya Tiwari,riya-tiwari,0,0.000,0,-,-,-,-
+986,Riyan Patel,riyan-patel,0,0.000,0,-,-,-,-
+987,Rohan Sah,rohan-sah,0,0.000,0,-,-,-,-
+988,Rohit,rohit,0,0.000,0,-,-,-,-
+989,ROHIT BOHRA,rohit-bohra,0,0.000,0,-,-,-,-
+990,ROHIT NAMANA,rohit-namana,0,0.000,0,-,-,-,-
+991,Rohit Ranjeet Satpute,rohit-ranjeet-satpute,0,0.000,0,-,-,-,-
+992,Rohit Vijaykumar Somani,rohit-vijaykumar-somani,0,0.000,0,-,-,-,-
+993,Rohith Datta Bandaru,rohith-datta-bandaru,0,0.000,0,-,-,-,-
+994,Romit Singh,romit-singh,0,0.000,0,-,-,-,-
+995,Ronak Gupta,ronak-gupta,0,0.000,0,-,-,-,-
+996,Ronit Sonawane,ronit-sonawane,0,0.000,0,-,-,-,-
+997,Roshan Kumar Sah,roshan-kumar-sah,0,0.000,0,-,-,-,-
+998,Rucha Ranade,rucha-ranade,0,0.000,0,-,-,-,-
+999,Ruchir Sharma,ruchir-sharma,0,0.000,0,-,-,-,-
+1000,Ruchir Sharma,ruchir-sharma-2,0,0.000,0,-,-,-,-
+1001,RUDR AHUJA,rudr-ahuja,0,0.000,0,-,-,-,-
+1002,Rudresh Kumar,rudresh-kumar,0,0.000,0,-,-,-,-
+1003,Rupangkan Mazumdar,rupangkan-mazumdar,0,0.000,0,-,-,-,-
+1004,Rupashi Bansal,rupashi-bansal,0,0.000,0,-,-,-,-
+1005,Rushabh Mehta,rushabh-mehta,0,0.000,0,-,-,-,-
+1006,S Aparajith,s-aparajith,0,0.000,0,-,-,-,-
+1007,Saaket Ajay Manjrekar,saaket-ajay-manjrekar,0,0.000,0,-,-,-,-
+1008,Saanvi T S,saanvi-t-s,0,0.000,0,-,-,-,-
+1009,Sabhyata Sinha,sabhyata-sinha,0,0.000,0,-,-,-,-
+1010,Sabil Ahmad,sabil-ahmad,0,0.000,0,-,-,-,-
+1011,Sachchit,sachchit,0,0.000,0,-,-,-,-
+1012,Sagri Mohammed Umer Asrar Ahmed,sagri-mohammed-umer-asrar-ahmed,0,0.000,0,-,-,-,-
+1013,Sahil,sahil,0,0.000,0,-,-,-,-
+1014,Sahil Nayak,sahil-nayak,0,0.000,0,-,-,-,-
+1015,Sahil Rathod,sahil-rathod,0,0.000,0,-,-,-,-
+1016,Sai Amrit Sagar,sai-amrit-sagar,0,0.000,0,-,-,-,-
+1017,Sai Charan,sai-charan,0,0.000,0,-,-,-,-
+1018,Sai Sanuth Reddy Mettu,sai-sanuth-reddy-mettu,0,0.000,0,-,-,-,-
+1019,Sairaj Balip,sairaj-balip,0,0.000,0,-,-,-,-
+1020,Sajid Husain,sajid-husain,0,0.000,0,-,-,-,-
+1021,Saket Raj,saket-raj,0,0.000,0,-,-,-,-
+1022,Saksham Kumar,saksham-kumar,0,0.000,0,-,-,-,-
+1023,Saksham Saharia,saksham-saharia,0,0.000,0,-,-,-,-
+1024,salman Khan,salman-khan,0,0.000,0,-,-,-,-
+1025,SAM K NAVDEEP,sam-k-navdeep,0,0.000,0,-,-,-,-
+1026,Samagra Singhal,samagra-singhal,0,0.000,0,-,-,-,-
+1027,Samarpan Verma,samarpan-verma,0,0.000,0,-,-,-,-
+1028,Samarth Charhate,samarth-charhate,0,0.000,0,-,-,-,-
+1029,Sambhav Mirajgaonkar,sambhav-mirajgaonkar,0,0.000,0,-,-,-,-
+1030,Sameeraj Reddy Bommireddy,sameeraj-reddy-bommireddy,0,0.000,0,-,-,-,-
+1031,Samiksha Mitra,samiksha-mitra,0,0.000,0,-,-,-,-
+1032,Samriddhi Varshney,samriddhi-varshney,0,0.000,0,-,-,-,-
+1033,Samudra Sarkar,samudra-sarkar,0,0.000,0,-,-,-,-
+1034,Sandeep Kumar Shaw,sandeep-kumar-shaw,0,0.000,0,-,-,-,-
+1035,Sandip Dey,sandip-dey,0,0.000,0,-,-,-,-
+1036,Sanhit Maity,sanhit-maity,0,0.000,0,-,-,-,-
+1037,Sanidhya Saraf,sanidhya-saraf,0,0.000,0,-,-,-,-
+1038,Sanjeebani Parida,sanjeebani-parida,0,0.000,0,-,-,-,-
+1039,Sanjitha s,sanjitha-s,0,0.000,0,-,-,-,-
+1040,Sankhajit Das,sankhajit-das,0,0.000,0,-,-,-,-
+1041,Santhosh Gudipati,santhosh-gudipati,0,0.000,0,-,-,-,-
+1042,Santosh Padavala,santosh-padavala,0,0.000,0,-,-,-,-
+1043,Sanu Singh,sanu-singh,0,0.000,0,-,-,-,-
+1044,Sanyam Agarwal,sanyam-agarwal,0,0.000,0,-,-,-,-
+1045,Sanyam jain,sanyam-jain,0,0.000,0,-,-,-,-
+1046,SANYAM KUMAR JAIN,sanyam-kumar-jain,0,0.000,0,-,-,-,-
+1047,Sarang Thakare,sarang-thakare,0,0.000,0,-,-,-,-
+1048,Sarvesh Bharambe,sarvesh-bharambe,0,0.000,0,-,-,-,-
+1049,Sarvik,sarvik,0,0.000,0,-,-,-,-
+1050,SATISH,satish,0,0.000,0,-,-,-,-
+1051,Satvik Mittal,satvik-mittal,0,0.000,0,-,-,-,-
+1052,Satwik B Biradar,satwik-b-biradar,0,0.000,0,-,-,-,-
+1053,Satyajit Sahoo,satyajit-sahoo,0,0.000,0,-,-,-,-
+1054,satyam kaushik,satyam-kaushik,0,0.000,0,-,-,-,-
+1055,Saumyaketu Chand Gupta,saumyaketu-chand-gupta,0,0.000,0,-,-,-,-
+1056,Savan Kalaria,savan-kalaria,0,0.000,0,-,-,-,-
+1057,Savan Kalaria,savan-kalaria-2,0,0.000,0,-,-,-,-
+1058,Sayandip Banerjee,sayandip-banerjee,0,0.000,0,-,-,-,-
+1059,SHABD SATSANGI,shabd-satsangi,0,0.000,0,-,-,-,-
+1060,Shaik Masthan Jilani,shaik-masthan-jilani,0,0.000,0,-,-,-,-
+1061,Shaleen Patel,shaleen-patel,0,0.000,0,-,-,-,-
+1062,Shamit Sai Imandi,shamit-sai-imandi,0,0.000,0,-,-,-,-
+1063,Shanawaz,shanawaz,0,0.000,0,-,-,-,-
+1064,Shane Christian,shane-christian,0,0.000,0,-,-,-,-
+1065,Shane Sarosh,shane-sarosh,0,0.000,0,-,-,-,-
+1066,shanmukha sai reddy kapa,shanmukha-sai-reddy-kapa,0,0.000,0,-,-,-,-
+1067,Sharad Chandra Munugala,sharad-chandra-munugala,0,0.000,0,-,-,-,-
+1068,Sharvesh N,sharvesh-n,0,0.000,0,-,-,-,-
+1069,Shashank Kanneboina,shashank-kanneboina,0,0.000,0,-,-,-,-
+1070,Shashwat Ratha,shashwat-ratha,0,0.000,0,-,-,-,-
+1071,Shashwath Ram,shashwath-ram,0,0.000,0,-,-,-,-
+1072,Shaurya Agarwal,shaurya-agarwal,0,0.000,0,-,-,-,-
+1073,Shaurya Sagar Gupta,shaurya-sagar-gupta,0,0.000,0,-,-,-,-
+1074,Shifa siddique,shifa-siddique,0,0.000,0,0%/2,-,-,-
+1075,Shikhar Gupta,shikhar-gupta,0,0.000,0,-,-,-,-
+1076,Shikhar Mallick,shikhar-mallick,0,0.000,0,-,-,-,-
+1077,Shikhar Ranjan,shikhar-ranjan,0,0.000,0,-,-,-,-
+1078,Shiv Kumar Mishra,shiv-kumar-mishra,0,0.000,0,-,-,-,-
+1079,Shiv Narang,shiv-narang,0,0.000,0,-,-,-,-
+1080,Shiv Patil,shiv-patil,0,0.000,0,-,-,-,-
+1081,Shiv Rameshkumar Panchal,shiv-rameshkumar-panchal,0,0.000,0,-,-,-,-
+1082,SHIVA JEE,shiva-jee,0,0.000,0,0%/1,-,-,-
+1083,Shiva Semwal,shiva-semwal,0,0.000,0,-,-,-,-
+1084,Shivam Kumar,shivam-kumar,0,0.000,0,-,-,-,-
+1085,Shivam Mishra,shivam-mishra,0,0.000,0,-,-,-,-
+1086,Shivam Nagar,shivam-nagar,0,0.000,0,-,-,-,-
+1087,Shivam Pal,shivam-pal,0,0.000,0,-,-,-,-
+1088,Shivang Devina,shivang-devina,0,0.000,0,-,-,-,-
+1089,Shivansh Chaudhary,shivansh-chaudhary,0,0.000,0,-,-,-,-
+1090,Shivansh Jain,shivansh-jain,0,0.000,0,-,-,-,-
+1091,Shivansh Mittal,shivansh-mittal,0,0.000,0,-,-,-,-
+1092,Shiven Toshniwal,shiven-toshniwal,0,0.000,0,-,-,-,-
+1093,Shourya Kumar,shourya-kumar,0,0.000,0,-,-,-,-
+1094,Shravan Choudhary,shravan-choudhary,0,0.000,0,-,-,-,-
+1095,Shresth Porwal,shresth-porwal,0,0.000,0,-,-,-,-
+1096,Shresth Sharma,shresth-sharma,0,0.000,0,-,-,-,-
+1097,Shrey Chandra,shrey-chandra,0,0.000,0,-,-,-,-
+1098,Shrey Gaurangbhai Patel,shrey-gaurangbhai-patel,0,0.000,0,-,-,-,-
+1099,Shrey Somani,shrey-somani,0,0.000,0,-,-,-,-
+1100,Shreya Agrawal,shreya-agrawal,0,0.000,0,-,-,-,-
+1101,Shreya Salhotra,shreya-salhotra,0,0.000,0,-,-,-,-
+1102,Shreyaan Sharma,shreyaan-sharma,0,0.000,0,-,-,-,-
+1103,Shreyansh Tripathi,shreyansh-tripathi,0,0.000,0,-,-,-,-
+1104,Shreyasree Das,shreyasree-das,0,0.000,0,-,-,-,-
+1105,Shriyansh Budhori,shriyansh-budhori,0,0.000,0,-,-,-,-
+1106,Shrot Vijayvergiya,shrot-vijayvergiya,0,0.000,0,-,-,-,-
+1107,Shubh,shubh,0,0.000,0,-,-,-,-
+1108,shubh,shubh-ams,0,0.000,0,-,-,-,-
+1109,Shubh Kashyap,shubh-kashyap,0,0.000,0,-,-,-,-
+1110,Shubh Shah,shubh-shah,0,0.000,0,-,-,-,-
+1111,Shubham Khetan,shubham-khetan,0,0.000,0,-,-,-,-
+1112,Shubham Nayak,shubham-nayak,0,0.000,0,0%/2,-,-,-
+1113,Shubham Parag Rane,shubham-parag-rane,0,0.000,0,-,-,-,-
+1114,Shubham Sharma,shubham-sharma,0,0.000,0,-,-,-,-
+1115,Shubhra Shukla,shubhra-shukla,0,0.000,0,-,-,-,-
+1116,Shushant,shushant,0,0.000,0,-,-,-,-
+1117,Shuvraneel Mitra,shuvraneel-mitra,0,0.000,0,-,-,-,-
+1118,Siddhant Attavar,siddhant-attavar,0,0.000,0,-,-,-,-
+1119,Siddhant Jagdishchandra Salunke,siddhant-jagdishchandra-salunke,0,0.000,0,-,-,-,-
+1120,Siddharth Kumar,siddharth-kumar,0,0.000,0,-,-,-,-
+1121,Siddharth Maira,siddharth-maira,0,0.000,0,-,-,-,-
+1122,Siddharth Muthu,siddharth-muthu,0,0.000,0,-,-,-,-
+1123,Siddharth R,siddharth-r,0,0.000,0,-,-,-,-
+1124,Siddharth Soni,siddharth-soni,0,0.000,0,-,-,-,-
+1125,Siddharth Vikram,siddharth-vikram,0,0.000,0,-,-,-,-
+1126,Siddhartha Ch V S,siddhartha-ch-v-s,0,0.000,0,-,-,-,-
+1127,Siya Kothari,siya-kothari,0,0.000,0,-,-,-,-
+1128,Smarth Bansal,smarth-bansal,0,0.000,0,-,-,-,-
+1129,Sneha Pandey,sneha-pandey,0,0.000,0,-,-,-,-
+1130,Snigdha Reddy Komrelly,snigdha-reddy-komrelly,0,0.000,0,-,-,-,-
+1131,Soham Deepak Shinde,soham-deepak-shinde,0,0.000,0,-,-,-,-
+1132,Soham Gaonkar,soham-gaonkar,0,0.000,0,-,-,-,-
+1133,Soham Gondane,soham-gondane,0,0.000,0,-,-,-,-
+1134,Soham Laddha,soham-laddha,0,0.000,0,-,-,-,-
+1135,Sohan Chelekar,sohan-chelekar,0,0.000,0,-,0%/1,-,-
+1136,Somisetty Venkata Saran,somisetty-venkata-saran,0,0.000,0,-,-,-,-
+1137,Somya Yadav,somya-yadav,0,0.000,0,-,-,-,-
+1138,Sonasha Choudhary,sonasha-choudhary,0,0.000,0,-,-,-,-
+1139,SOOMRIT C,soomrit-c,0,0.000,0,-,-,-,-
+1140,Soubhagya Mohapatra,soubhagya-mohapatra,0,0.000,0,-,-,-,-
+1141,Souharda Ghosh,souharda-ghosh,0,0.000,0,-,-,-,-
+1142,Soumil Kumar,soumil-kumar,0,0.000,0,-,-,-,-
+1143,Sourabh Kumar,sourabh-kumar,0,0.000,0,-,-,-,-
+1144,Sourabh Patel,sourabh-patel,0,0.000,0,-,-,-,-
+1145,Sparsh Gupta,sparsh-gupta,0,0.000,0,-,-,-,-
+1146,Sreeja Srinivasan,sreeja-srinivasan,0,0.000,0,-,-,-,-
+1147,Srihith Dibba,srihith-dibba,0,0.000,0,-,-,-,-
+1148,Srikrishna Valepe,srikrishna-valepe,0,0.000,0,-,-,-,-
+1149,Sriman Bishnu Prasad Satapathy,sriman-bishnu-prasad-satapathy,0,0.000,0,-,-,-,-
+1150,Srujankarthikeya Tade,srujankarthikeya-tade,0,0.000,0,-,-,-,-
+1151,Sruteesh Satya R,sruteesh-satya-r,0,0.000,0,-,-,-,-
+1152,Subham,subham,0,0.000,0,-,-,-,-
+1153,Suchit Karunakaran,suchit-karunakaran,0,0.000,0,-,-,-,-
+1154,Sudhanshu Kumar,sudhanshu-kumar,0,0.000,0,-,-,-,-
+1155,Sudipto Ghosh,sudipto-ghosh,0,0.000,0,0%/1,-,-,-
+1156,Sugandha Sawhney,sugandha-sawhney,0,0.000,0,-,-,-,-
+1157,Suhaan Garg,suhaan-garg,0,0.000,0,-,-,-,-
+1158,Sujit Dinkar,sujit-dinkar,0,0.000,0,-,-,-,-
+1159,Sukumar Sawant,sukumar-sawant,0,0.000,0,-,-,-,-
+1160,Sumanyu Aggarwal,sumanyu-aggarwal,0,0.000,0,-,-,-,-
+1161,Sumedha Bhattacharya,sumedha-bhattacharya,0,0.000,0,-,-,-,-
+1162,SUMIT AGRAWAL,sumit-agrawal,0,0.000,0,-,-,-,-
+1163,Sumit Kumar,sumit-kumar,0,0.000,0,-,-,-,-
+1164,Sumit Kumar Shah,sumit-kumar-shah,0,0.000,0,-,-,-,-
+1165,Sumit Mukherjee,sumit-mukherjee,0,0.000,0,-,-,-,-
+1166,SUNIL,sunil,0,0.000,0,-,-,-,-
+1167,Sunil Nagar,sunil-nagar,0,0.000,0,-,-,-,-
+1168,Sunnapu Siddhartha,sunnapu-siddhartha,0,0.000,0,-,-,-,-
+1169,SURAJ DWIVEDI,suraj-dwivedi,0,0.000,0,-,-,-,-
+1170,Suraj Yadav,suraj-yadav,0,0.000,0,-,-,-,-
+1171,Survesh Dhamija,survesh-dhamija,0,0.000,0,-,-,-,-
+1172,Suryansh Saxena,suryansh-saxena,0,0.000,0,-,-,-,-
+1173,Sushant Padha,sushant-padha,0,0.000,0,-,-,-,-
+1174,Sushanth Reddy Mula,sushanth-reddy-mula,0,0.000,0,-,-,-,-
+1175,Suyash Joshi,suyash-joshi,0,0.000,0,-,-,-,-
+1176,Swagat Sahu,swagat-sahu,0,0.000,0,-,-,-,-
+1177,Swapnil Kumar,swapnil-kumar,0,0.000,0,-,-,-,-
+1178,Swara Dipak Takale,swara-dipak-takale,0,0.000,0,-,-,-,-
+1179,Swarit Sethi,swarit-sethi,0,0.000,0,-,-,-,-
+1180,Swarnim Verma,swarnim-verma,0,0.000,0,-,-,-,-
+1181,Swayam Nakte,swayam-nakte,0,0.000,0,-,-,-,-
+1182,Swayam Sundar,swayam-sundar,0,0.000,0,-,-,-,-
+1183,Syed Ali,syed-ali,0,0.000,0,-,-,-,-
+1184,T S S SREEJA,t-s-s-sreeja,0,0.000,0,-,-,-,-
+1185,T Sai Dheeraj,t-sai-dheeraj,0,0.000,0,-,-,-,-
+1186,Taes Padhihary,taes-padhihary,0,0.000,0,-,-,-,-
+1187,Tamizhinian S,tamizhinian-s,0,0.000,0,-,-,-,-
+1188,Tanav Gupta,tanav-gupta,0,0.000,0,-,-,-,-
+1189,Tanay Goenka,tanay-goenka,0,0.000,0,-,-,-,-
+1190,Tanay Jha,tanay-jha,0,0.000,0,-,-,-,-
+1191,TANISH GUPTA,tanish-gupta,0,0.000,0,-,-,-,-
+1192,Tanisha Ojha,tanisha-ojha,0,0.000,0,-,-,-,-
+1193,TANMAY ALMADI,tanmay-almadi,0,0.000,0,-,-,-,-
+1194,Tanmay Amritkar,tanmay-amritkar,0,0.000,0,0%/2,-,-,-
+1195,Tanmay Budda,tanmay-budda,0,0.000,0,-,-,-,-
+1196,Tanmay Dhule,tanmay-dhule,0,0.000,0,-,-,-,-
+1197,Tanmay Gupta,tanmay-gupta-2,0,0.000,0,-,-,-,-
+1198,Tanmay Gupta,tanmay-gupta-3,0,0.000,0,-,-,-,-
+1199,Tanmay Pratap Singh,tanmay-pratap-singh,0,0.000,0,-,-,-,-
+1200,Tanvi Bansal,tanvi-bansal,0,0.000,0,-,-,-,-
+1201,Tanya Chutani,tanya-chutani,0,0.000,0,-,-,-,-
+1202,Tarun Kadam,tarun-kadam,0,0.000,0,-,-,-,-
+1203,Tarun Tej Gangala Vadellugari,tarun-tej-gangala-vadellugari,0,0.000,0,-,-,-,-
+1204,Tathagata Roy,tathagata-roy,0,0.000,0,-,-,-,-
+1205,Tausique Shams,tausique-shams,0,0.000,0,-,-,-,-
+1206,Tavva Dinesh Reddy,tavva-dinesh-reddy,0,0.000,0,-,-,-,-
+1207,Tejas Chaudhari,tejas-chaudhari,0,0.000,0,-,-,-,-
+1208,Tejas K,tejas-k,0,0.000,0,-,-,-,-
+1209,Tejas Khatri,tejas-khatri,0,0.000,0,-,-,-,-
+1210,Tejas Singh,tejas-singh,0,0.000,0,-,-,-,-
+1211,AMS Firms Test,test-amsfirms,0,0.000,0,-,-,-,-
+1212,Test Student,test-student,0,0.000,0,-,-,-,-
+1213,Thatavarthi Rupesh Kumar,thatavarthi-rupesh-kumar,0,0.000,0,-,-,-,-
+1214,Thota Rithvik,thota-rithvik,0,0.000,0,-,-,-,-
+1215,Thotti Lalith Kumar Reddy,thotti-lalith-kumar-reddy,0,0.000,0,-,-,-,-
+1216,Thrayambhakesh H,thrayambhakesh-h,0,0.000,0,-,-,-,-
+1217,Thumati Naveen Chandra Chowdary,thumati-naveen-chandra-chowdary,0,0.000,0,-,-,-,-
+1218,tilak,tilak,0,0.000,0,-,-,-,-
+1219,Tilak Jain,tilak-jain,0,0.000,0,-,-,-,-
+1220,Tilak Jain,tilak-jain-2,0,0.000,0,-,-,-,-
+1221,Tirthik Sengupta,tirthik-sengupta,0,0.000,0,-,-,-,-
+1222,Toiyeb Ashiq Ahangar,toiyeb-ashiq-ahangar,0,0.000,0,-,-,-,-
+1223,Toshit Jain,toshit-jain,0,0.000,0,-,-,-,-
+1224,Tribhuvnesh Sharma,tribhuvnesh-sharma,0,0.000,0,-,-,-,-
+1225,Trishant Gupta,trishant-gupta,0,0.000,0,-,-,-,-
+1226,Trupti Lande,trupti-lande,0,0.000,0,-,-,-,-
+1227,TUNGALA VENKATA SAI NIHAR,tungala-venkata-sai-nihar,0,0.000,0,-,-,-,-
+1228,TUNIR SANKI,tunir-sanki,0,0.000,0,0%/1,-,-,-
+1229,Tushar Gupta,tushar-gupta,0,0.000,0,-,-,-,-
+1230,Tushar Jain,tushar-jain,0,0.000,0,-,-,-,-
+1231,Tushar Jain,tushar-jain-2,0,0.000,0,-,0%/2,-,-
+1232,Tushar Khurana,tushar-khurana,0,0.000,0,-,-,-,-
+1233,Tushar Kumar Sinha,tushar-kumar-sinha,0,0.000,0,-,-,-,-
+1234,Uday Lathar,uday-lathar,0,0.000,0,-,-,-,-
+1235,Uddhav Pareek,uddhav-pareek,0,0.000,0,-,-,-,-
+1236,Ujjawal Kumar Chouhan,ujjawal-kumar-chouhan,0,0.000,0,-,-,-,-
+1237,Ujjval Dharmendra Patel,ujjval-dharmendra-patel,0,0.000,0,-,-,-,-
+1238,UJJWAL CHAUHAN,ujjwal-chauhan,0,0.000,0,-,-,-,-
+1239,Ujjwal Sharma,ujjwal-sharma,0,0.000,0,-,-,-,-
+1240,Umang Khatri,umang-khatri,0,0.000,0,-,-,-,-
+1241,Umang Shukla,umang-shukla,0,0.000,0,-,-,-,-
+1242,Umar Faruque,umar-faruque,0,0.000,0,-,-,-,-
+1243,Umesh Jain,umesh-jain,0,0.000,0,-,-,-,-
+1244,upasana tharu,upasana-tharu,0,0.000,0,-,-,-,-
+1245,Upayan Gupta,upayan-gupta,0,0.000,0,-,-,-,-
+1246,utkarsh agrawal,utkarsh-agrawal,0,0.000,0,-,-,-,-
+1247,Utkarsh Anand,utkarsh-anand,0,0.000,0,-,-,-,-
+1248,Utkarsh Pandey,utkarsh-pandey,0,0.000,0,-,-,-,-
+1249,Utkarsh Raj,utkarsh-raj,0,0.000,0,-,-,-,-
+1250,Utsav Das,utsav-das,0,0.000,0,-,-,-,-
+1251,Vaasu Kansal,vaasu-kansal,0,0.000,0,-,-,-,-
+1252,Vaibhav Chekka,vaibhav-chekka,0,0.000,0,-,-,-,-
+1253,Vaibhav Kumar,vaibhav-kumar,0,0.000,0,-,-,-,-
+1254,Vaibhav Mittal,vaibhav-mittal,0,0.000,0,-,-,-,-
+1255,Vaibhav Sunilkumar Singh,vaibhav-sunilkumar-singh,0,0.000,0,-,-,-,-
+1256,Vandana,vandana,0,0.000,0,-,-,-,-
+1257,Vangapelli Sathvik Reddy,vangapelli-sathvik-reddy,0,0.000,0,-,-,-,-
+1258,Vansh Vashisht,vansh-vashisht,0,0.000,0,-,-,-,-
+1259,Vanshika Turakhia,vanshika-turakhia,0,0.000,0,-,-,-,-
+1260,Vardaan Goel,vardaan-goel,0,0.000,0,-,-,-,-
+1261,Varsha Seemala,varsha-seemala,0,0.000,0,-,-,-,-
+1262,Varshini S N,varshini-s-n,0,0.000,0,-,-,-,-
+1263,Varshith S Reddy,varshith-s-reddy,0,0.000,0,-,-,-,-
+1264,Varun Inamdar,varun-inamdar,0,0.000,0,-,-,-,-
+1265,Vasu Aggarwal,vasu-aggarwal,0,0.000,0,-,-,-,-
+1266,Vasu Gupta,vasu-gupta,0,0.000,0,-,-,-,-
+1267,Vasu Vijay,vasu-vijay,0,0.000,0,-,-,-,-
+1268,Vatsal Jindal,vatsal-jindal,0,0.000,0,-,-,-,-
+1269,Vatsh Rakeshkumar Van,vatsh-rakeshkumar-van,0,0.000,0,-,-,-,-
+1270,Vayun Jain,vayun-jain,0,0.000,0,-,-,-,-
+1271,Ved Arya,ved-arya,0,0.000,0,-,-,-,-
+1272,Ved Bajaj,ved-bajaj,0,0.000,0,-,-,-,-
+1273,Vedansh Tripathi,vedansh-tripathi,0,0.000,0,-,-,-,-
+1274,Vedant Airon,vedant-airon,0,0.000,0,-,-,-,-
+1275,Veguru Nithin Reddy,veguru-nithin-reddy,0,0.000,0,-,-,-,-
+1276,Veneeth Kakumanu,veneeth-kakumanu,0,0.000,0,-,-,-,-
+1277,Venkat sai teja Kalluri,venkat-sai-teja-kalluri,0,0.000,0,-,-,-,-
+1278,Venkata Akash Reddy Vasa,venkata-akash-reddy-vasa,0,0.000,0,-,-,-,-
+1279,Venkata Kartheek Pusarla,venkata-kartheek-pusarla,0,0.000,0,-,-,-,-
+1280,Vidhusha Pola,vidhusha-pola,0,0.000,0,-,-,-,-
+1281,Vidith Hundekar,vidith-hundekar,0,0.000,0,0%/2,0%/2,-,-
+1282,Vidyans Sankalp,vidyans-sankalp,0,0.000,0,-,-,-,-
+1283,Vijay Yadav,vijay-yadav,0,0.000,0,-,-,-,-
+1284,Vikas Kathuria,vikas-kathuria,0,0.000,0,-,-,-,-
+1285,Vikas Pal,vikas-pal,0,0.000,0,-,-,-,-
+1286,Vikas Soni,vikas-soni,0,0.000,0,-,-,-,-
+1287,Vikas Vishwakarma,vikas-vishwakarma,0,0.000,0,-,-,-,-
+1288,Vinayak Chandra Srivastava,vinayak-chandra-srivastava,0,0.000,0,-,-,-,-
+1289,VINAYAK SARASWAT,vinayak-saraswat,0,0.000,0,-,-,-,-
+1290,Vipul Yadav,vipul-yadav,0,0.000,0,-,-,-,-
+1291,Viraj Ritesh Shah,viraj-ritesh-shah,0,0.000,0,-,-,-,-
+1292,Vishad Jain,vishad-jain,0,0.000,0,-,-,-,-
+1293,Vishal Patel,vishal-patel,0,0.000,0,-,-,-,-
+1294,Vishal Singhal,vishal-singhal,0,0.000,0,-,-,-,-
+1295,Vishnu Shah Sisodiya,vishnu-shah-sisodiya,0,0.000,0,-,-,-,-
+1296,Vishrut Gurrala,vishrut-gurrala,0,0.000,0,-,-,-,-
+1297,Vishwanadha Bhanusri Harsha,vishwanadha-bhanusri-harsha,0,0.000,0,-,-,-,-
+1298,VISHWAS YADAV,vishwas-yadav,0,0.000,0,-,-,-,-
+1299,Vivan Mahiswari,vivan-mahiswari,0,0.000,0,-,-,-,-
+1300,vivek dubey,vivek-dubey,0,0.000,0,-,-,-,-
+1301,Vivek Tej Kanakam,vivek-tej-kanakam,0,0.000,0,-,-,-,-
+1302,Yadnyesh Muratkar,yadnyesh-muratkar,0,0.000,0,-,-,-,-
+1303,Yagyesh Anshul,yagyesh-anshul,0,0.000,0,-,-,-,-
+1304,Yajat Mishra,yajat-mishra,0,0.000,0,-,-,-,-
+1305,Yash,yash,0,0.000,0,-,-,-,-
+1306,Yash Kothari,yash-kothari,0,0.000,0,-,-,-,-
+1307,Yash Mahajan,yash-mahajan,0,0.000,0,-,-,-,-
+1308,Yash Meshiya,yash-meshiya,0,0.000,0,-,-,-,-
+1309,Yash Raghav,yash-raghav,0,0.000,0,-,-,-,-
+1310,Yash Sachan,yash-sachan,0,0.000,0,-,-,-,-
+1311,Yash Ujjwal,yash-ujjwal,0,0.000,0,-,-,-,-
+1312,Yash Vashisht,yash-vashisht,0,0.000,0,-,-,-,-
+1313,Yash Verma,yash-verma,0,0.000,0,-,-,-,-
+1314,Yashas Gupta,yashas-gupta,0,0.000,0,-,-,-,-
+1315,Yashaswi Jain,yashaswi-jain,0,0.000,0,-,-,-,-
+1316,Yashvardhan Rathore,yashvardhan-rathore,0,0.000,0,-,-,-,-
+1317,Yashwardhan,yashwardhan,0,0.000,0,-,-,-,-
+1318,Yashwardhan,yashwardhan-2,0,0.000,0,-,-,-,-
+1319,Yashwardhan Manchanda,yashwardhan-manchanda,0,0.000,0,-,-,-,-
+1320,Yatharth Dangi,yatharth-dangi,0,0.000,0,-,-,-,-
+1321,Yellisetti Vignesh,yellisetti-vignesh,0,0.000,0,-,-,-,-
+1322,Yerraiahgari Ram Charan Goud,yerraiahgari-ram-charan-goud,0,0.000,0,-,-,-,-
+1323,Yogesh Garg,yogesh-garg,0,0.000,0,-,-,-,-
+1324,Yogita Goyal,yogita-goyal,0,0.000,0,-,-,-,-
+1325,Yug Bargaway,yug-bargaway,0,0.000,0,-,-,-,-
+1326,Yukti,yukti,0,0.000,0,-,-,-,-

@@ -1,6 +1,11 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  async redirects() {
+    return [
+      { source: "/syllabus/round-2", destination: "/syllabus", permanent: true },
+    ];
+  },
   async headers() {
     return [{ source: "/register/status", headers: [
       { key: "Cache-Control", value: "private, no-store" },

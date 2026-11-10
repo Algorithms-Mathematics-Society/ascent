@@ -22,7 +22,7 @@ const garamond = localFont({
 export const metadata: Metadata = {
   title: "Syllabus · Ascent",
   description:
-    "The published Round 1 C++ syllabus and the working outlines for Rounds 2 and 3 of Ascent.",
+    "The published Round 1 and Round 2 C++ syllabi, plus the Round 3 outline for Ascent 2026.",
   alternates: { canonical: "/syllabus" },
 };
 
@@ -120,8 +120,7 @@ export default function SyllabusPage() {
                   Know the language. Understand the machine.
                 </h1>
                 <p className="mt-6 max-w-2xl text-base leading-7 text-ascent-on-brand/75">
-                  Round 1 tests C++ proficiency, puzzles and debugging. Later rounds move from
-                  individual language fluency to team implementation and real toolchain work.
+                  Round 1 tests C++ proficiency, puzzles and debugging. The complete Round 2 team-round syllabus is now published, followed by the Round 3 toolchain outline.
                 </p>
               </div>
             </div>
@@ -182,7 +181,7 @@ export default function SyllabusPage() {
                   implemented.
                 </p>
                 <p className="mt-6 border-t border-ascent-border pt-4 text-xs leading-5 text-ascent-muted">
-                  * These topics may move to Round 2.
+                  The official Round 2 topic placement is now published in the complete Round 2 syllabus.
                 </p>
               </aside>
             </div>
@@ -211,9 +210,9 @@ export default function SyllabusPage() {
         <section id="later-rounds" className="scroll-mt-44 sm:scroll-mt-32 bg-ascent-canvas px-4 py-14 sm:px-6 sm:py-16 lg:px-8 lg:py-20">
           <div className="mx-auto max-w-7xl">
             <SectionHeader
-              eyebrow="Syllabus · Rounds 2 & 3 · Outline"
+              eyebrow="Syllabus · Round 2 published · Round 3 outline"
               title="Rounds 2 and 3"
-              description="The outlines below cover Rounds 2 and 3. Detailed topic lists will be published when confirmed."
+              description="The complete official Round 2 syllabus is now available. Round 3 remains an outline until its detailed scope is confirmed."
             />
 
             <div className="mt-9 grid gap-px overflow-hidden rounded-panel border border-ascent-border bg-ascent-border md:grid-cols-2">
@@ -229,21 +228,29 @@ export default function SyllabusPage() {
                       <li key={fact}>· {fact}</li>
                     ))}
                   </ul>
-                  <p className="mt-7 border-t border-ascent-border pt-4 font-mono text-[0.68rem] tracking-[0.05em] text-ascent-muted">
-                    Detailed topics will be announced.
-                  </p>
+                  {round.round === "Round 2" ? (
+                    <a href="/syllabus/round-2" className="mt-7 inline-flex min-h-11 items-center rounded-control bg-ascent-brand px-4 text-sm font-semibold text-ascent-on-brand hover:bg-ascent-brand-hover">
+                      View the complete Round 2 syllabus
+                    </a>
+                  ) : (
+                    <p className="mt-7 border-t border-ascent-border pt-4 font-mono text-[0.68rem] tracking-[0.05em] text-ascent-muted">
+                      Detailed topics will be announced.
+                    </p>
+                  )}
                 </article>
               ))}
             </div>
 
-            <aside className="mt-14 border-t border-ascent-border pt-7" aria-labelledby="moves-between-title">
-              <h3 id="moves-between-title" className="font-mono text-xs font-semibold uppercase tracking-[0.14em] text-ascent-gold-ink">
-                What moves between rounds
+            <aside className="mt-14 rounded-panel border border-ascent-border bg-ascent-brand-tint p-5 sm:p-6" aria-labelledby="round-two-published-title">
+              <h3 id="round-two-published-title" className="font-mono text-xs font-semibold uppercase tracking-[0.14em] text-ascent-brand">
+                Round 2 syllabus published
               </h3>
               <p className="mt-4 max-w-5xl text-sm leading-6 text-ascent-muted">
-                Cache lines, false sharing and atomics may move from Round 1 to Round 2.
-                Their final placement will be confirmed in the detailed syllabus.
+                Review all 47 topics across seven levels, the explicit out-of-scope list, and optional C++ references on the dedicated Round 2 syllabus page.
               </p>
+              <a href="/syllabus/round-2" className="mt-5 inline-flex min-h-11 items-center rounded-control border border-ascent-brand px-4 text-sm font-semibold text-ascent-brand hover:bg-ascent-brand hover:text-ascent-on-brand">
+                Open Round 2 syllabus
+              </a>
             </aside>
             <SectionFooter>ascent · rounds 2–3 · outline</SectionFooter>
           </div>

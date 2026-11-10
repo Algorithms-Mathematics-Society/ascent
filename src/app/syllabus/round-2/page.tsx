@@ -146,6 +146,17 @@ export default function RoundTwoSyllabusPage() {
           </div>
         </section>
 
+        <aside className="border-b border-ascent-border bg-ascent-success-tint px-4 py-4 sm:px-6 lg:px-8" aria-label="Participant update">
+          <div className="mx-auto flex max-w-7xl flex-col gap-1 sm:flex-row sm:items-center sm:gap-4">
+            <p className="shrink-0 font-mono text-[0.68rem] font-semibold uppercase tracking-[0.18em] text-ascent-success">
+              Participant update
+            </p>
+            <p className="text-sm leading-6 text-ascent-ink">
+              The WhatsApp group invitation link has been sent to selected participants at their registered email addresses.
+            </p>
+          </div>
+        </aside>
+
         <nav aria-label="Round 2 syllabus levels" className="sticky top-16 z-40 overflow-x-auto border-b border-ascent-border bg-ascent-surface">
           <ol className="mx-auto flex min-w-max max-w-7xl px-4 sm:px-6 lg:px-8">
             {ROUND_TWO_LEVELS.map((level) => (

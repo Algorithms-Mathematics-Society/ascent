@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import type { AnchorHTMLAttributes } from "react";
 import { Button } from "@/components/ui";
+import AnnouncementBar from "./AnnouncementBar";
 import { REGISTRATION_CLOSED } from "@/lib/registrationLaunch";
 
 interface NavbarProps {
@@ -28,6 +29,9 @@ function NavigationLink(props: AnchorHTMLAttributes<HTMLAnchorElement> & { href:
 export default function Navbar({ page = "home" }: NavbarProps) {
   const isRegistration = page === "registration";
   const isHome = page === "home";
+  // The bar points at /certificate, so it stays off that page and the
+  // focused registration flow.
+  const showAnnouncement = page !== "registration" && page !== "certificate";
 
   function isCurrent(href: string) {
     return (page === "syllabus" && href === "/syllabus") ||
@@ -41,6 +45,7 @@ export default function Navbar({ page = "home" }: NavbarProps) {
   }
 
   return (
+    <>
     <header className="fixed inset-x-0 top-0 z-50 h-16 border-b border-ascent-border bg-ascent-surface">
       <a
         href="#top"
@@ -136,5 +141,7 @@ export default function Navbar({ page = "home" }: NavbarProps) {
         )}
       </nav>
     </header>
+    {showAnnouncement ? <AnnouncementBar /> : null}
+    </>
   );
 }

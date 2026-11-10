@@ -7,6 +7,7 @@ import {
   CHUNK_SIZE,
   cleanName,
   emailHash,
+  fileIdForContent,
   fileIdForRank,
   groupsOf,
   maskEmail,
@@ -119,6 +120,7 @@ describe("names, emails, ids", () => {
   it("builds file and chunk ids per the contract", () => {
     expect(fileIdForRank(1)).toBe("ascent-2026-r1-001");
     expect(fileIdForRank(133)).toBe("ascent-2026-r1-133");
+    expect(fileIdForContent(7, "ab12cd34ef56" + "0".repeat(52))).toBe("ascent-2026-r1-007-ab12cd34ef56");
     expect(chunkDocId("ascent-2026-r1-001", 2)).toBe("ascent-2026-r1-001_2");
   });
 });

@@ -4,6 +4,7 @@ import localFont from "next/font/local";
 import Footer from "@/components/layout/Footer";
 import Navbar from "@/components/layout/Navbar";
 import CertificatePortal from "@/components/certificates/CertificatePortal";
+import { CERTIFICATE_COOKIE, verifyCertificateSession } from "@/lib/certificates/tokens";
 
 export const dynamic = "force-dynamic";
 
@@ -21,14 +22,14 @@ export const metadata: Metadata = {
   referrer: "no-referrer",
 };
 
-/** The session cookie is httpOnly, so only its presence is read here. The client restores the summary. */
+/** Verifies the session signature and expiry here (no database read); the client then restores the summary. */
 export default function CertificatePage({
   searchParams,
 }: {
   searchParams?: { expired?: string | string[] };
 }) {
   const expired = searchParams?.expired === "1";
-  const hasSession = cookies().has("ascent_certificate_session");
+  const hasSession = verifyCertificateSession(cookies().get(CERTIFICATE_COOKIE)?.value) !== null;
   return (
     <div className={garamond.variable}>
       <Navbar page="certificate" />

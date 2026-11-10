@@ -3,7 +3,7 @@ import { createHmac, randomBytes, randomInt } from "node:crypto";
 import { secureTokenEqual } from "../adminSecurity";
 import { statusSecret } from "../candidate/tokens";
 
-export const CERTIFICATE_COOKIE = "ascent_certificate_session";
+export { CERTIFICATE_COOKIE } from "./shared";
 export const CERTIFICATE_SESSION_TTL_SECONDS = 30 * 60;
 export const CERTIFICATE_CODE_TTL_MS = 10 * 60 * 1000;
 export const CERTIFICATE_MAX_CODE_ATTEMPTS = 5;

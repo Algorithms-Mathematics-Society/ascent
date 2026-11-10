@@ -50,7 +50,7 @@ export async function verifyBot(request: Request, token: unknown, action: BotAct
   try {
     // A whole campus can share one IP. Preserve the existing ceilings and
     // fail closed if the limiter cannot reserve a slot.
-    const limit = await consumeSlidingWindow(adminDb, "_rate_limits_bot", `${action}_${actorId}`, action === "status_link" || action === "certificate_code" ? 20 : 1000, 3600000);
+    const limit = await consumeSlidingWindow(adminDb, "_rate_limits_bot", `${action}_${actorId}`, action === "status_link" ? 20 : action === "certificate_code" ? 120 : 1000, 3600000);
     if (limit.overLimit) return { ok: false, status: 429, error: "Too many requests. Please try again later." };
   } catch (error) {
     return failed("rate_limit", error);

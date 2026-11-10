@@ -138,6 +138,15 @@ export function fileIdForRank(rank: number): string {
   return `${EDITION}-r${ROUND}-${String(rank).padStart(3, "0")}`;
 }
 
+/**
+ * Content-addressed: new bytes get a new id, so a re-import writes beside the
+ * live chunks instead of over them. Recipients switch only after every chunk
+ * is written, and the old chunks are removed last.
+ */
+export function fileIdForContent(rank: number, sha256: string): string {
+  return `${fileIdForRank(rank)}-${sha256.slice(0, 12)}`;
+}
+
 export function chunkDocId(fileId: string, index: number): string {
   return `${fileId}_${index}`;
 }
@@ -606,11 +615,14 @@ async function commitPlan(plan: PlanEntry[], options: CliOptions) {
   let writtenRecipients = 0;
   let removedRecipients = 0;
   let writtenChunks = 0;
-  for (const entry of plan) {
+  for (let entry of plan) {
     const keep = new Set(entry.emails.map(emailHash));
 
+    let liveFileId: string | null = null;
     if (entry.emails.length) {
       const data = readFileSync(entry.path);
+      liveFileId = fileIdForContent(entry.rank, sha256Hex(data));
+      entry = { ...entry, fileId: liveFileId };
       const doc = recipientDoc(entry, data);
       const chunks = chunkBuffer(data);
       for (const group of groupsOf(
@@ -667,8 +679,26 @@ async function commitPlan(plan: PlanEntry[], options: CliOptions) {
       await batch.commit();
       removedRecipients += staleRecipients.length;
     }
+    // Garbage-collect chunks of earlier imports for this rank, now that no
+    // recipient points at them.
+    let removedChunks = 0;
+    if (liveFileId) {
+      const prefix = fileIdForRank(entry.rank);
+      const old = await chunksCollection
+        .where("file_id", ">=", prefix)
+        .where("file_id", "<=", `${prefix}\uf8ff`)
+        .select("file_id")
+        .get();
+      const orphaned = old.docs.filter((snap) => snap.get("file_id") !== liveFileId);
+      for (const group of groupsOf(orphaned, 400)) {
+        const batch = db.batch();
+        group.forEach((snap) => batch.delete(snap.ref));
+        await batch.commit();
+      }
+      removedChunks = orphaned.length;
+    }
     console.log(
-      `rank ${pad(entry.rank, 3, true)}  ${entry.emails.length ? `wrote ${entry.emails.length} recipient(s)` : "skipped (unmapped)"}${staleRecipients.length ? `, removed ${staleRecipients.length} stale` : ""}`,
+      `rank ${pad(entry.rank, 3, true)}  ${removedChunks ? `(${removedChunks} old chunks removed) ` : ""}${entry.emails.length ? `wrote ${entry.emails.length} recipient(s)` : "skipped (unmapped)"}${staleRecipients.length ? `, removed ${staleRecipients.length} stale` : ""}`,
     );
   }
   console.log(
@@ -715,7 +745,7 @@ async function verifyAll(options: CliOptions): Promise<boolean> {
     const reasons: string[] = [];
     for (const snap of docs) {
       const doc = snap.data() as RecipientDoc;
-      if (doc.file_id !== fileIdForRank(rank))
+      if (doc.file_id !== fileIdForContent(rank, doc.file_sha256))
         reasons.push(`file_id ${doc.file_id}`);
       if (doc.verification_code !== codeByRank.get(rank))
         reasons.push("verification code mismatch");

@@ -9,12 +9,12 @@ import { consumeSlidingWindow, sha256 } from "@/lib/rateLimit";
 import { getEmailConfig } from "@/lib/email/resend";
 import { statusSecret } from "@/lib/candidate/tokens";
 import { issueCertificateCode } from "@/lib/certificates/codes";
+import { CERTIFICATE_CODE_ACCEPTED } from "@/lib/certificates/shared";
 
 export const maxDuration = 30;
 function reply(body: Record<string, unknown>, status = 200) {
   return NextResponse.json(body, { status, headers: { "Cache-Control": "private, no-store", "Referrer-Policy": "no-referrer" } });
 }
-const CERTIFICATE_CODE_ACCEPTED = "If this email belongs to a Round 1 qualifier, a 6-digit code is on its way. Check spam too.";
 const accepted = () => reply({ ok: true, message: CERTIFICATE_CODE_ACCEPTED }, 202);
 
 export async function POST(request: NextRequest) {

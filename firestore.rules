@@ -13,6 +13,7 @@ service cloud.firestore {
     match /_rate_limits_certificate_email/{id} { allow read, write: if false; }
     match /_rate_limits_certificate_daily/{id} { allow read, write: if false; }
     match /_rate_limits_certificate_verify/{id} { allow read, write: if false; }
+    match /_rate_limits_certificate_failures/{id} { allow read, write: if false; }
 
     match /applications/{uid} {
       // Candidate entries are server-managed; candidates do not authenticate.

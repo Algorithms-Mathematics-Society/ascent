@@ -20,13 +20,13 @@ import {
   requestCertificate,
   type CertificateSummary,
 } from "./certificateRequest";
+import { CERTIFICATE_CODE_ACCEPTED } from "@/lib/certificates/shared";
 
 type Step = "checking" | "email" | "code" | "done";
 
 const RESEND_COOLDOWN_SECONDS = 30;
 const CODE_LENGTH = 6;
-const SENT_FALLBACK =
-  "If this email belongs to a Round 1 qualifier, a 6-digit code is on its way. Check spam too.";
+const SENT_FALLBACK = CERTIFICATE_CODE_ACCEPTED;
 
 function digitsOnly(value: string) {
   return value.replace(/\D/g, "").slice(0, CODE_LENGTH);

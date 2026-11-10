@@ -3,22 +3,19 @@ import { createHash } from "node:crypto";
 import { adminDb } from "../firebaseAdmin";
 import { SITE_ORIGIN } from "../../content/site";
 import { verifyCertificateSession } from "./tokens";
+import {
+  CERTIFICATE_ISSUED_ON,
+  type CertificateSummary,
+} from "./shared";
+
+export { CERTIFICATE_ISSUED_ON, type CertificateSummary };
 
 export const CERTIFICATE_RECIPIENTS = "certificate_recipients";
 export const CERTIFICATE_FILE_CHUNKS = "certificate_file_chunks";
 export const CERTIFICATE_CODES = "certificate_codes";
-export const CERTIFICATE_ISSUED_ON = "11 November 2026";
-const MAX_CHUNKS = 32;
-const MAX_FILE_BYTES = 20 * 1024 * 1024;
-
-export type CertificateSummary = {
-  name: string;
-  rank: number;
-  verificationCode: string;
-  verifyUrl: string;
-  filename: string;
-  issuedOn: typeof CERTIFICATE_ISSUED_ON;
-};
+const MAX_CHUNKS = 8;
+// Vercel caps a function response body at 4.5MB; the whole file is one response.
+const MAX_FILE_BYTES = 4 * 1024 * 1024;
 
 export type CertificateRecipient = {
   name: string;
@@ -190,14 +187,37 @@ export function assembleCertificateFile(
   return file;
 }
 
+// Warm instances keep recently served files, keyed by content hash, so a
+// repeat download skips the Firestore chunk reads. About 2MB each, so bounded.
+const FILE_CACHE_LIMIT = 16;
+const fileCache = new Map<string, Buffer>();
+
+/** Tests rewrite chunks in place under one id; production ids are content-addressed. */
+export function clearCertificateFileCache() {
+  fileCache.clear();
+}
+
 export async function loadCertificateFile(
   recipient: CertificateRecipient,
 ): Promise<Buffer> {
+  const cacheKey = `${recipient.fileId}:${recipient.fileSha256}`;
+  const cached = fileCache.get(cacheKey);
+  if (cached) {
+    fileCache.delete(cacheKey);
+    fileCache.set(cacheKey, cached);
+    return cached;
+  }
   const collection = adminDb.collection(CERTIFICATE_FILE_CHUNKS);
   const refs = Array.from({ length: recipient.chunkCount }, (_, index) =>
     collection.doc(`${recipient.fileId}_${index}`),
   );
   const [first, ...rest] = refs;
   const chunks = await adminDb.getAll(first, ...rest);
-  return assembleCertificateFile(recipient, chunks);
+  const file = assembleCertificateFile(recipient, chunks);
+  fileCache.set(cacheKey, file);
+  if (fileCache.size > FILE_CACHE_LIMIT) {
+    const oldest = fileCache.keys().next().value;
+    if (oldest !== undefined) fileCache.delete(oldest);
+  }
+  return file;
 }

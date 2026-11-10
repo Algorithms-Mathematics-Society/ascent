@@ -1,13 +1,8 @@
 export const CERTIFICATE_REQUEST_TIMEOUT_MS = 20_000;
 
-export type CertificateSummary = {
-  name: string;
-  rank: number;
-  verificationCode: string;
-  verifyUrl: string;
-  filename: string;
-  issuedOn: string;
-};
+import type { CertificateSummary } from "@/lib/certificates/shared";
+
+export type { CertificateSummary };
 
 export type CertificateResponse = {
   ok?: boolean;

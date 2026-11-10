@@ -515,10 +515,17 @@ describe("POST /api/certificates/verify and session routes", () => {
       get("/api/certificates/download?disposition=inline", cookie.value),
     );
     expect(inline.headers.get("content-disposition")).toMatch(/^inline; /);
-    expect((await download(get("/api/certificates/download"))).status).toBe(
-      401,
+    // Signed out: the preview gets a JSON 401, a real download goes back to the portal.
+    expect(
+      (await download(get("/api/certificates/download?disposition=inline"))).status,
+    ).toBe(401);
+    const bounced = await download(get("/api/certificates/download"));
+    expect(bounced.status).toBe(303);
+    expect(new URL(bounced.headers.get("location")!).pathname + new URL(bounced.headers.get("location")!).search).toBe(
+      "/certificate?expired=1",
     );
 
+    (await import("@/lib/certificates/data")).clearCertificateFileCache();
     mocks.store.set("certificate_file_chunks/ascent-2026-r1-007_1", {
       file_id: "ascent-2026-r1-007",
       index: 1,

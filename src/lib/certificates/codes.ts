@@ -3,6 +3,7 @@ import { randomUUID } from "node:crypto";
 import { adminDb } from "../firebaseAdmin";
 import {
   getEmailConfig,
+  ResendRejectedError,
   sendResendEmail,
   safeEmailErrorCode,
   type EmailPayload,
@@ -73,11 +74,21 @@ export async function issueCertificateCode(
         created_at: now,
         expiresAt: new Date(now + CERTIFICATE_CODE_TTL_MS),
       });
-    await sendResendEmail(
-      config.apiKey,
-      certificateCodeEmail(config, email, recipient.name, code),
-      `ascent-2026/certificate-code/${emailHash}/${randomUUID()}`,
-    );
+    const payload = certificateCodeEmail(config, email, recipient.name, code);
+    // One key for both attempts: Resend deduplicates, so a retry after an
+    // ambiguous timeout can never deliver two different codes.
+    const idempotencyKey = `ascent-2026/certificate-code/${emailHash}/${randomUUID()}`;
+    for (let attempt = 1; ; attempt++) {
+      try {
+        await sendResendEmail(config.apiKey, payload, idempotencyKey);
+        break;
+      } catch (error) {
+        const permanent =
+          error instanceof ResendRejectedError && error.statusCode !== 429;
+        if (permanent || attempt >= 2) throw error;
+        await new Promise((resolve) => setTimeout(resolve, 700));
+      }
+    }
     logger.info("certificates", "code_sent", { reqId, actorId, status: "ok" });
   } catch (error) {
     logger.error("certificates", "code_send_failed", {

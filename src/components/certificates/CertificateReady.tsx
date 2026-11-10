@@ -55,15 +55,34 @@ const CertificateReady = forwardRef<HTMLHeadingElement, CertificateReadyProps>(
       "loading",
     );
     const [copied, setCopied] = useState(false);
-    const image = useRef<HTMLImageElement>(null);
+    const [fileUrl, setFileUrl] = useState<string | null>(null);
     const copyTimer = useRef<number>();
 
+    useEffect(() => () => window.clearTimeout(copyTimer.current), []);
+
+    // One transfer serves both the preview and the download: the PNG is
+    // fetched once and kept in memory as a blob URL. The button keeps the
+    // server URL as a fallback until (or unless) the blob is ready.
     useEffect(() => {
-      // A cached image can finish before hydration attaches onLoad.
-      const element = image.current;
-      if (element?.complete)
-        setPreview(element.naturalWidth > 0 ? "ready" : "failed");
-      return () => window.clearTimeout(copyTimer.current);
+      const controller = new AbortController();
+      let objectUrl: string | null = null;
+      fetch("/api/certificates/download?disposition=inline", {
+        cache: "no-store",
+        signal: controller.signal,
+      })
+        .then(async (response) => {
+          if (!response.ok || response.headers.get("content-type") !== "image/png")
+            throw new Error("preview_unavailable");
+          objectUrl = URL.createObjectURL(await response.blob());
+          setFileUrl(objectUrl);
+        })
+        .catch(() => {
+          if (!controller.signal.aborted) setPreview("failed");
+        });
+      return () => {
+        controller.abort();
+        if (objectUrl) URL.revokeObjectURL(objectUrl);
+      };
     }, []);
 
     async function copyLink() {
@@ -116,10 +135,10 @@ const CertificateReady = forwardRef<HTMLHeadingElement, CertificateReadyProps>(
                 </p>
               </div>
             ) : null}
-            {/* eslint-disable-next-line @next/next/no-img-element -- private, session-bound image that must not pass through the image optimizer */}
+            {fileUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element -- private, session-bound blob that must not pass through the image optimizer
             <img
-              ref={image}
-              src="/api/certificates/download?disposition=inline"
+              src={fileUrl}
               width={2246}
               height={1588}
               alt={`Ascent ’26 Round 1 certificate awarded to ${summary.name}, rank ${summary.rank} of ${ROUND_ONE_SELECTION_COUNT}, verification code ${summary.verificationCode}.`}
@@ -128,6 +147,7 @@ const CertificateReady = forwardRef<HTMLHeadingElement, CertificateReadyProps>(
               onError={() => setPreview("failed")}
               className={`absolute inset-0 h-full w-full object-contain transition-opacity duration-300 ${preview === "ready" ? "opacity-100" : "opacity-0"}`}
             />
+            ) : null}
           </div>
           <figcaption className="mt-2 text-xs text-ascent-muted">
             Preview · PNG, 2246 × 1588
@@ -136,7 +156,7 @@ const CertificateReady = forwardRef<HTMLHeadingElement, CertificateReadyProps>(
 
         <div className="mt-6">
           <Button
-            href="/api/certificates/download"
+            href={fileUrl ?? "/api/certificates/download"}
             download={summary.filename}
             size="lg"
             className="w-full sm:w-auto"

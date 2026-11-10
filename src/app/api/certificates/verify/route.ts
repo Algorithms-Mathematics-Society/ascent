@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { requestHasSameOrigin } from "@/lib/adminSecurity";
 import { readBoundedJson, RequestBodyTooLarge } from "@/lib/requestBody";
 import { adminDb } from "@/lib/firebaseAdmin";
-import { consumeSlidingWindow, sha256 } from "@/lib/rateLimit";
+import { checkSlidingWindow, consumeSlidingWindow, sha256 } from "@/lib/rateLimit";
 import { clientIp } from "@/lib/botProtection";
 import { normalizeEmail } from "@/lib/validators";
 import { consumeCertificateCode } from "@/lib/certificates/codes";
@@ -21,7 +21,7 @@ export async function POST(request: NextRequest) {
   if (!request.headers.get("content-type")?.includes("application/json")) return reply({ error: "Invalid request." }, 415);
   if (!certificateKey()) return reply({ error: "Certificate downloads are not available yet. Contact team@amshq.in for help." }, 503);
   try {
-    const limit = await consumeSlidingWindow(adminDb, "_rate_limits_certificate_verify", sha256(clientIp(request)), 30, 3600000);
+    const limit = await consumeSlidingWindow(adminDb, "_rate_limits_certificate_verify", sha256(clientIp(request)), 200, 3600000);
     if (limit.overLimit) return reply({ error: "Too many attempts. Please try again later." }, 429);
     const body = await readBoundedJson(request, 2048) as { email?: unknown; code?: unknown };
     const email = normalizeEmail(typeof body?.email === "string" ? body.email : "");
@@ -29,7 +29,14 @@ export async function POST(request: NextRequest) {
     const code = normalizeCertificateCode(body?.code);
     if (!code) return reply({ error: "Enter the 6-digit code from your email." }, 400);
     const emailHash = sha256(email.normalized);
-    if (!(await consumeCertificateCode(emailHash, code))) return reply({ error: INVALID_CODE }, 401);
+    // Requesting a new code resets the per-code attempt counter, so wrong
+    // guesses are also capped per email across codes.
+    const failures = await checkSlidingWindow(adminDb, "_rate_limits_certificate_failures", emailHash, 10, 3600000);
+    if (failures.overLimit) return reply({ error: "Too many incorrect codes for this email. Try again in an hour, or contact team@amshq.in." }, 429);
+    if (!(await consumeCertificateCode(emailHash, code))) {
+      await failures.recordFailure().catch(() => {});
+      return reply({ error: INVALID_CODE }, 401);
+    }
     const recipient = await getCertificateRecipient(emailHash);
     if (!recipient) return reply({ error: INVALID_CODE }, 401);
     const session = signCertificateSession(emailHash);

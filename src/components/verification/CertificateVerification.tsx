@@ -40,6 +40,7 @@ export default function CertificateVerificationExperience({ code }: CertificateV
             <h1 className="mt-5 max-w-3xl font-display text-5xl leading-[0.96] sm:text-6xl">Certificate verification</h1>
             <p className="mt-5 max-w-2xl text-base leading-7 text-white/70 sm:text-lg">Confirm an Ascent 2026 certificate using the unique code printed on it. Verification records show the official published Round 1 rank and Round 2 qualification status.</p>
             <div className="max-w-2xl"><LookupForm code={normalizedCode || undefined} /></div>
+            <p className="mt-5 text-sm text-white/70">Qualifier? <a href="/certificate" className="inline-flex min-h-11 items-center gap-1.5 font-semibold text-ascent-gold underline underline-offset-4 hover:text-white">Download your own certificate <ArrowRight size={15} aria-hidden="true" /></a></p>
           </div>
         </section>
 

@@ -5,7 +5,7 @@ import { Button } from "@/components/ui";
 import { REGISTRATION_CLOSED } from "@/lib/registrationLaunch";
 
 interface NavbarProps {
-  page?: "home" | "registration" | "syllabus" | "eligibility" | "legal" | "results" | "verify";
+  page?: "home" | "registration" | "syllabus" | "eligibility" | "legal" | "results" | "verify" | "certificate";
 }
 
 const PUBLIC_LINKS = [

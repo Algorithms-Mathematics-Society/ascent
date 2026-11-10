@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, type FormEvent } from "react";
-import { ArrowRight, ArrowUpRight, Check, CheckCircle2, Download, Loader2, Mountain, Search, Trophy } from "lucide-react";
+import { ArrowRight, ArrowUpRight, Award, Check, CheckCircle2, Download, Loader2, Mountain, Search, Trophy } from "lucide-react";
 import { hasRecordedSubmission, isResultResponse, normalizeResultUsername, type ResultResponse } from "@/lib/results";
 import { ROUND_ONE_REGISTRANTS } from "@/content/results";
 import styles from "./results.module.css";
@@ -142,7 +142,8 @@ export default function ResultsExperience({ selectionCount }: { selectionCount: 
           <div className={styles.resultBody}>
             <div className={styles.nextStep}>
               <div className={styles.nextIcon}>{entry.selected ? <ArrowUpRight size={22} aria-hidden="true" /> : <Mountain size={22} aria-hidden="true" />}</div>
-              <div><h3>{entry.selected ? "Next stop: Round 2." : "Questions about your result?"}</h3><p>{entry.selected ? "Round 2 is online in the AMS Access app. AMS will assign you to a team using a matching algorithm, with in-app voice chat for collaboration. Test the platform on 1 December before the official round on 6 December. The WhatsApp group invitation link and your team assignment have been sent to your registered email address; continue checking that address for instructions and updates." : hasSubmission ? "The Ascent team can help. Contact us from your registered email address using the link below." : "If you submitted a solution, contact the Ascent team from your registered email address so we can check your record."}</p></div>
+              <div><h3>{entry.selected ? "Next stop: Round 2." : "Questions about your result?"}</h3><p>{entry.selected ? "Round 2 is online in the AMS Access app. AMS will assign you to a team using a matching algorithm, with in-app voice chat for collaboration. Test the platform on 1 December before the official round on 6 December. The WhatsApp group invitation link and your team assignment have been sent to your registered email address; continue checking that address for instructions and updates." : hasSubmission ? "The Ascent team can help. Contact us from your registered email address using the link below." : "If you submitted a solution, contact the Ascent team from your registered email address so we can check your record."}</p>
+                {entry.selected ? <a href="/certificate" className="mt-2 inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-[#785714] underline underline-offset-4 hover:text-[#14283a]"><Award size={16} aria-hidden="true" /> Download your certificate <ArrowRight size={15} aria-hidden="true" /></a> : null}</div>
             </div>
             {entry.selected ? <ResultShare result={result} onCelebrate={() => setCelebration(value => value + 1)} /> : null}
             {hasSubmission ? <dl className={styles.metrics}>

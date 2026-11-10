@@ -4,7 +4,7 @@ import { adminDb } from "./firebaseAdmin";
 import { consumeSlidingWindow, sha256 } from "./rateLimit";
 import logger, { genReqId } from "./logger";
 
-export type BotAction = "registration" | "reminder" | "status_link";
+export type BotAction = "registration" | "reminder" | "status_link" | "certificate_code";
 export type BotResult = { ok: true } | { ok: false; status: number; error: string };
 const unavailable = (): BotResult => ({ ok: false, status: 503, error: "Verification is temporarily unavailable. Please try again later or contact team@amshq.in." });
 
@@ -50,7 +50,7 @@ export async function verifyBot(request: Request, token: unknown, action: BotAct
   try {
     // A whole campus can share one IP. Preserve the existing ceilings and
     // fail closed if the limiter cannot reserve a slot.
-    const limit = await consumeSlidingWindow(adminDb, "_rate_limits_bot", `${action}_${actorId}`, action === "status_link" ? 20 : 1000, 3600000);
+    const limit = await consumeSlidingWindow(adminDb, "_rate_limits_bot", `${action}_${actorId}`, action === "status_link" || action === "certificate_code" ? 20 : 1000, 3600000);
     if (limit.overLimit) return { ok: false, status: 429, error: "Too many requests. Please try again later." };
   } catch (error) {
     return failed("rate_limit", error);

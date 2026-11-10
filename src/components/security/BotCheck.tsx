@@ -9,7 +9,7 @@ type Turnstile = {
 declare global { interface Window { turnstile?: Turnstile } }
 
 export default function BotCheck({ action, onToken, resetKey = 0 }: {
-  action: "registration" | "reminder" | "status_link";
+  action: "registration" | "reminder" | "status_link" | "certificate_code";
   onToken: (token: string) => void;
   resetKey?: number;
 }) {

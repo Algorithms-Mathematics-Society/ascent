@@ -7,6 +7,12 @@ service cloud.firestore {
     match /_rate_limits_status_email/{id} { allow read, write: if false; }
     match /_rate_limits_status_daily/{id} { allow read, write: if false; }
     match /_rate_limits_status_exchange/{id} { allow read, write: if false; }
+    match /certificate_recipients/{id} { allow read, write: if false; }
+    match /certificate_file_chunks/{id} { allow read, write: if false; }
+    match /certificate_codes/{id} { allow read, write: if false; }
+    match /_rate_limits_certificate_email/{id} { allow read, write: if false; }
+    match /_rate_limits_certificate_daily/{id} { allow read, write: if false; }
+    match /_rate_limits_certificate_verify/{id} { allow read, write: if false; }
 
     match /applications/{uid} {
       // Candidate entries are server-managed; candidates do not authenticate.

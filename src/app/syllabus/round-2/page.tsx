@@ -24,6 +24,37 @@ export const metadata: Metadata = {
   alternates: { canonical: "/syllabus/round-2" },
 };
 
+const ROUND_TWO_PROGRESS = [
+  {
+    number: "01",
+    title: "WhatsApp group",
+    status: "Complete",
+    date: "Sent by email",
+    body: "The invitation link has been emailed to participants selected for Round 2.",
+  },
+  {
+    number: "02",
+    title: "Team assignments",
+    status: "Complete",
+    date: "Sent by email",
+    body: "Teams have been formed, and each selected participant has been emailed their assignment.",
+  },
+  {
+    number: "03",
+    title: "Platform test",
+    status: "Next",
+    date: "1 December 2026",
+    body: "Test the AMS Access team-round experience before the official event.",
+  },
+  {
+    number: "04",
+    title: "Official Round 2",
+    status: "Upcoming",
+    date: "6 December 2026",
+    body: "Compete online with your assigned team in the AMS Access app.",
+  },
+] as const;
+
 function LevelSection({ level }: { level: RoundTwoLevel }) {
   return (
     <section
@@ -152,10 +183,52 @@ export default function RoundTwoSyllabusPage() {
               Participant update
             </p>
             <p className="text-sm leading-6 text-ascent-ink">
-              The WhatsApp group invitation link has been sent to selected participants at their registered email addresses.
+              The WhatsApp group invitation link and team assignments have been sent to selected participants at their registered email addresses.
             </p>
           </div>
         </aside>
+
+        <section className="border-b border-ascent-border bg-ascent-surface px-4 py-12 sm:px-6 lg:px-8" aria-labelledby="round-two-progress-title">
+          <div className="mx-auto max-w-7xl">
+            <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+              <div>
+                <p className="font-mono text-[0.68rem] font-semibold uppercase tracking-[0.2em] text-ascent-gold-ink">
+                  Round 2 progress
+                </p>
+                <h2 id="round-two-progress-title" className="mt-3 font-display text-4xl font-semibold leading-none tracking-[-0.025em] text-ascent-ink sm:text-5xl">
+                  What is happening now.
+                </h2>
+              </div>
+              <span className="w-fit rounded-control bg-ascent-brand px-3 py-2 font-mono text-[0.68rem] font-semibold uppercase tracking-[0.12em] text-ascent-on-brand">
+                Current stage · Platform test next
+              </span>
+            </header>
+
+            <ol className="mt-8 grid gap-px overflow-hidden rounded-panel border border-ascent-border bg-ascent-border md:grid-cols-4">
+              {ROUND_TWO_PROGRESS.map((step) => (
+                <li
+                  key={step.number}
+                  aria-current={step.status === "Next" ? "step" : undefined}
+                  className={step.status === "Next" ? "bg-ascent-brand-tint-strong p-5 sm:p-6" : step.status === "Complete" ? "bg-ascent-success-tint p-5 sm:p-6" : "bg-ascent-surface p-5 sm:p-6"}
+                >
+                  <div className="flex items-center justify-between gap-3">
+                    <span className={step.status === "Complete" ? "flex h-8 w-8 items-center justify-center rounded-full bg-ascent-success font-mono text-xs font-bold text-white" : step.status === "Next" ? "flex h-8 w-8 items-center justify-center rounded-full bg-ascent-brand font-mono text-xs font-bold text-ascent-on-brand" : "flex h-8 w-8 items-center justify-center rounded-full border border-ascent-border-strong bg-ascent-surface font-mono text-xs font-bold text-ascent-muted"}>
+                      {step.status === "Complete" ? "✓" : step.number}
+                    </span>
+                    <span className={step.status === "Complete" ? "font-mono text-[0.62rem] font-semibold uppercase tracking-[0.12em] text-ascent-success" : step.status === "Next" ? "font-mono text-[0.62rem] font-semibold uppercase tracking-[0.12em] text-ascent-brand" : "font-mono text-[0.62rem] font-semibold uppercase tracking-[0.12em] text-ascent-muted"}>
+                      {step.status}
+                    </span>
+                  </div>
+                  <p className="mt-6 font-mono text-[0.68rem] font-semibold uppercase tracking-[0.12em] text-ascent-gold-ink">
+                    {step.date}
+                  </p>
+                  <h3 className="mt-2 text-base font-semibold text-ascent-ink">{step.title}</h3>
+                  <p className="mt-3 text-sm leading-6 text-ascent-muted">{step.body}</p>
+                </li>
+              ))}
+            </ol>
+          </div>
+        </section>
 
         <nav aria-label="Round 2 syllabus levels" className="sticky top-16 z-40 overflow-x-auto border-b border-ascent-border bg-ascent-surface">
           <ol className="mx-auto flex min-w-max max-w-7xl px-4 sm:px-6 lg:px-8">

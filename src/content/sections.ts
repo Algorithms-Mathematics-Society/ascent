@@ -134,7 +134,7 @@ export const FAQ: FaqItem[] = [
   },
   {
     q: "How will Round 2 work?",
-    a: "Round 2 is online in the AMS Access app. AMS will place selected participants into teams using a matching algorithm, and teammates will be able to collaborate through in-app voice chat. A platform test is scheduled for 1 December 2026, before the official round on 6 December. Selected participants should check their registered email for instructions and any updates. The WhatsApp group invitation link has been sent to selected participants by email.",
+    a: "Round 2 is online in the AMS Access app. AMS will place selected participants into teams using a matching algorithm, and teammates will be able to collaborate through in-app voice chat. A platform test is scheduled for 1 December 2026, before the official round on 6 December. Selected participants should check their registered email for instructions and any updates. The WhatsApp group invitation link has been sent to selected participants by email. Teams have also been formed, and assignments have been emailed to selected participants.",
   },
   {
     q: "What happens after I submit the form?",

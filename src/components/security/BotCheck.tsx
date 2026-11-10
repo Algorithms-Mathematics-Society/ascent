@@ -8,15 +8,27 @@ type Turnstile = {
 };
 declare global { interface Window { turnstile?: Turnstile } }
 
-export default function BotCheck({ action, onToken, resetKey = 0 }: {
+export type BotCheckStatus = "interactive" | "error";
+
+/**
+ * `appearance` and `onStatus` are opt-in. Left out, the widget behaves exactly as it always has
+ * (always visible, reserved box, loading line). "interaction-only" hides the widget unless
+ * Cloudflare needs the visitor to act, so the box is not reserved and the loading line is not shown.
+ */
+export default function BotCheck({ action, onToken, resetKey = 0, appearance, onStatus }: {
   action: "registration" | "reminder" | "status_link" | "certificate_code";
   onToken: (token: string) => void;
   resetKey?: number;
+  appearance?: "always" | "execute" | "interaction-only";
+  onStatus?: (status: BotCheckStatus) => void;
 }) {
   const siteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
   const target = useRef<HTMLDivElement>(null);
   const callback = useRef(onToken);
   callback.current = onToken;
+  const status = useRef(onStatus);
+  status.current = onStatus;
+  const silent = appearance === "interaction-only";
   const [ready, setReady] = useState(false);
   const [error, setError] = useState("");
   const [widgetPlaced, setWidgetPlaced] = useState(false);
@@ -27,21 +39,23 @@ export default function BotCheck({ action, onToken, resetKey = 0 }: {
     setError("");
     const widget = window.turnstile.render(target.current, {
       sitekey: siteKey, action, theme: "light", size: "flexible", "response-field": false,
+      ...(appearance ? { appearance } : {}),
       callback: (token: string) => { setError(""); callback.current(token); },
       "expired-callback": () => callback.current(""),
-      "timeout-callback": () => { callback.current(""); setError("Verification timed out. Please retry."); },
-      "error-callback": () => { callback.current(""); setError("Verification could not load. Check your connection and retry."); },
+      "before-interactive-callback": () => status.current?.("interactive"),
+      "timeout-callback": () => { callback.current(""); setError("Verification timed out. Please retry."); status.current?.("error"); },
+      "error-callback": () => { callback.current(""); setError("Verification could not load. Check your connection and retry."); status.current?.("error"); },
     });
     setWidgetPlaced(true);
     return () => { window.turnstile?.remove(widget); };
-  }, [action, ready, resetKey, siteKey]);
+  }, [action, appearance, ready, resetKey, siteKey]);
   if (!siteKey) return <p role="status" className="mt-3 text-sm text-ascent-muted">Online verification is being set up. Please try again later or contact <a className="underline" href="mailto:team@amshq.in">team@amshq.in</a>.</p>;
-  return <div className="my-4 min-h-16">
-    <Script id="ascent-turnstile" src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" strategy="afterInteractive" onReady={() => setReady(true)} onError={() => setError("Verification could not load. Please check your connection and reload.")} />
+  return <div className={silent ? "my-4" : "my-4 min-h-16"}>
+    <Script id="ascent-turnstile" src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" strategy="afterInteractive" onReady={() => setReady(true)} onError={() => { setError("Verification could not load. Please check your connection and reload."); status.current?.("error"); }} />
     {/* The reserved box is blank while Cloudflare's script loads, so say so. It goes once the
         widget fills the box, and it carries no margin so it stays inside min-h-16 and nothing shifts. */}
     <div ref={target} />
-    {!error && !widgetPlaced ? <p role="status" className="text-sm leading-5 text-ascent-muted">Loading the verification check. This usually takes a moment, and it rarely asks anything of you.</p> : null}
+    {!silent && !error && !widgetPlaced ? <p role="status" className="text-sm leading-5 text-ascent-muted">Loading the verification check. This usually takes a moment, and it rarely asks anything of you.</p> : null}
     {error ? <p role="alert" className="mt-2 text-sm text-ascent-danger">{error}</p> : null}
   </div>;
 }

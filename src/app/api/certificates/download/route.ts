@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import logger, { genReqId } from "@/lib/logger";
-import { buildCertificateSummary, CertificateIntegrityError, getCertificateRecipient, loadCertificateFile } from "@/lib/certificates/data";
+import { buildCertificateSummary, CertificateIntegrityError, getCachedCertificateRecipient, loadCertificateFile } from "@/lib/certificates/data";
 import { CERTIFICATE_COOKIE, verifyCertificateSession } from "@/lib/certificates/tokens";
 
 export const runtime = "nodejs";
@@ -27,7 +27,7 @@ export async function GET(request: NextRequest) {
   const reqId = genReqId();
   const actorId = claims.emailHash.slice(0, 16);
   try {
-    const recipient = await getCertificateRecipient(claims.emailHash);
+    const recipient = await getCachedCertificateRecipient(claims.emailHash);
     if (!recipient) return reply({ error: EXPIRED }, 401);
     const file = await loadCertificateFile(recipient);
     const { filename } = buildCertificateSummary(recipient);

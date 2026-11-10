@@ -1,5 +1,11 @@
 "use client";
-import { forwardRef, useEffect, useRef, useState } from "react";
+import {
+  forwardRef,
+  useEffect,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from "react";
 import {
   Check,
   Copy,
@@ -12,6 +18,10 @@ import {
 import { Button } from "@/components/ui";
 import { ROUND_ONE_SELECTION_COUNT } from "@/lib/results";
 import type { CertificateSummary } from "./certificateRequest";
+import type {
+  CertificateImageJob,
+  CertificateImageState,
+} from "./certificateImage";
 
 const CERTIFICATE_NAME = "Ascent '26 Round 1 Qualifier";
 const ORGANIZATION_NAME = "Algorithms & Mathematics Society";
@@ -39,51 +49,77 @@ async function copyText(text: string) {
   }
 }
 
+const NO_IMAGE: CertificateImageState = { status: "failed" };
+const LOADING: CertificateImageState = { status: "loading", progress: null };
+const noSubscribe = () => () => {};
+
 const secondaryLink =
   "inline-flex min-h-11 items-center gap-2 rounded-control px-1 text-sm font-semibold text-ascent-brand hover:underline hover:underline-offset-4";
 
 type CertificateReadyProps = {
   summary: CertificateSummary;
+  /** Started by the portal as soon as a session exists, usually before this card mounts. */
+  image: CertificateImageJob | null;
   busy: boolean;
   onSignOut: () => void;
   onAnnounce: (message: string) => void;
 };
 
 const CertificateReady = forwardRef<HTMLHeadingElement, CertificateReadyProps>(
-  function CertificateReady({ summary, busy, onSignOut, onAnnounce }, heading) {
-    const [preview, setPreview] = useState<"loading" | "ready" | "failed">(
-      "loading",
+  function CertificateReady(
+    { summary, image, busy, onSignOut, onAnnounce },
+    heading,
+  ) {
+    // One transfer serves both the preview and the download: the portal
+    // fetches the PNG once into a blob URL. The button keeps the server URL
+    // as a fallback until (or unless) the blob is ready.
+    const state = useSyncExternalStore(
+      image ? image.subscribe : noSubscribe,
+      image ? image.getState : () => NO_IMAGE,
+      () => LOADING,
     );
+    const fileUrl = state.status === "ready" ? state.url : null;
+    const [shownUrl, setShownUrl] = useState<string | null>(null);
+    const [imageBroken, setImageBroken] = useState(false);
     const [copied, setCopied] = useState(false);
-    const [fileUrl, setFileUrl] = useState<string | null>(null);
     const copyTimer = useRef<number>();
+    const imageElement = useRef<HTMLImageElement>(null);
 
     useEffect(() => () => window.clearTimeout(copyTimer.current), []);
 
-    // One transfer serves both the preview and the download: the PNG is
-    // fetched once and kept in memory as a blob URL. The button keeps the
-    // server URL as a fallback until (or unless) the blob is ready.
+    // Decode the 2246 × 1588 bitmap off the main thread before fading it in,
+    // so the reveal never stalls a frame. Browsers without decode() (or that
+    // reject it early) fall back to the load event.
     useEffect(() => {
-      const controller = new AbortController();
-      let objectUrl: string | null = null;
-      fetch("/api/certificates/download?disposition=inline", {
-        cache: "no-store",
-        signal: controller.signal,
-      })
-        .then(async (response) => {
-          if (!response.ok || response.headers.get("content-type") !== "image/png")
-            throw new Error("preview_unavailable");
-          objectUrl = URL.createObjectURL(await response.blob());
-          setFileUrl(objectUrl);
-        })
-        .catch(() => {
-          if (!controller.signal.aborted) setPreview("failed");
+      const element = imageElement.current;
+      if (!fileUrl || !element) return;
+      let live = true;
+      const decoded =
+        typeof element.decode === "function"
+          ? element.decode()
+          : Promise.reject(new Error("decode_unsupported"));
+      decoded
+        .catch(() =>
+          element.complete
+            ? undefined
+            : new Promise<void>((resolve) =>
+                element.addEventListener("load", () => resolve(), {
+                  once: true,
+                }),
+              ),
+        )
+        .then(() => {
+          if (live && element.naturalWidth > 0) setShownUrl(fileUrl);
         });
       return () => {
-        controller.abort();
-        if (objectUrl) URL.revokeObjectURL(objectUrl);
+        live = false;
       };
-    }, []);
+    }, [fileUrl]);
+
+    const failed = state.status === "failed" || imageBroken;
+    const loading = !failed && (fileUrl === null || shownUrl !== fileUrl);
+    const progress =
+      state.status === "loading" ? state.progress : fileUrl ? 1 : null;
 
     async function copyLink() {
       const ok = await copyText(summary.verifyUrl);
@@ -119,14 +155,24 @@ const CertificateReady = forwardRef<HTMLHeadingElement, CertificateReadyProps>(
         </p>
 
         <figure className="mt-7">
-          <div className="relative aspect-[2246/1588] w-full overflow-hidden rounded-control border border-ascent-border bg-ascent-surface-subtle">
-            {preview === "loading" ? (
-              <div
-                aria-hidden="true"
-                className="absolute inset-0 animate-pulse bg-ascent-surface-strong/60"
-              />
+          <div
+            aria-busy={loading}
+            className="relative aspect-[2246/1588] w-full overflow-hidden rounded-control border border-ascent-border bg-ascent-surface-subtle"
+          >
+            {loading ? (
+              <div aria-hidden="true" className="absolute inset-0">
+                <div className="absolute inset-0 bg-ascent-surface-strong/60 motion-safe:animate-pulse" />
+                {progress !== null ? (
+                  <div className="absolute inset-x-0 bottom-0 h-1 bg-ascent-border/60">
+                    <div
+                      className="h-full origin-left bg-ascent-brand transition-transform duration-200 ease-out motion-reduce:transition-none"
+                      style={{ transform: `scaleX(${progress})` }}
+                    />
+                  </div>
+                ) : null}
+              </div>
             ) : null}
-            {preview === "failed" ? (
+            {failed ? (
               <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 p-4 text-center text-sm text-ascent-muted">
                 <ImageOff size={22} aria-hidden="true" />
                 <p>
@@ -135,17 +181,17 @@ const CertificateReady = forwardRef<HTMLHeadingElement, CertificateReadyProps>(
                 </p>
               </div>
             ) : null}
-            {fileUrl ? (
+            {fileUrl && !failed ? (
             // eslint-disable-next-line @next/next/no-img-element -- private, session-bound blob that must not pass through the image optimizer
             <img
+              ref={imageElement}
               src={fileUrl}
               width={2246}
               height={1588}
               alt={`Ascent ’26 Round 1 certificate awarded to ${summary.name}, rank ${summary.rank} of ${ROUND_ONE_SELECTION_COUNT}, verification code ${summary.verificationCode}.`}
               decoding="async"
-              onLoad={() => setPreview("ready")}
-              onError={() => setPreview("failed")}
-              className={`absolute inset-0 h-full w-full object-contain transition-opacity duration-300 ${preview === "ready" ? "opacity-100" : "opacity-0"}`}
+              onError={() => setImageBroken(true)}
+              className={`absolute inset-0 h-full w-full object-contain transition-opacity duration-300 motion-reduce:transition-none ${loading ? "opacity-0" : "opacity-100"}`}
             />
             ) : null}
           </div>

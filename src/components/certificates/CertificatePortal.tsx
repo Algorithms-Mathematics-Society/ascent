@@ -8,11 +8,15 @@ import {
   type FormEvent,
 } from "react";
 import { ArrowRight, Award, Mail } from "lucide-react";
-import BotCheck from "@/components/security/BotCheck";
+import BotCheck, { type BotCheckStatus } from "@/components/security/BotCheck";
 import { Button, FormField, Input, Notice, Spinner } from "@/components/ui";
 import { PRIVACY_URL } from "@/content/legal";
 import { ROUND_ONE_SELECTION_COUNT } from "@/lib/results";
 import CertificateReady from "./CertificateReady";
+import {
+  startCertificateImage,
+  type CertificateImageJob,
+} from "./certificateImage";
 import {
   errorMessage,
   isCertificateSummary,
@@ -27,9 +31,52 @@ type Step = "checking" | "email" | "code" | "done";
 const RESEND_COOLDOWN_SECONDS = 30;
 const CODE_LENGTH = 6;
 const SENT_FALLBACK = CERTIFICATE_CODE_ACCEPTED;
+/** How long a click waits for Turnstile before giving up, unless the widget asks the visitor to act. */
+export const BOT_WAIT_TIMEOUT_MS = 15_000;
+const BOT_WAIT_TIMEOUT_MESSAGE =
+  "The verification check is taking longer than expected. Check your connection, then try again. If it keeps happening, reload the page.";
 
 function digitsOnly(value: string) {
   return value.replace(/\D/g, "").slice(0, CODE_LENGTH);
+}
+
+/** Owns its own one-second tick, so the countdown re-renders this button and nothing else. */
+function ResendButton({
+  availableAt,
+  disabled,
+  resending,
+  onResend,
+}: {
+  availableAt: number;
+  disabled: boolean;
+  resending: boolean;
+  onResend: () => void;
+}) {
+  const [now, setNow] = useState(() => Date.now());
+  const remaining = Math.max(0, Math.ceil((availableAt - now) / 1000));
+  useEffect(() => {
+    if (remaining <= 0) return;
+    // Wake on the next whole-second boundary, so a throttled tab never drifts.
+    const delay = (availableAt - Date.now()) % 1000 || 1000;
+    const timer = window.setTimeout(() => setNow(Date.now()), delay);
+    return () => window.clearTimeout(timer);
+  }, [availableAt, remaining]);
+  const minutes = Math.floor(remaining / 60);
+  const seconds = String(remaining % 60).padStart(2, "0");
+  return (
+    <Button
+      variant="secondary"
+      size="lg"
+      disabled={disabled || remaining > 0 || resending}
+      onClick={onResend}
+    >
+      {remaining > 0
+        ? `Resend code in ${minutes}:${seconds}`
+        : resending
+          ? "Resending…"
+          : "Resend code"}
+    </Button>
+  );
 }
 
 export default function CertificatePortal({
@@ -53,24 +100,53 @@ export default function CertificatePortal({
       : "",
   );
   const [announcement, setAnnouncement] = useState("");
-  const [cooldown, setCooldown] = useState(0);
+  const [resendAt, setResendAt] = useState(0);
   const [resending, setResending] = useState(false);
   const [sessionCheckFailed, setSessionCheckFailed] = useState(false);
+  const [waitingForBot, setWaitingForBot] = useState(false);
+  const [imageJob, setImageJob] = useState<CertificateImageJob | null>(null);
 
   const inFlight = useRef(false);
   const moveFocus = useRef(false);
   const emailInput = useRef<HTMLInputElement>(null);
   const codeInput = useRef<HTMLInputElement>(null);
   const doneHeading = useRef<HTMLHeadingElement>(null);
+  const imageJobRef = useRef<CertificateImageJob | null>(null);
+  const pendingSubmit = useRef(false);
+  const botFailed = useRef(false);
+  const botWaitTimer = useRef<number>();
+
+  // One owner for the PNG transfer: replacing or clearing it always aborts and frees the old one.
+  const replaceImageJob = useCallback((next: CertificateImageJob | null) => {
+    imageJobRef.current?.dispose();
+    imageJobRef.current = next;
+    setImageJob(next);
+  }, []);
+
+  useEffect(
+    () => () => {
+      imageJobRef.current?.dispose();
+      imageJobRef.current = null;
+      window.clearTimeout(botWaitTimer.current);
+      pendingSubmit.current = false;
+    },
+    [],
+  );
 
   const restoreSession = useCallback(async () => {
     setStep("checking");
     setSessionCheckFailed(false);
     setError("");
+    // /me and the PNG ride the same cookie, so the 2MB transfer starts now
+    // instead of one full round trip later.
+    const job = startCertificateImage();
+    replaceImageJob(job);
     try {
       const { response, data } = await requestCertificate(
         "/api/certificates/me",
       );
+      // A newer check (or a Strict Mode remount) took over: leave the screen to it.
+      if (imageJobRef.current !== job) return;
       if (response.ok && isCertificateSummary(data.certificate)) {
         setSummary(data.certificate);
         setStep("done");
@@ -86,11 +162,13 @@ export default function CertificatePortal({
         );
       }
     } catch (caught) {
+      if (imageJobRef.current !== job) return;
       setSessionCheckFailed(true);
       setError(errorMessage(caught, "We couldn’t check for an open session."));
     }
+    replaceImageJob(null);
     setStep("email");
-  }, []);
+  }, [replaceImageJob]);
 
   useEffect(() => {
     if (hasSession) void restoreSession();
@@ -105,22 +183,20 @@ export default function CertificatePortal({
     if (step === "done") doneHeading.current?.focus();
   }, [step]);
 
-  useEffect(() => {
-    if (cooldown <= 0) return;
-    const timer = window.setTimeout(
-      () => setCooldown((value) => value - 1),
-      1000,
-    );
-    return () => window.clearTimeout(timer);
-  }, [cooldown]);
-
   function goTo(next: Step) {
     moveFocus.current = true;
     setStep(next);
   }
 
+  function stopWaitingForBot() {
+    pendingSubmit.current = false;
+    window.clearTimeout(botWaitTimer.current);
+    setWaitingForBot(false);
+  }
+
   function resetBotCheck() {
     // Turnstile tokens are single-use, so every submission needs a fresh widget.
+    botFailed.current = false;
     setBotToken("");
     setBotReset((value) => value + 1);
   }
@@ -145,7 +221,7 @@ export default function CertificatePortal({
           isResend ? `A new code was requested. ${message}` : message,
         );
         setCode("");
-        setCooldown(RESEND_COOLDOWN_SECONDS);
+        setResendAt(Date.now() + RESEND_COOLDOWN_SECONDS * 1000);
         setResending(false);
         if (isResend) codeInput.current?.focus();
         else goTo("code");
@@ -164,19 +240,55 @@ export default function CertificatePortal({
 
   function requestCode(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (busy) return;
+    if (busy || pendingSubmit.current) return;
     if (!email.trim()) {
       setError("Enter the email you registered with.");
       emailInput.current?.focus();
       return;
     }
-    if (!botToken) {
-      setError(
-        "The verification check hasn’t finished yet. Wait a moment, then try again. If it doesn’t appear, reload the page.",
-      );
+    if (botToken) {
+      void sendCode(botToken, false);
       return;
     }
-    void sendCode(botToken, false);
+    // No token yet: hold the click and send the moment Turnstile answers, no second click.
+    // A widget that already failed gets a fresh start, so the click doubles as "retry".
+    if (botFailed.current) resetBotCheck();
+    setError("");
+    pendingSubmit.current = true;
+    setWaitingForBot(true);
+    setAnnouncement("Verifying you’re human. Your code will be sent automatically.");
+    armBotWait();
+  }
+
+  function armBotWait() {
+    window.clearTimeout(botWaitTimer.current);
+    botWaitTimer.current = window.setTimeout(() => {
+      if (!pendingSubmit.current) return;
+      stopWaitingForBot();
+      setError(BOT_WAIT_TIMEOUT_MESSAGE);
+      // A fresh widget is the best chance the next click succeeds.
+      resetBotCheck();
+    }, BOT_WAIT_TIMEOUT_MS);
+  }
+
+  function receiveBotToken(token: string) {
+    setBotToken(token);
+    if (!token || !pendingSubmit.current) return;
+    stopWaitingForBot();
+    void sendCode(token, false);
+  }
+
+  function botStatus(status: BotCheckStatus) {
+    if (status === "error") botFailed.current = true;
+    if (!pendingSubmit.current) return;
+    if (status === "interactive") {
+      // The visitor now has something to do: never time them out mid-check.
+      window.clearTimeout(botWaitTimer.current);
+      setAnnouncement("Complete the quick check below to continue.");
+      return;
+    }
+    // BotCheck shows (and announces) its own error next to the widget.
+    stopWaitingForBot();
   }
 
   // On resend the widget reappears and the request goes out as soon as it yields a token.
@@ -199,6 +311,8 @@ export default function CertificatePortal({
           data.error || "We couldn’t check that code. Please try again.",
         );
       }
+      // The session cookie is set now: start the PNG before React even renders the done card.
+      replaceImageJob(startCertificateImage());
       setSummary(data.certificate);
       setNotice("");
       setCode("");
@@ -236,7 +350,8 @@ export default function CertificatePortal({
     setError("");
     setNotice("");
     setResending(false);
-    setCooldown(0);
+    setResendAt(0);
+    stopWaitingForBot();
     resetBotCheck();
     setAnnouncement("Enter a different email address.");
     goTo("email");
@@ -256,10 +371,11 @@ export default function CertificatePortal({
         throw new Error(
           data.error || "We couldn’t sign you out. Please try again.",
         );
+      replaceImageJob(null);
       setSummary(null);
       setEmail("");
       setCode("");
-      setCooldown(0);
+      setResendAt(0);
       resetBotCheck();
       setNotice(
         "You’re signed out. Your certificate stays available: request a new code any time.",
@@ -275,9 +391,6 @@ export default function CertificatePortal({
       setBusy(false);
     }
   }
-
-  const minutes = Math.floor(cooldown / 60);
-  const seconds = String(cooldown % 60).padStart(2, "0");
 
   return (
     <main
@@ -378,21 +491,27 @@ export default function CertificatePortal({
                     spellCheck={false}
                     value={email}
                     onChange={(event) => setEmail(event.target.value)}
-                    disabled={busy}
+                    disabled={busy || waitingForBot}
                   />
                 </FormField>
                 <BotCheck
                   action="certificate_code"
-                  onToken={setBotToken}
+                  appearance="interaction-only"
+                  onToken={receiveBotToken}
+                  onStatus={botStatus}
                   resetKey={botReset}
                 />
                 <Button
                   type="submit"
                   size="lg"
-                  disabled={busy}
+                  disabled={busy || waitingForBot}
                   className="w-full sm:w-auto"
                 >
-                  {busy ? (
+                  {waitingForBot ? (
+                    <>
+                      <Spinner /> Verifying you’re human…
+                    </>
+                  ) : busy ? (
                     <>
                       <Spinner /> Sending…
                     </>
@@ -487,22 +606,17 @@ export default function CertificatePortal({
                       </>
                     )}
                   </Button>
-                  <Button
-                    variant="secondary"
-                    size="lg"
-                    disabled={busy || cooldown > 0 || resending}
-                    onClick={() => {
+                  <ResendButton
+                    key={resendAt}
+                    availableAt={resendAt}
+                    disabled={busy}
+                    resending={resending}
+                    onResend={() => {
                       setError("");
                       resetBotCheck();
                       setResending(true);
                     }}
-                  >
-                    {cooldown > 0
-                      ? `Resend code in ${minutes}:${seconds}`
-                      : resending
-                        ? "Resending…"
-                        : "Resend code"}
-                  </Button>
+                  />
                 </div>
                 {resending ? (
                   <div>
@@ -511,6 +625,7 @@ export default function CertificatePortal({
                     </p>
                     <BotCheck
                       action="certificate_code"
+                      appearance="interaction-only"
                       onToken={resendWithToken}
                       resetKey={botReset}
                     />
@@ -543,6 +658,7 @@ export default function CertificatePortal({
             <CertificateReady
               ref={doneHeading}
               summary={summary}
+              image={imageJob}
               busy={busy}
               onSignOut={() => void signOut()}
               onAnnounce={setAnnouncement}

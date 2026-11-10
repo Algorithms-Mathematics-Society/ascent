@@ -9,7 +9,14 @@ import {
   type EmailPayload,
 } from "../email/resend";
 import logger, { genReqId } from "../logger";
-import { CERTIFICATE_CODES, getCertificateRecipient } from "./data";
+import { recentTimestamps, type SlidingWindowSpec } from "../rateLimit";
+import {
+  CERTIFICATE_CODES,
+  CERTIFICATE_RECIPIENTS,
+  getCertificateRecipient,
+  parseRecipient,
+  type CertificateRecipient,
+} from "./data";
 import {
   CERTIFICATE_CODE_TTL_MS,
   CERTIFICATE_MAX_CODE_ATTEMPTS,
@@ -100,6 +107,51 @@ export async function issueCertificateCode(
   }
 }
 
+// Wrong guesses are capped per email across codes, because requesting a new
+// code resets the per-code attempt counter.
+export const CERTIFICATE_FAILURES = "_rate_limits_certificate_failures";
+export const CERTIFICATE_MAX_FAILURES = 10;
+export const CERTIFICATE_FAILURE_WINDOW_MS = 3600000;
+
+// Window shapes for the two certificate routes. Shard counts divide each
+// ceiling exactly, so the totals stay 200 per IP-hour and 2000 per day.
+/** 200 verify attempts per IP and hour: 20 shards of 10, so one campus NAT does not queue on one document. */
+export function certificateVerifyIpWindow(ipHash: string): SlidingWindowSpec {
+  return { collection: "_rate_limits_certificate_verify", key: ipHash, maxCount: 200, windowMs: 3600000, shards: 20 };
+}
+/** 5 code requests per email and hour. */
+export function certificateEmailWindow(emailHash: string): SlidingWindowSpec {
+  return { collection: "_rate_limits_certificate_email", key: emailHash, maxCount: 5, windowMs: 3600000 };
+}
+/** About 2000 code requests a day in total: 20 shards of 100. */
+export const CERTIFICATE_DAILY_WINDOW: SlidingWindowSpec = {
+  collection: "_rate_limits_certificate_daily", key: "all", maxCount: 2000, windowMs: 86400000, shards: 20,
+};
+
+type CodeCheck = { matched: false; attemptsUsed?: number } | { matched: true };
+
+function checkStoredCode(
+  data: Record<string, unknown> | undefined,
+  emailHash: string,
+  code: string,
+  now: number,
+): CodeCheck {
+  if (!data) return { matched: false };
+  const attempts =
+    typeof data.attempts === "number" && Number.isSafeInteger(data.attempts)
+      ? data.attempts
+      : CERTIFICATE_MAX_CODE_ATTEMPTS;
+  if (
+    typeof data.expires_at !== "number" ||
+    data.expires_at <= now ||
+    attempts >= CERTIFICATE_MAX_CODE_ATTEMPTS
+  )
+    return { matched: false };
+  if (!certificateCodeMatches(data.code_hash, emailHash, code))
+    return { matched: false, attemptsUsed: attempts + 1 };
+  return { matched: true };
+}
+
 /** Consume a code atomically. Wrong codes count an attempt; the fifth failure locks the code. */
 export async function consumeCertificateCode(
   emailHash: string,
@@ -109,23 +161,75 @@ export async function consumeCertificateCode(
   const ref = adminDb.collection(CERTIFICATE_CODES).doc(emailHash);
   return adminDb.runTransaction(async (tx) => {
     const snapshot = await tx.get(ref);
-    const data = snapshot.exists ? snapshot.data() : undefined;
-    if (!data) return false;
-    const attempts =
-      typeof data.attempts === "number" && Number.isSafeInteger(data.attempts)
-        ? data.attempts
-        : CERTIFICATE_MAX_CODE_ATTEMPTS;
-    if (
-      typeof data.expires_at !== "number" ||
-      data.expires_at <= now ||
-      attempts >= CERTIFICATE_MAX_CODE_ATTEMPTS
-    )
-      return false;
-    if (!certificateCodeMatches(data.code_hash, emailHash, code)) {
-      tx.update(ref, { attempts: attempts + 1 });
-      return false;
+    const result = checkStoredCode(
+      snapshot.exists ? snapshot.data() : undefined,
+      emailHash,
+      code,
+      now,
+    );
+    if (result.matched) tx.delete(ref);
+    else if (result.attemptsUsed !== undefined)
+      tx.update(ref, { attempts: result.attemptsUsed });
+    return result.matched;
+  });
+}
+
+export type CertificateRedemption =
+  | { status: "email_limited" }
+  | { status: "invalid" }
+  | { status: "ok"; recipient: CertificateRecipient | null };
+
+/**
+ * The per-user part of verify in one transaction, with every read in one
+ * getAll: enforce the per-email failure cap, check and consume the code,
+ * record a failure on any miss, and return the recipient read in the same
+ * snapshot. It touches only this email's documents, so users never contend
+ * with each other here. The caller reserves the IP slot first, separately.
+ */
+export async function redeemCertificateCode(
+  emailHash: string,
+  code: string,
+): Promise<CertificateRedemption> {
+  const failuresRef = adminDb.collection(CERTIFICATE_FAILURES).doc(emailHash);
+  const codeRef = adminDb.collection(CERTIFICATE_CODES).doc(emailHash);
+  const recipientRef = adminDb
+    .collection(CERTIFICATE_RECIPIENTS)
+    .doc(emailHash);
+  return adminDb.runTransaction(async (tx) => {
+    const [failuresSnap, codeSnap, recipientSnap] = await tx.getAll(
+      failuresRef,
+      codeRef,
+      recipientRef,
+    );
+    const now = Date.now();
+    const failures = recentTimestamps(
+      failuresSnap.data(),
+      CERTIFICATE_FAILURE_WINDOW_MS,
+      now,
+    );
+    if (failures.length >= CERTIFICATE_MAX_FAILURES)
+      return { status: "email_limited" };
+    const result = checkStoredCode(
+      codeSnap.exists ? codeSnap.data() : undefined,
+      emailHash,
+      code,
+      now,
+    );
+    if (!result.matched) {
+      if (result.attemptsUsed !== undefined)
+        tx.update(codeRef, { attempts: result.attemptsUsed });
+      tx.set(failuresRef, {
+        timestamps: [...failures, now].slice(-CERTIFICATE_MAX_FAILURES),
+        expiresAt: new Date(
+          now + CERTIFICATE_FAILURE_WINDOW_MS + 60 * 60 * 1000,
+        ),
+      });
+      return { status: "invalid" };
     }
-    tx.delete(ref);
-    return true;
+    tx.delete(codeRef);
+    const recipient = recipientSnap.exists
+      ? parseRecipient(recipientSnap.data())
+      : null;
+    return { status: "ok", recipient };
   });
 }

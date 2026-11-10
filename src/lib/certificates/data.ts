@@ -132,13 +132,68 @@ export async function getCertificateRecipient(
   return snapshot.exists ? parseRecipient(snapshot.data()) : null;
 }
 
+// A signed-in visitor opens the preview, /me and the download within seconds,
+// so warm instances keep each parsed recipient briefly. Only valid records are
+// kept (never "not found"), keyed by the 64-hex email hash a signed session
+// carries. Code issuance and code redemption always read Firestore directly.
+const RECIPIENT_CACHE_TTL_MS = 60_000;
+const RECIPIENT_CACHE_LIMIT = 500;
+const recipientCache = new Map<
+  string,
+  { recipient: CertificateRecipient; expires: number }
+>();
+const recipientReads = new Map<string, Promise<CertificateRecipient | null>>();
+
+/** Store a recipient that was just read from Firestore, e.g. inside the verify transaction. */
+export function rememberCertificateRecipient(
+  emailHash: string,
+  recipient: CertificateRecipient,
+  now = Date.now(),
+) {
+  if (!/^[a-f0-9]{64}$/.test(emailHash)) return;
+  recipientCache.delete(emailHash);
+  recipientCache.set(emailHash, {
+    recipient,
+    expires: now + RECIPIENT_CACHE_TTL_MS,
+  });
+  if (recipientCache.size > RECIPIENT_CACHE_LIMIT) {
+    const oldest = recipientCache.keys().next().value;
+    if (oldest !== undefined) recipientCache.delete(oldest);
+  }
+}
+
+/**
+ * Recipient lookup for signed-in reads (/me and the download). A fresh cached
+ * record costs no round trip; concurrent misses for one hash share one read.
+ */
+export async function getCachedCertificateRecipient(
+  emailHash: string,
+): Promise<CertificateRecipient | null> {
+  if (!/^[a-f0-9]{64}$/.test(emailHash)) return null;
+  const cached = recipientCache.get(emailHash);
+  if (cached && cached.expires > Date.now()) return cached.recipient;
+  if (cached) recipientCache.delete(emailHash);
+  const pending = recipientReads.get(emailHash);
+  if (pending) return pending;
+  const read = getCertificateRecipient(emailHash)
+    .then((recipient) => {
+      if (recipient) rememberCertificateRecipient(emailHash, recipient);
+      return recipient;
+    })
+    .finally(() => {
+      if (recipientReads.get(emailHash) === read) recipientReads.delete(emailHash);
+    });
+  recipientReads.set(emailHash, read);
+  return read;
+}
+
 /** Resolve a session cookie value to the holder's certificate summary, or null. */
 export async function certificateSummaryForSession(
   token: unknown,
 ): Promise<CertificateSummary | null> {
   const claims = verifyCertificateSession(token);
   if (!claims) return null;
-  const recipient = await getCertificateRecipient(claims.emailHash);
+  const recipient = await getCachedCertificateRecipient(claims.emailHash);
   return recipient ? buildCertificateSummary(recipient) : null;
 }
 
@@ -189,12 +244,34 @@ export function assembleCertificateFile(
 
 // Warm instances keep recently served files, keyed by content hash, so a
 // repeat download skips the Firestore chunk reads. About 2MB each, so bounded.
+// Concurrent misses for one file share a single in-flight chunk read.
 const FILE_CACHE_LIMIT = 16;
 const fileCache = new Map<string, Buffer>();
+const fileLoads = new Map<string, Promise<Buffer>>();
 
 /** Tests rewrite chunks in place under one id; production ids are content-addressed. */
 export function clearCertificateFileCache() {
   fileCache.clear();
+  fileLoads.clear();
+}
+
+/** Drop every warm-instance cache (files and recipients). */
+export function clearCertificateCaches() {
+  clearCertificateFileCache();
+  recipientCache.clear();
+  recipientReads.clear();
+}
+
+async function readCertificateFile(
+  recipient: CertificateRecipient,
+): Promise<Buffer> {
+  const collection = adminDb.collection(CERTIFICATE_FILE_CHUNKS);
+  const refs = Array.from({ length: recipient.chunkCount }, (_, index) =>
+    collection.doc(`${recipient.fileId}_${index}`),
+  );
+  const [first, ...rest] = refs;
+  const chunks = await adminDb.getAll(first, ...rest);
+  return assembleCertificateFile(recipient, chunks);
 }
 
 export async function loadCertificateFile(
@@ -207,17 +284,22 @@ export async function loadCertificateFile(
     fileCache.set(cacheKey, cached);
     return cached;
   }
-  const collection = adminDb.collection(CERTIFICATE_FILE_CHUNKS);
-  const refs = Array.from({ length: recipient.chunkCount }, (_, index) =>
-    collection.doc(`${recipient.fileId}_${index}`),
-  );
-  const [first, ...rest] = refs;
-  const chunks = await adminDb.getAll(first, ...rest);
-  const file = assembleCertificateFile(recipient, chunks);
-  fileCache.set(cacheKey, file);
-  if (fileCache.size > FILE_CACHE_LIMIT) {
-    const oldest = fileCache.keys().next().value;
-    if (oldest !== undefined) fileCache.delete(oldest);
-  }
-  return file;
+  const pending = fileLoads.get(cacheKey);
+  if (pending) return pending;
+  // Only a file that passed the length and sha256 checks is shared or cached;
+  // a failed load is forgotten so the next request reads again.
+  const load = readCertificateFile(recipient)
+    .then((file) => {
+      fileCache.set(cacheKey, file);
+      if (fileCache.size > FILE_CACHE_LIMIT) {
+        const oldest = fileCache.keys().next().value;
+        if (oldest !== undefined) fileCache.delete(oldest);
+      }
+      return file;
+    })
+    .finally(() => {
+      if (fileLoads.get(cacheKey) === load) fileLoads.delete(cacheKey);
+    });
+  fileLoads.set(cacheKey, load);
+  return load;
 }

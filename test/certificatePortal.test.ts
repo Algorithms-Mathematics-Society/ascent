@@ -13,9 +13,15 @@ const mocks = vi.hoisted(() => {
     };
   };
   // Refs carry their path plus get/set for non-transactional reads and writes.
+  // Every read is logged: "get:<path>" and "getAll:<paths>" outside a
+  // transaction, "tx:<path>" for each document read inside one.
+  const reads: string[] = [];
   const ref = (path: string) => ({
     path,
-    get: async () => snap(path),
+    get: async () => {
+      reads.push(`get:${path}`);
+      return snap(path);
+    },
     set: async (data: Record<string, unknown>) => {
       store.set(path, { ...data });
     },
@@ -24,13 +30,41 @@ const mocks = vi.hoisted(() => {
     collection: (name: string) => ({
       doc: (id: string) => ref(`${name}/${id}`),
     }),
-    getAll: async (...refs: { path: string }[]) =>
-      refs.map((r) => snap(r.path)),
-    runTransaction: async <T>(fn: (tx: unknown) => Promise<T>) =>
-      fn({
-        get: async (r: { path: string }) => snap(r.path),
-        getAll: async (...refs: { path: string }[]) =>
-          refs.map((r) => snap(r.path)),
+    getAll: async (...refs: { path: string }[]) => {
+      reads.push(`getAll:${refs.map((r) => r.path).join(",")}`);
+      // Yield first, like a network read, so concurrent callers overlap.
+      await new Promise((resolve) => setTimeout(resolve, 5));
+      return refs.map((r) => snap(r.path));
+    },
+    transactions: 0,
+    // Set to n to make the next transaction abort n times after running its
+    // callback (writes discarded), like an SDK retry after contention.
+    abortNext: 0,
+    attempts: 0,
+    runTransaction: async <T>(fn: (tx: unknown) => Promise<T>) => {
+      db.transactions++;
+      while (db.abortNext > 0) {
+        db.abortNext--;
+        const before = new Map(store);
+        db.attempts++;
+        await fn(makeTx());
+        store.clear();
+        for (const [key, value] of before) store.set(key, value);
+      }
+      db.attempts++;
+      return fn(makeTx());
+    },
+  };
+  function makeTx() {
+    return {
+        get: async (r: { path: string }) => {
+          reads.push(`tx:${r.path}`);
+          return snap(r.path);
+        },
+        getAll: async (...refs: { path: string }[]) => {
+          for (const r of refs) reads.push(`tx:${r.path}`);
+          return refs.map((r) => snap(r.path));
+        },
         set: (r: { path: string }, data: Record<string, unknown>) => {
           store.set(r.path, { ...data });
         },
@@ -43,11 +77,12 @@ const mocks = vi.hoisted(() => {
         delete: (r: { path: string }) => {
           store.delete(r.path);
         },
-      }),
-  };
+      };
+  }
   return {
     store,
     db,
+    reads,
     pending: [] as Promise<unknown>[],
     verifyBot: vi.fn(),
     send: vi.fn(),
@@ -157,9 +192,14 @@ function storeCode(code: string, extra: Record<string, unknown> = {}) {
   });
 }
 
-beforeEach(() => {
+beforeEach(async () => {
   mocks.store.clear();
+  mocks.reads.length = 0;
+  mocks.db.transactions = 0;
+  mocks.db.abortNext = 0;
+  mocks.db.attempts = 0;
   mocks.pending.length = 0;
+  (await import("@/lib/certificates/data")).clearCertificateCaches();
   vi.resetAllMocks();
   mocks.verifyBot.mockResolvedValue({ ok: true });
   mocks.send.mockResolvedValue("email-id");
@@ -570,5 +610,336 @@ describe("POST /api/certificates/verify and session routes", () => {
         )
       ).status,
     ).toBe(429);
+  });
+});
+
+describe("burst-safe rate limits", () => {
+  it("keeps every certificate ceiling exact across its shards", async () => {
+    const { shardCapacity } = await import("../src/lib/rateLimit");
+    const codes = await import("../src/lib/certificates/codes");
+    const windows = [
+      [codes.CERTIFICATE_DAILY_WINDOW, 2000, 20],
+      [codes.certificateVerifyIpWindow("ip"), 200, 20],
+      [codes.certificateEmailWindow(emailHash), 5, 1],
+    ] as const;
+    for (const [window, total, shards] of windows) {
+      expect(window.shards ?? 1).toBe(shards);
+      expect(shardCapacity(window) * shards).toBe(total);
+    }
+    expect(shardCapacity({ collection: "c", key: "k", maxCount: 200, windowMs: 1, shards: 16 }) * 16).toBeLessThanOrEqual(200);
+  });
+  it("shards the daily ceiling without raising the total", async () => {
+    const { consumeSlidingWindows, CERTIFICATE_DAILY_WINDOW } = {
+      ...(await import("../src/lib/rateLimit")),
+      ...(await import("../src/lib/certificates/codes")),
+    };
+    let turn = 0;
+    const roundRobin = () => (turn++ % 20) / 20;
+    let accepted = 0;
+    for (let i = 0; i < 2100; i++) {
+      const { overLimitIndex } = await consumeSlidingWindows(
+        mocks.db as never,
+        [CERTIFICATE_DAILY_WINDOW],
+        roundRobin,
+      );
+      if (overLimitIndex < 0) accepted++;
+    }
+    expect(accepted).toBe(2000);
+    const shards = [...mocks.store.entries()].filter(([key]) =>
+      key.startsWith("_rate_limits_certificate_daily/"),
+    );
+    expect(shards).toHaveLength(20);
+    for (const [key, value] of shards) {
+      expect(key).toMatch(/\/all_s\d+$/);
+      expect((value.timestamps as number[]).length).toBe(100);
+    }
+    expect(mocks.store.has("_rate_limits_certificate_daily/all")).toBe(false);
+  });
+  it("re-picks the shard on every transaction retry", async () => {
+    const { consumeSlidingWindows, CERTIFICATE_DAILY_WINDOW } = {
+      ...(await import("../src/lib/rateLimit")),
+      ...(await import("../src/lib/certificates/codes")),
+    };
+    const picks = [0.1, 0.5, 0.95]; // shards 2, 10, 19
+    const random = vi.fn(() => picks.shift()!);
+    mocks.db.abortNext = 2;
+    expect(
+      (await consumeSlidingWindows(mocks.db as never, [CERTIFICATE_DAILY_WINDOW], random)).overLimitIndex,
+    ).toBe(-1);
+    expect(mocks.db.attempts).toBe(3);
+    expect(random).toHaveBeenCalledTimes(3);
+    const touched = [...mocks.store.keys()].filter((key) =>
+      key.startsWith("_rate_limits_certificate_daily/"),
+    );
+    // Only the final attempt's shard holds the slot; the aborted ones left nothing.
+    expect(touched).toEqual(["_rate_limits_certificate_daily/all_s19"]);
+    expect(mocks.reads).toEqual([
+      "tx:_rate_limits_certificate_daily/all_s2",
+      "tx:_rate_limits_certificate_daily/all_s10",
+      "tx:_rate_limits_certificate_daily/all_s19",
+    ]);
+  });
+  it("answers 429 from a full daily shard and sends nothing, in one transaction with the email window", async () => {
+    seedRecipient();
+    const random = vi.spyOn(Math, "random").mockReturnValue(0.35); // shard 7
+    mocks.store.set("_rate_limits_certificate_daily/all_s7", {
+      timestamps: Array.from({ length: 100 }, () => Date.now()),
+    });
+    const busy = await requestCode(
+      post("/api/certificates/code", { email: EMAIL, botToken: "t" }),
+    );
+    expect(busy.status).toBe(429);
+    expect(mocks.db.transactions).toBe(1);
+    // The per-email slot is still spent, as when the windows ran one by one.
+    expect(
+      (
+        mocks.store.get(`_rate_limits_certificate_email/${emailHash}`)!
+          .timestamps as number[]
+      ).length,
+    ).toBe(1);
+    random.mockReturnValue(0.05); // shard 1 has room
+    expect(
+      (
+        await requestCode(
+          post("/api/certificates/code", { email: EMAIL, botToken: "t" }),
+        )
+      ).status,
+    ).toBe(202);
+    await flush();
+    expect(mocks.send).toHaveBeenCalledOnce();
+    random.mockRestore();
+  });
+  it("does not spend a daily slot once the email window is full, nor any slot when the bot check fails", async () => {
+    mocks.store.set(`_rate_limits_certificate_email/${emailHash}`, {
+      timestamps: Array.from({ length: 5 }, () => Date.now()),
+    });
+    expect(
+      (
+        await requestCode(
+          post("/api/certificates/code", { email: EMAIL, botToken: "t" }),
+        )
+      ).status,
+    ).toBe(202);
+    mocks.verifyBot.mockResolvedValueOnce({
+      ok: false,
+      status: 400,
+      error: "Verification failed.",
+    });
+    expect(
+      (
+        await requestCode(
+          post("/api/certificates/code", {
+            email: "other@example.test",
+            botToken: "t",
+          }),
+        )
+      ).status,
+    ).toBe(400);
+    expect(
+      [...mocks.store.keys()].filter((key) =>
+        key.startsWith("_rate_limits_certificate_daily/"),
+      ),
+    ).toEqual([]);
+    await flush();
+    expect(mocks.send).not.toHaveBeenCalled();
+  });
+});
+
+describe("verify round trips", () => {
+  it("reads the recipient inside the one verify transaction and primes the session cache", async () => {
+    seedRecipient();
+    storeCode("123456");
+    const response = await verifyCode(
+      post("/api/certificates/verify", { email: EMAIL, code: "123456" }),
+    );
+    expect(response.status).toBe(200);
+    expect((await response.json()).certificate.name).toBe("Kushal Kumar Putti");
+    // The IP slot, then the per-user redemption: two small transactions.
+    expect(mocks.db.transactions).toBe(2);
+    const ipReads = mocks.reads.filter((read) => read.startsWith("tx:_rate_limits_certificate_verify/"));
+    expect(ipReads).toHaveLength(1);
+    expect(mocks.reads.indexOf(ipReads[0])).toBe(0);
+    expect(mocks.reads.slice(1)).toEqual([
+      `tx:_rate_limits_certificate_failures/${emailHash}`,
+      `tx:certificate_codes/${emailHash}`,
+      `tx:certificate_recipients/${emailHash}`,
+    ]);
+    expect(mocks.reads).toContain(`tx:certificate_recipients/${emailHash}`);
+    expect(mocks.reads).toContain(`tx:certificate_codes/${emailHash}`);
+    expect(mocks.reads.filter((read) => !read.startsWith("tx:"))).toEqual([]);
+    // /me right after verify is served from the warm cache: no round trip.
+    mocks.reads.length = 0;
+    const cookie = response.cookies.get(CERTIFICATE_COOKIE)!.value;
+    expect((await me(get("/api/certificates/me", cookie))).status).toBe(200);
+    expect(mocks.reads).toEqual([]);
+  });
+  it("records a wrong guess in the same transaction and enforces the failure cap", async () => {
+    storeCode("123456");
+    for (let i = 0; i < 10; i++)
+      expect(
+        (
+          await verifyCode(
+            post("/api/certificates/verify", { email: EMAIL, code: "000000" }),
+          )
+        ).status,
+      ).toBe(401);
+    expect(mocks.db.transactions).toBe(20);
+    expect(
+      (
+        mocks.store.get(`_rate_limits_certificate_failures/${emailHash}`)!
+          .timestamps as number[]
+      ).length,
+    ).toBe(10);
+    storeCode("123456");
+    const capped = await verifyCode(
+      post("/api/certificates/verify", { email: EMAIL, code: "123456" }),
+    );
+    expect(capped.status).toBe(429);
+    // The cap leaves the fresh code untouched.
+    expect(mocks.store.get(`certificate_codes/${emailHash}`)!.attempts).toBe(0);
+  });
+  it("spends an IP slot on malformed requests, answers 429 first when over, and skips redemption", async () => {
+    const random = vi.spyOn(Math, "random").mockReturnValue(0);
+    const ipKey = `_rate_limits_certificate_verify/${createHash("sha256").update("203.0.113.9").digest("hex")}_s0`;
+    expect(
+      (await verifyCode(post("/api/certificates/verify", { email: "x" }))).status,
+    ).toBe(400);
+    expect((mocks.store.get(ipKey)!.timestamps as number[]).length).toBe(1);
+    mocks.store.set(ipKey, {
+      timestamps: Array.from({ length: 10 }, () => Date.now()),
+    });
+    expect(
+      (await verifyCode(post("/api/certificates/verify", { email: "x" }))).status,
+    ).toBe(429);
+    seedRecipient();
+    storeCode("123456");
+    expect(
+      (
+        await verifyCode(
+          post("/api/certificates/verify", { email: EMAIL, code: "123456" }),
+        )
+      ).status,
+    ).toBe(429);
+    // Refused at the IP: the redemption never ran, so nothing per-user was read.
+    expect(mocks.store.has(`certificate_codes/${emailHash}`)).toBe(true);
+    expect(mocks.store.get(`certificate_codes/${emailHash}`)!.attempts).toBe(0);
+    expect(mocks.store.has(`_rate_limits_certificate_failures/${emailHash}`)).toBe(false);
+    expect(mocks.reads.filter((read) => read.includes(emailHash))).toEqual([]);
+    random.mockRestore();
+  });
+  it("burns the code but issues no session when the recipient record is invalid", async () => {
+    storeCode("123456");
+    mocks.store.set(`certificate_recipients/${emailHash}`, {
+      ...recipientDoc,
+      round: 2,
+    });
+    const response = await verifyCode(
+      post("/api/certificates/verify", { email: EMAIL, code: "123456" }),
+    );
+    expect(response.status).toBe(401);
+    expect(response.headers.get("set-cookie")).toBeNull();
+    expect(mocks.store.has(`certificate_codes/${emailHash}`)).toBe(false);
+  });
+});
+
+describe("verify failures", () => {
+  it("logs a PII-free line and answers 503 when Firestore fails", async () => {
+    const error = vi.spyOn(console, "error").mockImplementation(() => {});
+    const original = mocks.db.runTransaction;
+    let calls = 0;
+    mocks.db.runTransaction = (async (fn: never) => {
+      if (++calls === 2) throw new Error("ABORTED: Transaction lock timeout.");
+      return original(fn);
+    }) as typeof original;
+    try {
+      const response = await verifyCode(
+        post("/api/certificates/verify", { email: EMAIL, code: "123456" }),
+      );
+      expect(response.status).toBe(503);
+      const line = JSON.parse(error.mock.calls.at(-1)![0] as string);
+      expect(line).toMatchObject({
+        scope: "certificates",
+        event: "verify_failed",
+        actorId: emailHash.slice(0, 16),
+        status: "failed",
+      });
+      expect(line.reqId).toMatch(/^[a-f0-9]{16}$/);
+      const text = error.mock.calls.flat().join(" ");
+      expect(text).not.toContain(EMAIL);
+      expect(text).not.toContain("123456");
+      expect(text).not.toContain("203.0.113.9");
+      expect(text).not.toContain(emailHash);
+    } finally {
+      mocks.db.runTransaction = original;
+      error.mockRestore();
+    }
+  });
+});
+
+describe("warm-instance caches", () => {
+  it("shares one in-flight chunk read between concurrent misses and caches only verified files", async () => {
+    const data = await import("../src/lib/certificates/data");
+    seedRecipient();
+    const recipient = parseRecipient(recipientDoc)!;
+    const files = await Promise.all([
+      data.loadCertificateFile(recipient),
+      data.loadCertificateFile(recipient),
+      data.loadCertificateFile(recipient),
+    ]);
+    expect(mocks.reads.filter((read) => read.startsWith("getAll:"))).toHaveLength(1);
+    for (const file of files) expect(file.equals(FILE)).toBe(true);
+    await data.loadCertificateFile(recipient);
+    expect(mocks.reads.filter((read) => read.startsWith("getAll:"))).toHaveLength(1);
+
+    data.clearCertificateCaches();
+    mocks.reads.length = 0;
+    mocks.store.set("certificate_file_chunks/ascent-2026-r1-007_1", {
+      file_id: "ascent-2026-r1-007",
+      index: 1,
+      data: Buffer.alloc(FILE.byteLength - 20),
+    });
+    const failed = await Promise.allSettled([
+      data.loadCertificateFile(recipient),
+      data.loadCertificateFile(recipient),
+    ]);
+    expect(failed.map((result) => result.status)).toEqual(["rejected", "rejected"]);
+    expect(mocks.reads).toHaveLength(1);
+    seedRecipient();
+    expect((await data.loadCertificateFile(recipient)).equals(FILE)).toBe(true);
+    expect(mocks.reads).toHaveLength(2);
+  });
+  it("caches a recipient for 60 seconds, shares concurrent misses and never caches a miss", async () => {
+    const data = await import("../src/lib/certificates/data");
+    expect(await data.getCachedCertificateRecipient(emailHash)).toBeNull();
+    seedRecipient();
+    const [a, b] = await Promise.all([
+      data.getCachedCertificateRecipient(emailHash),
+      data.getCachedCertificateRecipient(emailHash),
+    ]);
+    expect(a).toEqual(b);
+    expect(a?.name).toBe("Kushal Kumar Putti");
+    const recipientReads = () =>
+      mocks.reads.filter((read) => read === `get:certificate_recipients/${emailHash}`).length;
+    expect(recipientReads()).toBe(2); // the miss, then one shared read
+    await data.getCachedCertificateRecipient(emailHash);
+    expect(recipientReads()).toBe(2);
+    const now = Date.now();
+    const clock = vi.spyOn(Date, "now").mockReturnValue(now + 61_000);
+    await data.getCachedCertificateRecipient(emailHash);
+    expect(recipientReads()).toBe(3);
+    clock.mockRestore();
+    expect(await data.getCachedCertificateRecipient("not-a-hash")).toBeNull();
+  });
+  it("serves a download with one recipient read and one chunk read, then none", async () => {
+    seedRecipient();
+    const { token } = signCertificateSession(emailHash);
+    expect((await download(get("/api/certificates/download", token))).status).toBe(200);
+    expect(mocks.reads).toEqual([
+      `get:certificate_recipients/${emailHash}`,
+      "getAll:certificate_file_chunks/ascent-2026-r1-007_0,certificate_file_chunks/ascent-2026-r1-007_1",
+    ]);
+    mocks.reads.length = 0;
+    expect((await download(get("/api/certificates/download", token))).status).toBe(200);
+    expect(mocks.reads).toEqual([]);
   });
 });

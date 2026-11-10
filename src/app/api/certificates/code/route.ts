@@ -5,10 +5,10 @@ import { readBoundedJson } from "@/lib/requestBody";
 import { verifyBot } from "@/lib/botProtection";
 import { normalizeEmail } from "@/lib/validators";
 import { adminDb } from "@/lib/firebaseAdmin";
-import { consumeSlidingWindow, sha256 } from "@/lib/rateLimit";
+import { consumeSlidingWindows, sha256 } from "@/lib/rateLimit";
 import { getEmailConfig } from "@/lib/email/resend";
 import { statusSecret } from "@/lib/candidate/tokens";
-import { issueCertificateCode } from "@/lib/certificates/codes";
+import { CERTIFICATE_DAILY_WINDOW, certificateEmailWindow, issueCertificateCode } from "@/lib/certificates/codes";
 import { CERTIFICATE_CODE_ACCEPTED } from "@/lib/certificates/shared";
 
 export const maxDuration = 30;
@@ -29,10 +29,12 @@ export async function POST(request: NextRequest) {
   if (!bot.ok) return reply({ error: bot.error }, bot.status);
   try {
     const hash = sha256(email.normalized);
-    const limit = await consumeSlidingWindow(adminDb, "_rate_limits_certificate_email", hash, 5, 3600000);
-    if (limit.overLimit) return accepted();
-    const daily = await consumeSlidingWindow(adminDb, "_rate_limits_certificate_daily", "all", 2000, 86400000);
-    if (daily.overLimit) return reply({ error: "Certificate code requests are busy today. Contact team@amshq.in for help." }, 429);
+    // Only after the bot check passed: per-email window first, then the daily
+    // ceiling, in one transaction. The daily ceiling is sharded so a burst
+    // never queues on one document.
+    const { overLimitIndex } = await consumeSlidingWindows(adminDb, [certificateEmailWindow(hash), CERTIFICATE_DAILY_WINDOW]);
+    if (overLimitIndex === 0) return accepted();
+    if (overLimitIndex === 1) return reply({ error: "Certificate code requests are busy today. Contact team@amshq.in for help." }, 429);
     // Lookup, code storage and delivery run after the response for known and
     // unknown emails alike, so neither the body nor the timing reveals a match.
     const address = email.normalized;

@@ -12,7 +12,7 @@ export default function Tracks() {
         <SectionHeading
           eyebrow="Competition format"
           title="From the qualifier to the final round."
-          lede="Start with individual C++ problems, then work in a team at a partner campus. Finalists compete on site in Mumbai by optimizing a real codebase."
+          lede="Start with individual C++ problems, then join an AMS-assigned team online in AMS Access. Finalists compete on site in Mumbai by optimizing a real codebase."
           className="max-w-3xl"
         />
 

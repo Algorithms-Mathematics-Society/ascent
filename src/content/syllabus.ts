@@ -98,14 +98,17 @@ export const ROUND_ONE_FORMATS: QuestionFormat[] = [
 export const LATER_ROUNDS = [
   {
     round: "Round 2",
-    mode: "Group",
-    title: "Team implementation",
+    mode: "Online team",
+    title: "Team implementation on AMS Access",
     description:
-      "Work as a team to implement solutions using core computer science concepts within a time limit.",
+      "AMS assigns selected participants to algorithm-matched teams. Work together online in the AMS Access app, using in-app voice chat to collaborate and implement solutions within the time limit.",
     facts: [
-      "format: teams",
+      "platform test: 1 December 2026",
+      "official round: 6 December 2026",
+      "format: AMS-assigned teams",
+      "platform: AMS Access with voice chat",
       "focus: implementation",
-      "scope: core CS fundamentals",
+      "updates: check your registered email",
     ],
   },
   {

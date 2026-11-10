@@ -52,10 +52,10 @@ export const COMPETITION_ROUNDS: CompetitionRound[] = [
   },
   {
     number: "02",
-    phase: "Hub optimization",
+    phase: "Online team round",
     participation: "Team",
-    setting: "Partner campuses · To be announced",
-    focus: "Profile, test, and improve code under a shared set of constraints.",
+    setting: "Online · AMS Access",
+    focus: "AMS assigns selected participants to algorithm-matched teams. Collaborate, use in-app voice chat, and implement solutions together.",
   },
   {
     number: "03",
@@ -77,6 +77,7 @@ export const SCHEDULE_ISO = {
   registrationCloses: "2026-10-20T23:59:59+05:30",
   roundOne: "2026-10-24T14:00:00+05:30",
   roundOneEnds: "2026-10-24T16:00:00+05:30",
+  roundTwoTest: "2026-12-01T00:00:00+05:30",
   roundTwo: "2026-12-06T00:00:00+05:30",
   roundThree: "2026-12-20T00:00:00+05:30",
   roundThreeEnds: "2026-12-20T23:59:59+05:30",
@@ -94,9 +95,14 @@ export const TIMELINE: TimelinePhase[] = [
     body: "Two hours, online on AMS Access with remote proctoring. C++ proficiency, puzzles, and live debugging.",
   },
   {
+    phase: "Round 2 platform test",
+    timing: "1 December 2026",
+    body: "Selected participants can test the Round 2 experience in the AMS Access app before the official round.",
+  },
+  {
     phase: "Round 2: Implementation",
     timing: "6 December 2026",
-    body: "Group-based implementation on AMS Access at partner campuses, moderated by campus club members.",
+    body: "Online in the AMS Access app. AMS assigns selected participants to algorithm-matched teams, with in-app voice chat for collaboration.",
   },
   {
     phase: "Round 3: Mastery",
@@ -116,7 +122,7 @@ export const FAQ: FaqItem[] = [
   },
   {
     q: "Do I need a team when I register?",
-    a: "No. Registration and the qualifier are individual. Team-based work is introduced only for competitors who advance to the hub round.",
+    a: "No. Registration and Round 1 are individual. For Round 2, AMS will assign selected participants to teams using a matching algorithm.",
   },
   {
     q: "Which compiler and hardware will be used?",
@@ -124,7 +130,11 @@ export const FAQ: FaqItem[] = [
   },
   {
     q: "When are registration and the competition rounds?",
-    a: "Registration opens on 24 September 2026 at 06:00 IST and closes on 20 October 2026. Round 1 is on 24 October at 2:00 pm IST and runs for two hours. Round 2 is on 6 December. Round 3 is planned for 20 December 2026 in Mumbai, with that date still tentative.",
+    a: "Registration opens on 24 September 2026 at 06:00 IST and closes on 20 October 2026. Round 1 is on 24 October at 2:00 pm IST and runs for two hours. The Round 2 platform test is on 1 December, followed by the official round on 6 December. Round 3 is planned for 20 December 2026 in Mumbai, with that date still tentative.",
+  },
+  {
+    q: "How will Round 2 work?",
+    a: "Round 2 is online in the AMS Access app. AMS will place selected participants into teams using a matching algorithm, and teammates will be able to collaborate through in-app voice chat. A platform test is scheduled for 1 December 2026, before the official round on 6 December. Selected participants should check their registered email for instructions and any updates.",
   },
   {
     q: "What happens after I submit the form?",

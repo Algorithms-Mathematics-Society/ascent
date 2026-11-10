@@ -12,7 +12,7 @@ export const site = {
   seo: {
     title: "Ascent | C++ Performance Competition",
     description:
-      "Ascent is a C++ optimization competition spanning an individual qualifier, team optimization at partner campuses, and a real-codebase finale.",
+      "Ascent is a C++ optimization competition spanning an individual qualifier, an online team round in AMS Access, and a real-codebase finale.",
   },
 
   /**

@@ -142,7 +142,7 @@ export default function ResultsExperience({ selectionCount }: { selectionCount: 
           <div className={styles.resultBody}>
             <div className={styles.nextStep}>
               <div className={styles.nextIcon}>{entry.selected ? <ArrowUpRight size={22} aria-hidden="true" /> : <Mountain size={22} aria-hidden="true" />}</div>
-              <div><h3>{entry.selected ? "Next stop: Round 2." : "Questions about your result?"}</h3><p>{entry.selected ? "Keep an eye on your registered email for Round 2 instructions from the Ascent team." : hasSubmission ? "The Ascent team can help. Contact us from your registered email address using the link below." : "If you submitted a solution, contact the Ascent team from your registered email address so we can check your record."}</p></div>
+              <div><h3>{entry.selected ? "Next stop: Round 2." : "Questions about your result?"}</h3><p>{entry.selected ? "Round 2 is online in the AMS Access app. AMS will assign you to a team using a matching algorithm, with in-app voice chat for collaboration. Test the platform on 1 December before the official round on 6 December, and check your registered email for instructions and updates." : hasSubmission ? "The Ascent team can help. Contact us from your registered email address using the link below." : "If you submitted a solution, contact the Ascent team from your registered email address so we can check your record."}</p></div>
             </div>
             {entry.selected ? <ResultShare result={result} onCelebrate={() => setCelebration(value => value + 1)} /> : null}
             {hasSubmission ? <dl className={styles.metrics}>

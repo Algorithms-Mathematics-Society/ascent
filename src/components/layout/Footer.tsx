@@ -20,6 +20,7 @@ function LegalLinks() {
 
 const FOOTER_LINKS = [
   { label: "Round 1 results", href: "/results" },
+  { label: "Verify certificate", href: "/verify" },
   { label: "About", href: "/#about" },
   { label: "Format", href: "/#tracks" },
   { label: "Timeline", href: "/#timeline" },

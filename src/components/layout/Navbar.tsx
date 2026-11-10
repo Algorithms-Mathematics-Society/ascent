@@ -5,7 +5,7 @@ import { Button } from "@/components/ui";
 import { REGISTRATION_CLOSED } from "@/lib/registrationLaunch";
 
 interface NavbarProps {
-  page?: "home" | "registration" | "syllabus" | "eligibility" | "legal" | "results";
+  page?: "home" | "registration" | "syllabus" | "eligibility" | "legal" | "results" | "verify";
 }
 
 const PUBLIC_LINKS = [
@@ -32,7 +32,8 @@ export default function Navbar({ page = "home" }: NavbarProps) {
   function isCurrent(href: string) {
     return (page === "syllabus" && href === "/syllabus") ||
       (page === "eligibility" && href === "/eligibility") ||
-      (page === "results" && href === "/results");
+      (page === "results" && href === "/results") ||
+      (page === "verify" && href === "/verify");
   }
 
   function resolveHref(href: string) {

@@ -3,7 +3,14 @@ import { ROUND_ONE_SELECTION_COUNT } from "@/lib/results";
 export type CertificateVerification = Readonly<{
   rank: number;
   code: string;
+  /** Qualified for Round 2 outside the published top-133 selection. */
+  additional?: boolean;
 }>;
+
+/** Qualifiers added after the published selection, with the code printed on their certificate. */
+const ADDITIONAL_QUALIFIERS: readonly CertificateVerification[] = [
+  { rank: 135, code: "PRN3-KAXY", additional: true },
+];
 
 const VERIFICATION_CODES = [
   "5JHT-G97D", "J73A-GT3M", "J2DE-GKXY", "V7UP-RFCY", "YJP9-NM54", "2C5Z-Q7G3", "QXQS-9J98", "CSPS-AS4J", "QYJN-AJY4", "KCFH-9FUN",
@@ -26,8 +33,10 @@ if (VERIFICATION_CODES.length !== ROUND_ONE_SELECTION_COUNT) {
   throw new Error("Certificate verification data must cover every selected rank.");
 }
 
-export const CERTIFICATE_VERIFICATIONS: readonly CertificateVerification[] =
-  VERIFICATION_CODES.map((code, index) => ({ rank: index + 1, code }));
+export const CERTIFICATE_VERIFICATIONS: readonly CertificateVerification[] = [
+  ...VERIFICATION_CODES.map((code, index) => ({ rank: index + 1, code })),
+  ...ADDITIONAL_QUALIFIERS,
+];
 
 const BY_CODE = new Map(CERTIFICATE_VERIFICATIONS.map((entry) => [entry.code, entry]));
 
@@ -41,6 +50,7 @@ export function findCertificateVerification(value: string): CertificateVerificat
 }
 
 export function getVerificationContext(rank: number) {
+  if (rank > ROUND_ONE_SELECTION_COUNT) return { topPercent: null, distinction: "Round 2 qualifier" };
   const topPercent = Math.ceil((rank / ROUND_ONE_SELECTION_COUNT) * 100);
   const distinction = rank <= 10 ? "Top 10 published rank" : rank <= 25 ? "Top 25 published rank" : rank <= 50 ? "Top 50 published rank" : "Round 2 qualifier";
   return { topPercent, distinction };

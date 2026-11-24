@@ -149,7 +149,9 @@ const CertificateReady = forwardRef<HTMLHeadingElement, CertificateReadyProps>(
         </h2>
         <p className="mt-3 text-base leading-7 text-ascent-muted">
           <strong className="font-semibold text-ascent-ink">
-            Rank {summary.rank} of {ROUND_ONE_SELECTION_COUNT} qualifiers.
+            {summary.rank > ROUND_ONE_SELECTION_COUNT
+              ? `Rank ${summary.rank} · Round 2 qualifier.`
+              : `Rank ${summary.rank} of ${ROUND_ONE_SELECTION_COUNT} qualifiers.`}
           </strong>{" "}
           Your certificate is ready to download.
         </p>
@@ -188,7 +190,7 @@ const CertificateReady = forwardRef<HTMLHeadingElement, CertificateReadyProps>(
               src={fileUrl}
               width={2246}
               height={1588}
-              alt={`Ascent ’26 Round 1 certificate awarded to ${summary.name}, rank ${summary.rank} of ${ROUND_ONE_SELECTION_COUNT}, verification code ${summary.verificationCode}.`}
+              alt={`Ascent ’26 Round 1 certificate awarded to ${summary.name}, rank ${summary.rank}${summary.rank > ROUND_ONE_SELECTION_COUNT ? "" : ` of ${ROUND_ONE_SELECTION_COUNT}`}, verification code ${summary.verificationCode}.`}
               decoding="async"
               onError={() => setImageBroken(true)}
               className={`absolute inset-0 h-full w-full object-contain transition-opacity duration-300 motion-reduce:transition-none ${loading ? "opacity-0" : "opacity-100"}`}

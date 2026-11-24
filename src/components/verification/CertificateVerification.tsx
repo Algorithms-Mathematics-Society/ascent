@@ -73,7 +73,7 @@ export default function CertificateVerificationExperience({ code }: CertificateV
                     <Trophy className="text-ascent-gold-ink" size={25} strokeWidth={1.5} aria-hidden="true" />
                     <span className="mt-3 font-mono text-[0.65rem] font-bold uppercase tracking-[0.2em] text-ascent-muted">Published rank</span>
                     <strong className="font-display text-7xl leading-none text-ascent-ink">{record.rank}</strong>
-                    <span className="mt-2 text-xs text-ascent-muted">of {ROUND_ONE_SELECTION_COUNT} selected</span>
+                    <span className="mt-2 text-xs text-ascent-muted">{record.additional ? "additional qualifier" : `of ${ROUND_ONE_SELECTION_COUNT} selected`}</span>
                   </div>
                 </div>
 
@@ -85,7 +85,7 @@ export default function CertificateVerificationExperience({ code }: CertificateV
 
                 <div className="mt-7 rounded-control border border-ascent-border bg-ascent-surface-subtle p-5">
                   <h4 className="text-sm font-semibold text-ascent-ink">Record context</h4>
-                  <p className="mt-1 text-sm leading-6 text-ascent-muted">Rank #{record.rank} falls within the first {context.topPercent}% of the {ROUND_ONE_SELECTION_COUNT} published ranks selected for Round 2. This comparison is limited to the selected cohort and does not claim a percentile among all registrants.</p>
+                  <p className="mt-1 text-sm leading-6 text-ascent-muted">{context.topPercent === null ? `Rank #${record.rank} was qualified for Round 2 as an additional selection, alongside the ${ROUND_ONE_SELECTION_COUNT} published ranks.` : `Rank #${record.rank} falls within the first ${context.topPercent}% of the ${ROUND_ONE_SELECTION_COUNT} published ranks selected for Round 2. This comparison is limited to the selected cohort and does not claim a percentile among all registrants.`}</p>
                 </div>
               </div>
             </article>

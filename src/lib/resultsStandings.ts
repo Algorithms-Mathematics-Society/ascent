@@ -1,4 +1,4 @@
-import { normalizeResultUsername, parseProblemResult, PROBLEM_IDS, ROUND_ONE_SELECTION_COUNT, type RoundOneResult } from "./results";
+import { isRoundOneSelected, normalizeResultUsername, parseProblemResult, PROBLEM_IDS, ROUND_ONE_SELECTION_COUNT, type RoundOneResult } from "./results";
 
 /** Handles quoted commas, escaped quotes, CRLF and quoted line breaks. */
 function parseCsv(source: string): string[][] {
@@ -53,7 +53,7 @@ export function parseStandings(source: string): Map<string, RoundOneResult> {
     const problems = PROBLEM_IDS.map((id, i) => parseProblemResult(id, problemFields[i]));
     if (problems.filter(problem => problem.status === "accepted").length !== solved) throw new Error("Solved count does not match problem results.");
     // Names and registration/contact details are deliberately not in this projection.
-    results.set(username, { username: usernameText.trim(), rank, selected: rank <= ROUND_ONE_SELECTION_COUNT, solved, partialCredit, penaltyMinutes, problems });
+    results.set(username, { username: usernameText.trim(), rank, selected: isRoundOneSelected(rank), solved, partialCredit, penaltyMinutes, problems });
   }
   return results;
 }

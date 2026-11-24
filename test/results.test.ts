@@ -18,9 +18,10 @@ function fixture(change?: (fields: string[], index: number) => string[]) {
 }
 
 describe("published Round 1 standings", () => {
-  it("loads all 1,326 participants and selects exactly the published top 133", () => {
+  it("loads all 1,326 participants and selects the published top 133 plus additional qualifiers", () => {
     expect(standings).toHaveLength(1326);
-    expect(standings.filter(result => result.selected)).toHaveLength(133);
+    expect(standings.filter(result => result.selected)).toHaveLength(134);
+    expect(standings[134]).toMatchObject({ rank: 135, selected: true });
     expect(standings[0]).toMatchObject({ rank: 1, selected: true, solved: 4, penaltyMinutes: 163 });
     expect(standings[132]).toMatchObject({ rank: 133, selected: true });
     expect(standings[133]).toMatchObject({ rank: 134, selected: false });

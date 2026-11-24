@@ -1,4 +1,10 @@
 export const ROUND_ONE_SELECTION_COUNT = 133;
+/** Qualified for Round 2 outside the published top 133 (keep in step with certificateVerifications.ts). */
+export const ROUND_ONE_ADDITIONAL_RANKS: ReadonlySet<number> = new Set([135]);
+
+export function isRoundOneSelected(rank: number): boolean {
+  return rank <= ROUND_ONE_SELECTION_COUNT || ROUND_ONE_ADDITIONAL_RANKS.has(rank);
+}
 export const PROBLEM_IDS = ["A", "B", "C", "D"] as const;
 
 export type ProblemResult = {
@@ -54,7 +60,7 @@ export function isResultResponse(value: unknown): value is ResultResponse {
   const integer = (v: unknown, min: number, max = Number.MAX_SAFE_INTEGER): v is number => typeof v === "number" && Number.isSafeInteger(v) && v >= min && v <= max;
   if (!record(value) || !record(value.result) || !integer(value.totalParticipants, ROUND_ONE_SELECTION_COUNT) || value.selectionCount !== ROUND_ONE_SELECTION_COUNT) return false;
   const r = value.result;
-  if (!normalizeResultUsername(r.username) || !integer(r.rank, 1, value.totalParticipants) || r.selected !== (r.rank <= value.selectionCount) ||
+  if (!normalizeResultUsername(r.username) || !integer(r.rank, 1, value.totalParticipants) || r.selected !== isRoundOneSelected(r.rank) ||
     !integer(r.solved, 0, 4) || typeof r.partialCredit !== "number" || !Number.isFinite(r.partialCredit) || r.partialCredit < 0 ||
     !integer(r.penaltyMinutes, 0) || !Array.isArray(r.problems) || r.problems.length !== 4) return false;
   let solved = 0;

@@ -2,7 +2,7 @@ import type { ResultResponse } from "./results";
 
 /** Imported only on download. Drawing happens on the participant's device. */
 export async function createResultShareCard({ result, selectionCount }: ResultResponse): Promise<Blob> {
-  if (!result.selected || result.rank < 1 || result.rank > selectionCount) throw new Error("A selected result is required.");
+  if (!result.selected || result.rank < 1) throw new Error("A selected result is required.");
   const canvas = document.createElement("canvas");
   canvas.width = 1200; canvas.height = 627;
   const ctx = canvas.getContext("2d");
@@ -29,7 +29,7 @@ export async function createResultShareCard({ result, selectionCount }: ResultRe
   text("SELECTED FOR ROUND 2", 65, 208, 17, gold, 600);
   text("The ascent", 61, 297, 72, "#ffffff", 600);
   text("continues.", 61, 374, 72, "#ffffff", 600);
-  text(`One of ${selectionCount}. Ready for what’s next.`, 65, 422, 22, muted);
+  text(result.rank > selectionCount ? "Additional qualifier. Ready for what’s next." : `One of ${selectionCount}. Ready for what’s next.`, 65, 422, 22, muted);
 
   // Fit the whole username, including unusually long handles, without clipping.
   let fontSize = 24;
